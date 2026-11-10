@@ -21,3 +21,4 @@ class DefaultNfcAvailabilityRepository(
         emit(nfcChecker.checkStatus())
     }
 }
+

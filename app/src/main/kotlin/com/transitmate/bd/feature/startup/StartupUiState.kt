@@ -12,3 +12,4 @@ data class StartupUiState(
     val appTagline: String = "Dhaka Metro & Rapid Pass Companion",
     val phaseBadge: String = "Phase 02 · Initial Foundation"
 )
+

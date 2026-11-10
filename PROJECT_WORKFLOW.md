@@ -70,3 +70,4 @@ When transitioning work between AI agents or human developers:
 2. Verify `git status` and pull latest changes from `origin/main`.
 3. Run `./gradlew testDebugUnitTest` to establish a verified baseline.
 4. Execute only the next recommended task documented in the progress log.
+

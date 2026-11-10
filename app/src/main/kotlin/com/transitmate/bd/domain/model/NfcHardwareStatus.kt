@@ -20,3 +20,4 @@ enum class NfcHardwareStatus {
      */
     NOT_SUPPORTED
 }
+

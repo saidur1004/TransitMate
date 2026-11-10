@@ -17,3 +17,4 @@ interface NfcAvailabilityRepository {
      */
     val nfcStatus: Flow<NfcHardwareStatus>
 }
+

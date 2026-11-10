@@ -20,3 +20,4 @@ enum class CardType(val displayName: String, val issuingAuthority: String) {
         issuingAuthority = "Unrecognized"
     )
 }
+

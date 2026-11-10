@@ -61,3 +61,4 @@ Per the Master Plan, capabilities are strictly partitioned into evidence levels:
 - **State Management:** Unidirectional Data Flow (UDF) via ViewModel and `StateFlow`.
 - **Domain:** Pure Kotlin models and repository contracts without Android dependencies.
 - **Data & Platform:** Clear abstractions (`NfcAvailabilityChecker`, `NfcAvailabilityRepository`) isolating platform specifics.
+

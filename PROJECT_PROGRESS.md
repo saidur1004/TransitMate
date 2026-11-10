@@ -148,3 +148,4 @@ aapt2 dump badging app/build/outputs/apk/debug/app-debug.apk
 
 **Proceed to Phase 03:** NFC / FeliCa Research & Physical Validation.  
 Prepare literature analysis, review independent research (such as MRT Buddy open-source studies and FeliCa Lite-S / RC-S specifications), and construct the experimental card validation test protocol for MRT Pass and Rapid Pass cards.
+

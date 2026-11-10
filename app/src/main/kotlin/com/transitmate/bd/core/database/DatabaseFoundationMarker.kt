@@ -8,3 +8,4 @@ package com.transitmate.bd.core.database
  * (Application Architecture Foundation).
  */
 interface DatabaseFoundationMarker
+

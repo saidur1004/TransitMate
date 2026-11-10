@@ -27,3 +27,4 @@ class CardTypeTest {
         assertNotNull(type.issuingAuthority)
     }
 }
+

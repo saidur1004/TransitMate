@@ -54,3 +54,4 @@ Before completing a turn:
   - Exact commands executed and empirical results
   - Next recommended task
 - [ ] Confirm git working tree is clean or properly committed.
+

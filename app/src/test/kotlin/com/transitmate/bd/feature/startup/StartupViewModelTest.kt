@@ -75,3 +75,4 @@ class StartupViewModelTest {
         assertEquals(NfcHardwareStatus.NOT_SUPPORTED, state.nfcStatus)
     }
 }
+

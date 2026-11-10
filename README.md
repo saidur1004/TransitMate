@@ -101,3 +101,4 @@ Complete project specifications, workflow protocols, and progress logs are maint
 ## ⚖️ Disclaimer
 
 TransitMate is an independent community project. It is **not** affiliated with, authorized, maintained, or sponsored by Dhaka Mass Transit Company Limited (DMTCL), Dhaka Transport Coordination Authority (DTCA), or any government body.
+

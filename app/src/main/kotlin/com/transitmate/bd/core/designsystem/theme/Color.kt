@@ -48,3 +48,4 @@ val LightOutline = Color(0xFFCBD5E1)
 val StatusAvailable = Color(0xFF10B981) // Green
 val StatusDisabled = Color(0xFFF59E0B)  // Amber
 val StatusUnsupported = Color(0xFFEF4444) // Red
+

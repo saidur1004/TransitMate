@@ -36,3 +36,4 @@ class DefaultNfcAvailabilityRepositoryTest {
         assertEquals(NfcHardwareStatus.AVAILABLE, emittedStatus)
     }
 }
+

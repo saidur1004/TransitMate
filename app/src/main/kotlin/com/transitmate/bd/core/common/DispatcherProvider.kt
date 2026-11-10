@@ -22,3 +22,4 @@ class DefaultDispatcherProvider : DispatcherProvider {
     override val default: CoroutineDispatcher get() = Dispatchers.Default
     override val unconfined: CoroutineDispatcher get() = Dispatchers.Unconfined
 }
+

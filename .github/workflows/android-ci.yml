@@ -56,3 +56,4 @@ jobs:
           name: unit-test-results
           path: app/build/test-results/testDebugUnitTest/
           retention-days: 7
+
