@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Stylized Transit Card -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M38,32 L72,32 C75.3,32 78,34.7 78,38 L78,64 C78,67.3 75.3,70 72,70 L38,70 C34.7,70 32,67.3 32,64 L32,38 C32,34.7 34.7,32 38,32 Z M34,42 L76,42 L76,38 C76,35.8 74.2,34 72,34 L38,34 C35.8,34 34,35.8 34,38 L34,42 Z" />
+    
+    <!-- Speed Lines / Motion Streaks on Left -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M22,46 L30,46 L30,48 L22,48 Z M18,52 L28,52 L28,54 L18,54 Z M24,58 L30,58 L30,60 L24,60 Z" />
+
+    <!-- NFC Signal Waves on Card -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M64,50 C65.5,51.5 65.5,54.5 64,56 L65.5,57.5 C67.8,55.2 67.8,50.8 65.5,48.5 L64,50 Z M67.5,46.5 C71,50 71,56 67.5,59.5 L69,61 C73.3,56.7 73.3,49.3 69,45 L67.5,46.5 Z" />
+
+    <!-- Location Pin Marker on Bottom Right -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M76,66 C73.8,66 72,67.8 72,70 C72,73 76,78 76,78 C76,78 80,73 80,70 C80,67.8 78.2,66 76,66 Z M76,71.5 C75.2,71.5 74.5,70.8 74.5,70 C74.5,69.2 75.2,68.5 76,68.5 C76.8,68.5 77.5,69.2 77.5,70 C77.5,70.8 76.8,71.5 76,71.5 Z" />
+</vector>

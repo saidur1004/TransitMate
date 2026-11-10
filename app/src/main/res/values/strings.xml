@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">TransitMate</string>
+    <string name="app_tagline">Dhaka Metro &amp; Rapid Pass Companion</string>
+    <string name="app_tagline_bn">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
+    <string name="startup_phase_badge">Phase 02 · Initial Foundation</string>
+    <string name="startup_nfc_available">NFC hardware is available and ready</string>
+    <string name="startup_nfc_disabled">NFC is supported but currently disabled</string>
+    <string name="startup_nfc_unsupported">NFC hardware is not available on this device</string>
+    <string name="startup_status_header">Device Hardware Status</string>
+    <string name="startup_smoke_test_notice">Technical smoke-test surface. NFC card reading, FeliCa protocols, and final UI designs will be introduced in subsequent phases per the Master Plan.</string>
 </resources>
