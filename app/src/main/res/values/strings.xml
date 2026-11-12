@@ -2,10 +2,20 @@
     <string name="app_name">TransitMate</string>
     <string name="app_tagline">Dhaka Metro &amp; Rapid Pass Companion</string>
     <string name="app_tagline_bn">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
-    <string name="startup_phase_badge">Phase 02 · Initial Foundation</string>
+    <string name="startup_phase_badge">Phase 03 · NFC Research &amp; Validation</string>
     <string name="startup_nfc_available">NFC hardware is available and ready</string>
     <string name="startup_nfc_disabled">NFC is supported but currently disabled</string>
     <string name="startup_nfc_unsupported">NFC hardware is not available on this device</string>
     <string name="startup_status_header">Device Hardware Status</string>
-    <string name="startup_smoke_test_notice">Technical smoke-test surface. NFC card reading, FeliCa protocols, and final UI designs will be introduced in subsequent phases per the Master Plan.</string>
+    <string name="startup_smoke_test_notice">Phase 03 technical research surface. Diagnostic reader mode active for physical Rapid Pass validation.</string>
+
+    <!-- Phase 03 Diagnostic Strings -->
+    <string name="diagnostic_ready_prompt">Hold your Rapid Pass card against the phone antenna to capture diagnostic metadata.</string>
+    <string name="diagnostic_card_header">🔍 Diagnostic NFC Scan Output</string>
+    <string name="diagnostic_tech_label">Technologies:</string>
+    <string name="diagnostic_idm_label">Tag ID / IDm (Redacted):</string>
+    <string name="diagnostic_system_code_label">System Code:</string>
+    <string name="diagnostic_pmm_label">Manufacturer (PMm):</string>
+    <string name="diagnostic_scan_badge">Scan #%1$d</string>
+    <string name="diagnostic_read_only_notice">Strictly read-only anticollision discovery metadata. No memory blocks or balances are modified.</string>
 </resources>

@@ -1,9 +1,9 @@
 # TransitMate — Project Progress & Verification Log
 
-**Document Version:** 1.0  
-**Last Updated:** 10 November 2026, 16:10 +06:00  
+**Document Version:** 1.1  
+**Last Updated:** 12 November 2026, 12:00 +06:00  
 **Responsible Agent:** Antigravity Autonomous Coding Agent  
-**Current Phase:** Phase 02 — Complete Initial Project Foundation & Configuration  
+**Current Phase:** Phase 03 — NFC / FeliCa Technical Research & Rapid Pass Physical Validation  
 
 ---
 
@@ -13,7 +13,7 @@
 |---|---|---|---|
 | **Phase 01** | Project Identity & Master Planning | **COMPLETED** | Baseline specifications approved in `PROJECT_MASTER_PLAN.md` |
 | **Phase 02** | Complete Initial Project Foundation & Configuration | **COMPLETED** | Verified clean build, 8 unit tests passed, launcher icons, CI, APK generated |
-| **Phase 03** | NFC / FeliCa Research & Physical Validation | **PENDING** | Awaiting Phase 02 owner review and physical card sample fixtures |
+| **Phase 03** | NFC / FeliCa Research & Physical Validation | **IN-PROGRESS (Research & Harness Ready)** | Comprehensive research documents delivered; diagnostic harness built & verified (13 tests passed); physical validation procedure prepared for owner |
 | **Phase 04** | Complete UI/UX Planning & Visual Design | **PENDING** | Design-first visual specs to be prepared before feature screens |
 | **Phase 05** | Application Architecture Foundation | **PENDING** | Room DB, DataStore, and Navigation graph to be added |
 | **Phase 06** | NFC Reader & Parser Implementation | **PENDING** | Evidence-based block parsing |
@@ -24,78 +24,47 @@
 
 ---
 
-## 2. Task Breakdown (Phase 02)
+## 2. Task Breakdown (Phase 03)
 
 ### Completed Tasks
-- [x] **Repository & Project Initialization:** Created native Android project with Application ID `com.transitmate.bd` in `Projects_Another/TransitMate/` and connected to `https://github.com/saidur1004/TransitMate.git`.
-- [x] **Master Planning Integration:** Formally integrated `PROJECT_MASTER_PLAN.md` into project root and aligned architecture boundaries.
-- [x] **Branding Asset Preservation & Launcher Icons:** Preserved original 1254x1254 branding asset in `design/brand/logo_original.png`. Generated full adaptive icon suite (`ic_launcher_background.xml`, `ic_launcher_foreground.png` across 5 mipmap densities, `ic_launcher_monochrome.xml`, and legacy `ic_launcher.webp` & `ic_launcher_round.webp`).
-- [x] **NFC Manifest Foundation:** Declared `android.permission.NFC` and `<uses-feature android:name="android.hardware.nfc" android:required="false" />` to ensure universal device installability.
-- [x] **Toolchain & Version Catalog Consolidation:** Standardized Kotlin 2.3.20, AGP 9.0.1, Compile/Target SDK 36, Min SDK 26, Compose BOM 2026.03.01 in `gradle/libs.versions.toml`.
-- [x] **Clean Architecture Foundation:** Established strict package separation: `core/common`, `core/nfc`, `core/database`, `core/designsystem`, `domain/model`, `domain/repository`, `data`, and `feature/startup`.
-- [x] **Material 3 Theme System:** Created brand-aligned Light and Dark color schemes reflecting Dhaka Metro Electric Cyan, Metro Blue, and Station Gold accents.
-- [x] **Technical Smoke-Test Startup Screen:** Implemented `StartupScreen` and `StartupViewModel` displaying real-time hardware NFC availability status without implementing final feature UI.
-- [x] **Comprehensive Unit Test Suite:** Implemented unit tests for `StartupViewModel`, `DefaultNfcAvailabilityRepository`, and `CardType` with 100% pass rate.
-- [x] **GitHub Actions CI Workflow:** Configured `.github/workflows/android-ci.yml` for automated checkout, JDK 17 setup, Gradle caching, unit testing, and debug APK artifact archiving.
-- [x] **Root Documentation Suite:** Authored `README.md`, `PROJECT_CONTEXT.md`, `PROJECT_WORKFLOW.md`, `PROJECT_PROGRESS.md`, and `AI_AGENT_INSTRUCTIONS.md`.
+- [x] **Workstream A: Android NFC/FeliCa Research:** Completed exhaustive investigation of ISO/IEC 18092, JIS X 6319-4, `android.nfc.tech.NfcF`, Reader Mode vs. Foreground Dispatch, threading, timeouts, and error handling.
+- [x] **Workstream B: Rapid Pass Technical Analysis:** Completed investigation of DTCA Automated Fare Collection (AFC), JICA FeliCa standard, official app (`com.bd.rapidpass.app`) analysis, and offline purse storage vs. central server data segregation.
+- [x] **Workstream C: Reference Project Audit (MRT Buddy):** Audited `aniruddha-adhikary/mrt-buddy`. Verified GPL-3.0 license obligations; enforced strict clean-room engineering with zero code copying. Cataloged protocol constants under `REFERENCE-OBSERVED — NOT YET VERIFIED ON OUR RAPID PASS CARD`.
+- [x] **Workstream D: Physical Test Preparation & Protocol:** Created reproducible physical testing procedures (Test Cases 1–5), ADB diagnostic commands, and sensitive data redaction policies. Formally documented MRT Pass as `BLOCKED — CARD NOT AVAILABLE`.
+- [x] **Minimal Diagnostic NFC Harness:** Implemented `NfcDiagnosticReader`, `NfcDiagnosticData`, and live diagnostic output card on `StartupScreen` using modern Android Reader Mode.
+- [x] **Research Deliverables Authored:**
+  - `docs/research/PHASE_03_NFC_TECHNICAL_RESEARCH.md`
+  - `docs/research/PHASE_03_PHYSICAL_VALIDATION.md`
+  - `docs/research/PHASE_03_FEASIBILITY_DECISION.md`
+- [x] **Unit Testing & Verification:** Added `NfcDiagnosticModelTest` (4 tests) and updated `StartupViewModelTest` (4 tests). Total project test suite: 13/13 tests passed.
 
 ### In-Progress Tasks
-- *None. Phase 02 tasks are complete and verified.*
-
-### Pending Tasks (Phase 03)
-- [ ] Research published FeliCa / NFC-F specifications and literature.
-- [ ] Catalog System Codes, Service Codes, and block hypotheses for MRT Pass and Rapid Pass.
-- [ ] Establish physical validation logging template for authorized NFC card testing.
+- [ ] **Physical Card Test Execution:** Owner to tap physical Rapid Pass card against NFC-enabled Android phone running `app-debug.apk` to record actual live `IDm`, `SystemCode`, and `PMm`.
 
 ### Blocked Tasks
-- *None.*
+- [ ] **MRT Pass Physical Testing:** `BLOCKED — CARD NOT AVAILABLE`. Physical card sample not present in test lab.
 
 ---
 
-## 3. Files Created & Modified
+## 3. Files Created & Modified (Phase 03)
 
-### New Root Documentation & CI
-- `PROJECT_MASTER_PLAN.md` (Full master specification baseline)
-- `README.md` (Project overview, setup, and build guide)
-- `PROJECT_CONTEXT.md` (Domain context, transit card systems, and boundaries)
-- `PROJECT_WORKFLOW.md` (Development cycle, git rules, quality gates)
-- `PROJECT_PROGRESS.md` (Real-time progress and verification log)
-- `AI_AGENT_INSTRUCTIONS.md` (Operating instructions for AI assistants)
-- `.github/workflows/android-ci.yml` (GitHub Actions CI build & test pipeline)
+### New Research Documentation
+- `docs/research/PHASE_03_NFC_TECHNICAL_RESEARCH.md` (Low-level RF and Android API investigation)
+- `docs/research/PHASE_03_PHYSICAL_VALIDATION.md` (Physical test protocol and ADB diagnostic commands)
+- `docs/research/PHASE_03_FEASIBILITY_DECISION.md` (Independent capability matrix and architectural decisions)
 
-### Brand & Launcher Icon Resources
-- `design/brand/logo_original.png` (High-resolution preserved original logo)
-- `app/src/main/res/drawable/ic_launcher_background.xml` (Adaptive icon gradient vector)
-- `app/src/main/res/drawable/ic_launcher_monochrome.xml` (Themed icon vector silhouette)
-- `app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml` (Adaptive icon definition)
-- `app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml` (Adaptive round icon definition)
-- `app/src/main/res/mipmap-[mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi]/ic_launcher.webp` (Standard legacy icons)
-- `app/src/main/res/mipmap-[mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi]/ic_launcher_round.webp` (Round legacy icons)
-- `app/src/main/res/mipmap-[mdpi|hdpi|xhdpi|xxhdpi|xxxhdpi]/ic_launcher_foreground.png` (Adaptive foregrounds)
-
-### Architecture & Code Files
-- `app/src/main/AndroidManifest.xml` (NFC permissions and optional feature declaration)
-- `app/src/main/res/values/strings.xml` (Bilingual string resources)
-- `app/src/main/kotlin/com/transitmate/bd/MainActivity.kt` (ComponentActivity entry point)
-- `app/src/main/kotlin/com/transitmate/bd/core/common/Result.kt` (AppResult sealed interface)
-- `app/src/main/kotlin/com/transitmate/bd/core/common/DispatcherProvider.kt` (Coroutine dispatcher abstraction)
-- `app/src/main/kotlin/com/transitmate/bd/core/nfc/NfcAvailabilityChecker.kt` (Safe NFC hardware inspector)
-- `app/src/main/kotlin/com/transitmate/bd/core/database/DatabaseFoundationMarker.kt` (Phase 05 database marker)
-- `app/src/main/kotlin/com/transitmate/bd/core/designsystem/theme/Color.kt` (Brand palette)
-- `app/src/main/kotlin/com/transitmate/bd/core/designsystem/theme/Type.kt` (Typography)
-- `app/src/main/kotlin/com/transitmate/bd/core/designsystem/theme/Theme.kt` (Light & Dark M3 themes)
-- `app/src/main/kotlin/com/transitmate/bd/domain/model/CardType.kt` (Domain transit card enum)
-- `app/src/main/kotlin/com/transitmate/bd/domain/model/NfcHardwareStatus.kt` (Domain hardware status enum)
-- `app/src/main/kotlin/com/transitmate/bd/domain/repository/NfcAvailabilityRepository.kt` (Repository contract)
-- `app/src/main/kotlin/com/transitmate/bd/data/DefaultNfcAvailabilityRepository.kt` (Repository implementation)
-- `app/src/main/kotlin/com/transitmate/bd/feature/startup/StartupUiState.kt` (Startup UI state)
-- `app/src/main/kotlin/com/transitmate/bd/feature/startup/StartupViewModel.kt` (Startup ViewModel)
-- `app/src/main/kotlin/com/transitmate/bd/feature/startup/StartupScreen.kt` (Startup screen composable)
+### New & Modified Code Files
+- `app/src/main/kotlin/com/transitmate/bd/core/nfc/NfcDiagnosticModel.kt` (Diagnostic data model with hex formatting & IDm redaction)
+- `app/src/main/kotlin/com/transitmate/bd/core/nfc/NfcDiagnosticReader.kt` (Isolated Reader Mode NFC harness)
+- `app/src/main/kotlin/com/transitmate/bd/feature/startup/StartupUiState.kt` (Added diagnostic state fields)
+- `app/src/main/kotlin/com/transitmate/bd/feature/startup/StartupViewModel.kt` (Added diagnostic tag scan handlers)
+- `app/src/main/kotlin/com/transitmate/bd/feature/startup/StartupScreen.kt` (Added diagnostic output card UI)
+- `app/src/main/kotlin/com/transitmate/bd/MainActivity.kt` (Bound diagnostic reader lifecycle in onResume/onPause)
+- `app/src/main/res/values/strings.xml` (Added diagnostic string resources)
 
 ### Unit Tests
-- `app/src/test/kotlin/com/transitmate/bd/domain/model/CardTypeTest.kt` (3 tests)
-- `app/src/test/kotlin/com/transitmate/bd/data/DefaultNfcAvailabilityRepositoryTest.kt` (2 tests)
-- `app/src/test/kotlin/com/transitmate/bd/feature/startup/StartupViewModelTest.kt` (3 tests)
+- `app/src/test/kotlin/com/transitmate/bd/core/nfc/NfcDiagnosticModelTest.kt` (4 tests: hex formatting, null safety, privacy redaction)
+- `app/src/test/kotlin/com/transitmate/bd/feature/startup/StartupViewModelTest.kt` (4 tests: updated with diagnostic event assertions)
 
 ---
 
@@ -105,47 +74,35 @@ All commands were executed locally from the workspace root:
 
 ### 1. Unit Tests
 ```bash
-./gradlew testDebugUnitTest --no-daemon
+./gradlew clean testDebugUnitTest --no-daemon
 ```
-**Outcome:** `BUILD SUCCESSFUL in 9s` (24 actionable tasks executed)  
+**Outcome:** `BUILD SUCCESSFUL in 9s` (25 actionable tasks executed)  
 **Report Summary:**
+- `NfcDiagnosticModelTest`: 4 tests passed (0 failures, 0 errors)
 - `DefaultNfcAvailabilityRepositoryTest`: 2 tests passed (0 failures, 0 errors)
 - `CardTypeTest`: 3 tests passed (0 failures, 0 errors)
-- `StartupViewModelTest`: 3 tests passed (0 failures, 0 errors)
-- **Total:** 8 tests passed, 0 failed, 0 skipped.
+- `StartupViewModelTest`: 4 tests passed (0 failures, 0 errors)
+- **Total:** 13 tests passed, 0 failed, 0 skipped.
 
-### 2. Clean & Debug APK Assembly
+### 2. Debug APK Assembly
 ```bash
-./gradlew clean assembleDebug --no-daemon
+./gradlew assembleDebug --no-daemon
 ```
-**Outcome:** `BUILD SUCCESSFUL in 35s` (43 actionable tasks executed)  
-**Artifact:** `app/build/outputs/apk/debug/app-debug.apk` (Size: 12MB)
-
-### 3. Binary APK Manifest Inspection via AAPT2
-```bash
-aapt2 dump badging app/build/outputs/apk/debug/app-debug.apk
-```
-**Empirical Evidence:**
-- `package: name='com.transitmate.bd.debug' versionCode='1' versionName='1.0.0'`
-- `compileSdkVersion='36'`
-- `uses-permission: name='android.permission.NFC'`
-- `uses-feature-not-required: name='android.hardware.nfc'`
-- `application-label:'TransitMate'`
-- `launchable-activity: name='com.transitmate.bd.MainActivity'`
+**Outcome:** `BUILD SUCCESSFUL in 5s` (36 actionable tasks executed)  
+**Artifact:** `app/build/outputs/apk/debug/app-debug.apk` (Size: 12 MB)
 
 ---
 
-## 5. Technical Decisions & Rationale
+## 5. Technical Decisions & Rationale (Phase 03)
 
-1. **Application ID Locked:** Confirmed as `com.transitmate.bd` as instructed by project owner, superseding the draft proposal `bd.transitmate.app` in earlier notes.
-2. **SDK Target Strategy:** Set `compileSdk = 36` and `targetSdk = 36` with `minSdk = 26`. Android SDK Platform 36 is verified on the development machine and fully satisfies modern AndroidX AAR metadata requirements without warnings.
-3. **Adaptive Icon Generation:** The rich 1254x1254 source icon was cropped and scaled to fit the inner 70% safe zone of the adaptive icon canvas. A custom vector background (`ic_launcher_background.xml`) and monochrome silhouette (`ic_launcher_monochrome.xml`) ensure seamless rendering across round, square, squircle, and Android 13+ themed icon masks.
-4. **Dependency Pruning:** Removed experimental Navigation 3 draft dependencies from template. Standard Compose BOM, M3, Activity, Lifecycle, and Coroutines form the lean, stable foundation for Phase 02. Room, DataStore, and Hilt remain scheduled for Phase 05 per the Master Plan.
+1. **Clean-Room Isolation from GPL-3.0 Reference:** An audit of `aniruddha-adhikary/mrt-buddy` confirmed it is licensed under GPL-3.0. To prevent license contagion and guarantee proprietary/custom license flexibility, TransitMate strictly prohibits code copying. All architecture and NFC readers are independently authored.
+2. **Reader Mode Adoption:** Used `NfcAdapter.enableReaderMode` over legacy `enableForegroundDispatch`. Reader mode provides background binder thread delivery, suppresses intrusive system chimes, and filters exclusively for `NFC_F` and `NFC_A` carriers.
+3. **No Premature Memory Reading:** The diagnostic harness strictly limits itself to anticollision polling metadata (`Tag.id` / `IDm`, `systemCode`, `manufacturer` / `PMm`). No service blocks are queried until physical presence of `android.nfc.tech.NfcF` is established.
 
 ---
 
 ## 6. Next Recommended Task
 
-**Proceed to Phase 03:** NFC / FeliCa Research & Physical Validation.  
-Prepare literature analysis, review independent research (such as MRT Buddy open-source studies and FeliCa Lite-S / RC-S specifications), and construct the experimental card validation test protocol for MRT Pass and Rapid Pass cards.
-
+1. **Owner Action:** Install `app/build/outputs/apk/debug/app-debug.apk` on the physical NFC phone.
+2. **Execute Test Cases 1–5:** Tap the physical Rapid Pass card against the phone antenna and record observed `IDm`, `SystemCode`, and `PMm`.
+3. **Proceed to Phase 04:** UI/UX planning and design-first approval.

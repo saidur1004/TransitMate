@@ -1,6 +1,7 @@
 package com.transitmate.bd.feature.startup
 
 import com.transitmate.bd.core.common.DispatcherProvider
+import com.transitmate.bd.core.nfc.NfcDiagnosticData
 import com.transitmate.bd.domain.model.NfcHardwareStatus
 import com.transitmate.bd.domain.repository.NfcAvailabilityRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -13,6 +14,8 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,8 +40,6 @@ class StartupViewModelTest {
         val repository = FakeNfcRepository(NfcHardwareStatus.AVAILABLE)
 
         val viewModel = StartupViewModel(repository, dispatchers)
-
-        // Advance coroutines
         testDispatcher.scheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -74,5 +75,32 @@ class StartupViewModelTest {
         assertFalse(state.isLoading)
         assertEquals(NfcHardwareStatus.NOT_SUPPORTED, state.nfcStatus)
     }
-}
 
+    @Test
+    fun onDiagnosticTagScanned_updatesDiagnosticDataAndIncrementsCount() = runTest {
+        val testDispatcher = StandardTestDispatcher(testScheduler)
+        val dispatchers = TestDispatcherProvider(testDispatcher)
+        val repository = FakeNfcRepository(NfcHardwareStatus.AVAILABLE)
+
+        val viewModel = StartupViewModel(repository, dispatchers)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val diag = NfcDiagnosticData(
+            techList = listOf("NfcF"),
+            isNfcF = true,
+            idmRedacted = "01:2E:**:**:**:**:**:9F",
+            systemCodeHex = "88B4",
+            scanCount = 1
+        )
+
+        viewModel.onDiagnosticTagScanned(diag)
+
+        val state = viewModel.uiState.value
+        assertNotNull(state.diagnosticData)
+        assertEquals("88B4", state.diagnosticData?.systemCodeHex)
+        assertEquals(1, state.totalScansObserved)
+
+        viewModel.clearDiagnosticData()
+        assertNull(viewModel.uiState.value.diagnosticData)
+    }
+}

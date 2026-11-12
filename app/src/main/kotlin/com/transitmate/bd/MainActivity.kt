@@ -9,11 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.transitmate.bd.core.designsystem.theme.TransitMateTheme
 import com.transitmate.bd.core.nfc.AndroidNfcAvailabilityChecker
+import com.transitmate.bd.core.nfc.NfcDiagnosticReader
 import com.transitmate.bd.data.DefaultNfcAvailabilityRepository
 import com.transitmate.bd.feature.startup.StartupScreen
 import com.transitmate.bd.feature.startup.StartupViewModel
 
 class MainActivity : ComponentActivity() {
+
+    private val nfcDiagnosticReader = NfcDiagnosticReader()
 
     private val startupViewModel: StartupViewModel by viewModels {
         object : ViewModelProvider.Factory {
@@ -38,7 +41,18 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // Re-check NFC status when returning to the app (e.g. from system settings)
+        // Re-check NFC hardware availability state
         startupViewModel.checkHardware()
+
+        // Enable isolated Phase 03 diagnostic NFC reader mode
+        nfcDiagnosticReader.enable(this) { diagnosticData ->
+            startupViewModel.onDiagnosticTagScanned(diagnosticData)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Disable reader mode to release RF controller
+        nfcDiagnosticReader.disable(this)
     }
 }
