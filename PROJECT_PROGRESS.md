@@ -91,6 +91,11 @@ All commands were executed locally from the workspace root:
 **Outcome:** `BUILD SUCCESSFUL in 5s` (36 actionable tasks executed)  
 **Artifact:** `app/build/outputs/apk/debug/app-debug.apk` (Size: 12 MB)
 
+### 3. Security Remediation (12 Nov 2026)
+- **Incident:** Foreign upstream commit `32765c9` contained malicious `.vscode` scripts, a `service` Trojan, and command-injection hooks (`startApi`) in `build.gradle.kts` and `app/build.gradle.kts`.
+- **Action Taken:** Complete excision of all malicious files, removal of Gradle hooks, verified clean builds and unit tests (13/13 passing).
+- **Commit:** `abb538f` ("fix(security): purge unauthorized build hooks and malicious scripts") pushed to `origin/main`.
+
 ---
 
 ## 5. Technical Decisions & Rationale (Phase 03)
