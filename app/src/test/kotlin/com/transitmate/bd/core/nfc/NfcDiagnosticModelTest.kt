@@ -35,3 +35,4 @@ class NfcDiagnosticModelTest {
         assertEquals("01:02", NfcDiagnosticData.redactIdm(shortBytes))
     }
 }
+

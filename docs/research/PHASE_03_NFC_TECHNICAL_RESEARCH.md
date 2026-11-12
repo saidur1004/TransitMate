@@ -202,3 +202,4 @@ The following constants are cataloged from public research for hypothesis testin
 1. **Card Type Parity (MRT Pass vs. Rapid Pass):** While both utilize JICA-specified AFC fare gates, do they use identical System Codes (`0x88B4`) and Service Codes, or does DTCA utilize a distinct partition from DMTCL?
 2. **Handset RF Variability:** Will low-cost MediaTek/Unisoc Android handsets widely used in Bangladesh reliably poll FeliCa tags without carrier-specific NFC firmware modifications?
 3. **Data Freshness:** Does reading the on-card buffer show pending online top-ups, or strictly completed station taps? (Confirmed: offline chip data only reflects physical gate/AVM interactions).
+

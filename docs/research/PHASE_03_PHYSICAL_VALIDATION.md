@@ -152,3 +152,4 @@ If the phone is tested without an active ADB tether:
 | **MRT Pass Card** | `BLOCKED — CARD NOT AVAILABLE` | Physical card not present in test lab | Must obtain physical sample before claiming MRT Pass support |
 | **Balance Block Parsing** | `PENDING RESEARCH GATE` | Requires physical confirmation of Service Code unencrypted read status | Execute diagnostic reader first to lock System Code before attempting service polling |
 | **ADB Direct Connection** | `DISCONNECTED` | Phone not plugged in via USB during automated agent turn | Owner runs manual validation or connects via ADB |
+

@@ -56,3 +56,4 @@ Every capability is evaluated independently based strictly on verified empirical
 - **Phase 04 Entry Gate (UI/UX Design):**
   - Owner reviews Phase 03 research.
   - Phase 04 proceeds with wireframing and design token specification for all screens (Dashboard, Scanner, History, Settings) in Figma / visual specs before any feature UI code is implemented.
+

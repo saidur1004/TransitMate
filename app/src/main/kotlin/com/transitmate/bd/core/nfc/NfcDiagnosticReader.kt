@@ -130,3 +130,4 @@ class NfcDiagnosticReader {
         scanCounter = 0
     }
 }
+
