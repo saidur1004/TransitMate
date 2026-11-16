@@ -1,9 +1,9 @@
 # TransitMate — Project Progress & Verification Log
 
-**Document Version:** 1.3  
-**Last Updated:** 16 November 2026, 15:28 +06:00  
+**Document Version:** 1.4  
+**Last Updated:** 16 November 2026, 16:24 +06:00  
 **Responsible Agent:** Antigravity Autonomous Coding Agent  
-**Current Phase:** Phase 04 — UI/UX Visual Design Completed (Stages 1–5 Done) · Ready for Phase 05 / Stage 6 Compose Implementation  
+**Current Phase:** Phase 05 / Stage 6 Completed — Production Material 3 Compose App, NFC Isolation & Offline Tools Implemented · Ready for Phase 06 Block Parsing Validation
 
 ---
 
@@ -15,11 +15,11 @@
 | **Phase 02** | Complete Initial Project Foundation & Configuration | **COMPLETED** | Verified clean build, 8 unit tests passed, launcher icons, CI, APK generated |
 | **Phase 03** | NFC / FeliCa Research & Physical Validation | **PARTIAL / RAPID PASS DISCOVERY VERIFIED** | Rapid Pass physical tap confirmed `NfcF`, 8-byte `IDm`, `System Code 0x90E3`, `PMm 01:46:42:45:45:46:9B:FF`; MRT Pass remains `BLOCKED — CARD NOT AVAILABLE`; balance/history parsing deferred to Phase 06 |
 | **Phase 04** | Complete UI/UX Planning & Visual Design | **COMPLETED (Stages 1–5)** | Audit (`PROJECT_UI_AUDIT.md`), specs (`design/DESIGN_SYSTEM.md`, `design/SCREEN_REQUIREMENTS.md`, `docs/UI_UX_DESIGN_SPECIFICATION.md`), and **87 verified visual PNG assets** (7 Design System boards, 15x2 Core Screens, 25x2 Supporting States) + 5 preserved references in `design/ui_designs/` |
-| **Phase 05** | Application Architecture Foundation | **NEXT / PENDING** | Implement Design System theme tokens, reusable components, Navigation Compose (5-tab shell), DataStore, Room DB, and extract NFC Diagnostics from Startup |
-| **Phase 06** | NFC Reader & Parser Implementation | **PENDING** | Evidence-based block parsing |
-| **Phase 07** | Core Product Features | **PENDING** | Local card manager, scan history, state handling |
-| **Phase 08** | Advanced Features | **PENDING** | Route maps, fare calculator, export |
-| **Phase 09** | Quality Assurance & Physical Testing | **PENDING** | Device test matrix on NFC phones |
+| **Phase 05 & Stage 6** | Production Android App, NFC Fix & Offline Core | **COMPLETED** | Neutral Graphite Dark & Warm Off-White Light M3 theme, 5-tab Navigation Compose, all 15 Core Screens & Data Management, 25 Supporting States, Room + DataStore persistence, offline 16-station MRT Line 6 Fare Calculator & Station Explorer, bilingual EN/বাংলা, `0x90E3` & diagnostic isolation fixes, **27/27** unit tests & **0** lint errors (`assembleDebug` + `Pixel_9` emulator UI verified) |
+| **Phase 06** | NFC Reader & Parser Implementation | **PENDING (Hardware-Gated)** | Evidence-based FeliCa balance & transaction block parsing on physical Rapid Pass & MRT Pass phones |
+| **Phase 07** | Core Product Features (UI & Persistence) | **COMPLETED (MVP Scope)** | Local Room card manager, scan/transaction history honest states, card rename/favorite/delete workflows |
+| **Phase 08** | Advanced Offline Transit Features | **COMPLETED (Line 6 Scope)** | 16-station MRT Line 6 Explorer (`UTN`–`MTJ`), official DMTCL fare calculator (10% Smart Card discount), local JSON export preview & clear workflows |
+| **Phase 09** | Quality Assurance & Physical Testing | **PARTIAL (Emulator Verified)** | Light/Dark/EN/বাংলা UI verified on `Pixel_9` AVD (`emulator-5554`); physical NFC device RF tap matrix pending on real phone |
 | **Phase 10** | Release & Maintenance | **PENDING** | Play Store listing, signed release |
 
 ---
@@ -126,22 +126,43 @@ All commands were executed locally from the workspace root:
 
 ---
 
-## 7. Next Recommended Task (Handover for Phase 05 / Stage 6 Compose Implementation)
+## 7. Stage 6 — Production Android Implementation & NFC Issue Resolution (16 Nov 2026)
 
-Any developer or AI agent continuing from this point should follow this exact order:
+### Root Causes Resolved
+1. **System Code Hex Formatting:** Added `NfcDiagnosticModel.formatSystemCodeHex` so 2-byte FeliCa system codes format as `0x90E3` instead of `0x90:E3`.
+2. **Developer Diagnostics Isolation:** Moved raw `IDm`, `PMm`, `System Code`, `techList`, and RF traces out of the primary launch surface (`StartupScreen`) into `Settings -> NFC Diagnostics` (`NfcDiagnosticsScreen`), accessible in both debug and release builds.
+3. **Reader Mode Robustness:** Upgraded `NfcDiagnosticReader` with `AtomicInteger` scan counters, `TagLostException` vs `IOException` separation, 1200 ms same-tag debounce, and lifecycle/route-aware Reader Mode activation in `MainActivity` (active only on `Scan` when not paused, or `NFC Diagnostics`).
+4. **Honest Outcome Mapping (`NfcTagScanMapper`):** Enforced strict `Detection ≠ Recognition ≠ Balance ≠ Transactions`; discovered `NfcF` cards stay `UNVERIFIED` with `BalanceAvailability.Unavailable` until Phase 06 block parsing is validated.
+5. **Compose Launcher Logo & Edge-to-Edge Insets:** Added `res/drawable-nodpi/ic_transitmate_logo.png` (replacing adaptive-icon Compose crash risk) and explicit `statusBarsPadding()` on non-top-bar routes (`OnboardingScreen`, `HomeScreen`).
 
-1. **Read Visual & Architecture Sources First:**
-   - `design/DESIGN_SYSTEM.md` & `design/SCREEN_REQUIREMENTS.md`
-   - `docs/UI_UX_DESIGN_SPECIFICATION.md`
-   - `design/ui_designs/` PNG library (reference source of truth for layout, spacing, and Light/Dark parity)
-2. **Replace Theme & Add Design System Primitives (`core/designsystem/`):**
-   - Update `Color.kt`, `Theme.kt`, and `Type.kt` with the approved Neutral Graphite / Warm Off-White + Muted Teal tokens (`#111315`, `#191C1F`, `#F6F7F8`, `#FFFFFF`, `#2FA497`, `#12746A`).
-   - Build reusable M3 components (`TransitTopBar`, `TransitBottomNav`, `TransitHeroCard`, `SurfaceSectionCard`, `StatusBanner`, `EmptyStateView`, `ConfirmationDialog`).
-3. **Separate Production Scan UX from Developer Diagnostics (`core/nfc/` & `feature/`):**
-   - Keep `AndroidNfcAvailabilityChecker` and `NfcDiagnosticReader` RF lifecycle intact; format diagnostic System Code cleanly as `0x90E3` (without internal `:`).
-   - Route raw `NfcDiagnosticData` strictly to `Settings -> NFC Diagnostics` (Screen 12).
-   - Map consumer `CardScanOutcome` cleanly to `NFC Scanner (04)` & `Scan Result (05)` preserving `Detection ≠ Recognition ≠ Balance`.
-4. **Add Navigation Compose, DataStore, Room & Localization (`values-bn/strings.xml`):**
-   - Implement the 5-tab shell (`Home`, `My Cards`, `Scan`, `Insights`, `Settings`), offline `Fare Calculator` & `Station Explorer` (16 MRT Line 6 stations + official DMTCL fare matrix), and bilingual EN/বাংলা resources.
-5. **Run Full Verification Gate After Each Milestone:**
-   - `./gradlew clean testDebugUnitTest assembleDebug --no-daemon` and physical NFC device verification before advancing to Phase 06 balance/history block parsing.
+### Implemented Architecture & Modules
+- **Build & Dependencies (`gradle/libs.versions.toml`, `app/build.gradle.kts`):** `navigation-compose:2.9.8`, `datastore-preferences:1.2.1`, `room-runtime/ktx/compiler:2.8.5`, `ksp:2.3.14`, `material-icons-extended`, `localeFilters += listOf("en", "bn")`, `buildConfig = true`.
+- **Domain & Data (`domain/`, `core/database/`, `data/`):** Pure Kotlin domain models (`CardScanModels.kt`, `TransitLineModels.kt`), `TransitMateDatabase` (Room v1 with `SavedCardEntity` and `VerifiedTransactionEntity`), `DataStorePreferencesRepository`, and offline `StaticTransitInfoRepository` (all 16 DMTCL MRT Line 6 stations `UTN`–`MTJ` and official fare chart with 10% Smart Card discount).
+- **Design System & Localization (`core/designsystem/`, `res/values*/strings.xml`):** Neutral Graphite Dark & Warm Off-White Light M3 theme, Muted Teal accents, tabular numerals, Bangla-safe typography, and complete EN & বাংলা translations.
+- **Navigation & Screens (`feature/`, `TransitMateNavHost`):** 5-tab Navigation Compose (`Home | My Cards | Scan | Insights | Settings`) covering all 15 Core Screens plus `DataManagementScreen` and all 25 Supporting States.
+
+### Automated Build, Lint & Unit Test Verification (16 Nov 2026)
+Executed after the final code edit:
+- **Command:** `./gradlew clean testDebugUnitTest lintDebug assembleDebug --no-daemon` -> `BUILD SUCCESSFUL in 44s` (exit code `0`)
+- **Unit Tests (`27/27 passed, 0 failed, 0 skipped`):**
+  - `NfcDiagnosticModelTest`: 6/6 passed
+  - `NfcTagScanMapperTest`: 5/5 passed
+  - `DefaultNfcAvailabilityRepositoryTest`: 2/2 passed
+  - `StaticTransitInfoRepositoryTest`: 4/4 passed
+  - `CardTypeTest`: 3/3 passed
+  - `MainViewModelTest`: 3/3 passed
+  - `StartupViewModelTest`: 4/4 passed
+- **Android Lint:** `0 errors, 18 warnings`
+- **APK Built:** `app/build/outputs/apk/debug/app-debug.apk`
+
+### Emulator & Hardware Verification Boundaries
+- **Verified on `Pixel_9` AVD (`emulator-5554`):** Onboarding, Home, My Cards, Scan (`No NFC` honest banner & disabled scan action), Insights, Transaction History, Fare Calculator (`Uttara North` -> `Motijheel`: `৳ 90` Pass / `৳ 100` Single Journey), Station Explorer & Station Detail Sheet, Settings (live Light/Dark theme + EN/বাংলা locale switching), Data Management, Help & FAQ, About, and NFC Diagnostics.
+- **Physical NFC Hardware Boundary:** Android emulator lacks RF NFC simulation; physical Rapid Pass anticollision discovery (`NfcF`, `0x90E3`) remains verified from prior Phase 03 hardware testing, while physical **MRT Pass** remains `BLOCKED — CARD NOT AVAILABLE` and live physical balance/history parsing belongs to Phase 06.
+
+---
+
+## 8. Next Recommended Task (Phase 06 — Evidence-Based FeliCa Parsing)
+
+1. Execute physical RF card validation on an NFC-enabled Android device using `Settings -> NFC Diagnostics` (`Rapid Pass` + `MRT Pass` once physically available) to inspect FeliCa service codes and encrypted vs. plaintext block accessibility.
+2. Implement `CardBalanceParser` behind `domain/repository` strictly gated by hardware-verified block signatures (zero guessed offsets).
+3. Run instrumentation/UI tests on physical NFC devices alongside unit regression suites.

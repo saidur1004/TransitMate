@@ -34,5 +34,21 @@ class NfcDiagnosticModelTest {
         val shortBytes = byteArrayOf(0x01.toByte(), 0x02.toByte())
         assertEquals("01:02", NfcDiagnosticData.redactIdm(shortBytes))
     }
+
+    @Test
+    fun formatSystemCodeHex_formatsContinuouslyWithoutColons() {
+        val sysCode = byteArrayOf(0x90.toByte(), 0xE3.toByte())
+        assertEquals("90E3", NfcDiagnosticData.formatSystemCodeHex(sysCode))
+        assertNull(NfcDiagnosticData.formatSystemCodeHex(null))
+    }
+
+    @Test
+    fun sha256Digest_producesDeterministicHashWithoutExposingRawBytes() {
+        val raw = byteArrayOf(0x01.toByte(), 0x27.toByte(), 0xAA.toByte(), 0xA0.toByte())
+        val h1 = NfcDiagnosticData.sha256Digest(raw)
+        val h2 = NfcDiagnosticData.sha256Digest(raw)
+        assertEquals(h1, h2)
+        assertEquals(64, h1?.length)
+    }
 }
 

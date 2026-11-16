@@ -1,30 +1,45 @@
 package com.transitmate.bd
 
+import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.transitmate.bd.core.designsystem.theme.TransitMateTheme
-import com.transitmate.bd.core.nfc.AndroidNfcAvailabilityChecker
-import com.transitmate.bd.core.nfc.NfcDiagnosticReader
-import com.transitmate.bd.data.DefaultNfcAvailabilityRepository
-import com.transitmate.bd.feature.startup.StartupScreen
-import com.transitmate.bd.feature.startup.StartupViewModel
+import com.transitmate.bd.feature.main.MainViewModel
+import com.transitmate.bd.feature.navigation.TransitMateAppShell
+import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-    private val nfcDiagnosticReader = NfcDiagnosticReader()
+    private var isActivityResumed = false
+    private var shouldPollNfc = false
+    private var isDiagnosticsRouteActive = false
 
-    private val startupViewModel: StartupViewModel by viewModels {
+    private val appContainer: TransitMateContainer
+        get() = (application as TransitMateApplication).container
+
+    private val mainViewModel: MainViewModel by viewModels {
         object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val nfcChecker = AndroidNfcAvailabilityChecker(applicationContext)
-                val nfcRepository = DefaultNfcAvailabilityRepository(nfcChecker)
-                return StartupViewModel(nfcRepository) as T
+                return MainViewModel(
+                    nfcAvailabilityRepository = appContainer.nfcAvailabilityRepository,
+                    cardRepository = appContainer.cardRepository,
+                    preferencesRepository = appContainer.preferencesRepository,
+                    dispatchers = appContainer.dispatchers
+                ) as T
             }
         }
     }
@@ -33,26 +48,79 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            TransitMateTheme {
-                StartupScreen(viewModel = startupViewModel)
+            val uiState by mainViewModel.uiState.collectAsStateWithLifecycle()
+            val baseContext = LocalContext.current
+            val localizedContext = remember(baseContext, uiState.preferences.language.tag) {
+                createLocalizedContext(baseContext, uiState.preferences.language.tag)
+            }
+
+            CompositionLocalProvider(LocalContext provides localizedContext) {
+                TransitMateTheme(themeMode = uiState.preferences.themeMode) {
+                    TransitMateAppShell(
+                        viewModel = mainViewModel,
+                        transitInfoRepository = appContainer.transitInfoRepository,
+                        onOpenNfcSettings = ::openAndroidNfcSettings,
+                        onNfcPollingRequirementChanged = { poll, diagActive ->
+                            shouldPollNfc = poll
+                            isDiagnosticsRouteActive = diagActive
+                            syncNfcReaderMode()
+                        }
+                    )
+                }
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        // Re-check NFC hardware availability state
-        startupViewModel.checkHardware()
-
-        // Enable isolated Phase 03 diagnostic NFC reader mode
-        nfcDiagnosticReader.enable(this) { diagnosticData ->
-            startupViewModel.onDiagnosticTagScanned(diagnosticData)
-        }
+        isActivityResumed = true
+        mainViewModel.refreshNfcStatus()
+        syncNfcReaderMode()
     }
 
     override fun onPause() {
+        isActivityResumed = false
+        appContainer.nfcDiagnosticReader.disable(this)
         super.onPause()
-        // Disable reader mode to release RF controller
-        nfcDiagnosticReader.disable(this)
+    }
+
+    private fun syncNfcReaderMode() {
+        if (!isActivityResumed || !shouldPollNfc) {
+            appContainer.nfcDiagnosticReader.disable(this)
+            return
+        }
+
+        val diagnosticsOnly = isDiagnosticsRouteActive
+        appContainer.nfcDiagnosticReader.enable(
+            activity = this,
+            onOutcome = { outcome ->
+                if (!diagnosticsOnly) {
+                    mainViewModel.onConsumerTagOutcome(outcome)
+                }
+            },
+            onTagScanned = { diagnosticData ->
+                if (diagnosticsOnly) {
+                    mainViewModel.onDiagnosticTagScanned(diagnosticData)
+                }
+            }
+        )
+    }
+
+    private fun openAndroidNfcSettings() {
+        val nfcIntent = Intent(Settings.ACTION_NFC_SETTINGS)
+        val fallbackIntent = Intent(Settings.ACTION_SETTINGS)
+        try {
+            startActivity(nfcIntent)
+        } catch (_: Exception) {
+            runCatching { startActivity(fallbackIntent) }
+        }
+    }
+
+    private fun createLocalizedContext(base: Context, languageTag: String): Context {
+        val locale = Locale.forLanguageTag(languageTag)
+        val config = Configuration(base.resources.configuration).apply {
+            setLocale(locale)
+        }
+        return base.createConfigurationContext(config)
     }
 }

@@ -1,0 +1,245 @@
+<resources>
+    <string name="app_name">TransitMate</string>
+    <string name="app_tagline">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
+    <string name="app_tagline_bn">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
+    <string name="offline_readonly_badge">অফলাইন-ফার্স্ট · শুধুমাত্র পাঠযোগ্য</string>
+
+    <!-- Accessibility -->
+    <string name="cd_navigate_back">পিছনে যান</string>
+    <string name="cd_help">সহায়তা ও প্রশ্নোত্তর</string>
+    <string name="cd_swap_stations">শুরুর এবং গন্তব্য স্টেশন অদলবদল করুন</string>
+    <string name="cd_clear_search">খোঁজ মুছুন</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_home">হোম</string>
+    <string name="nav_my_cards">কার্ড</string>
+    <string name="nav_scan">স্ক্যান</string>
+    <string name="nav_insights">তথ্য</string>
+    <string name="nav_settings">সেটিংস</string>
+
+    <!-- Common Actions -->
+    <string name="action_skip">এড়িয়ে যান</string>
+    <string name="action_next">পরবর্তী</string>
+    <string name="action_get_started">শুরু করুন</string>
+    <string name="action_cancel">বাতিল</string>
+    <string name="action_close">বন্ধ করুন</string>
+    <string name="action_save">সংরক্ষণ</string>
+    <string name="action_remove">মুছে ফেলুন</string>
+    <string name="action_try_again">আবার চেষ্টা করুন</string>
+    <string name="action_done">সম্পন্ন</string>
+    <string name="action_view_all">সব দেখুন</string>
+    <string name="action_open_nfc_settings">NFC সেটিংস খুলুন</string>
+    <string name="action_scan_card">ট্রানজিট কার্ড স্ক্যান করুন</string>
+    <string name="action_clear_search">খোঁজ মুছুন</string>
+    <string name="action_clear_filters">ফিল্টার সরান</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_slide_1_title">সহজেই কার্ড ট্যাপ ও যাচাই করুন</string>
+    <string name="onboarding_slide_1_body">কার্ডের তথ্য দেখতে আপনার এমআরটি পাস বা র‍্যাপিড পাস ফোনের পেছনে ধরে রাখুন। কোনো ইন্টারনেট বা লগইন প্রয়োজন নেই।</string>
+    <string name="onboarding_slide_2_title">সম্পূর্ণ অফলাইন ও গোপনীয়</string>
+    <string name="onboarding_slide_2_body">আপনার সংরক্ষিত কার্ডের তথ্য কেবল ফোনেই থাকে। TransitMate শুধুমাত্র রিড-অনলি এবং কার্ডে কোনো পরিবর্তন করে না।</string>
+    <string name="onboarding_slide_3_title">সৎ ও নির্ভরযোগ্য তথ্য</string>
+    <string name="onboarding_slide_3_body">কেবল যাচাইকৃত তথ্যই ব্যালেন্স বা ভ্রমণের তালিকায় দেখানো হয়। ভাড়া হিসাব ও স্টেশন তথ্য সব ফোনেই কাজ করে।</string>
+
+    <!-- NFC Hardware Status -->
+    <string name="nfc_status_ready">NFC প্রস্তুত</string>
+    <string name="nfc_status_disabled">NFC বন্ধ</string>
+    <string name="nfc_status_unsupported">NFC নেই</string>
+    <string name="nfc_banner_disabled_title">NFC বন্ধ রয়েছে</string>
+    <string name="nfc_banner_disabled_body">কার্ড স্ক্যান করতে আপনার অ্যান্ড্রয়েড সেটিংস থেকে NFC চালু করুন।</string>
+    <string name="nfc_banner_unsupported_title">এই ফোনে NFC হার্ডওয়্যার নেই</string>
+    <string name="nfc_banner_unsupported_body">আপনি অফলাইনেই মেট্রোর ভাড়া হিসাব, স্টেশন তালিকা এবং সংরক্ষিত তথ্য ব্যবহার করতে পারবেন।</string>
+
+    <!-- Home Dashboard -->
+    <string name="home_primary_badge">প্রাথমিক</string>
+    <string name="home_no_card_title">কোনো কার্ড সংরক্ষিত নেই</string>
+    <string name="home_no_card_subtitle">কার্ড শনাক্ত ও সংরক্ষণ করতে এমআরটি পাস বা র‍্যাপিড পাস ফোনের পেছনে ট্যাপ করুন।</string>
+    <string name="home_balance_label">ব্যালেন্স অবস্থা</string>
+    <string name="home_balance_unavailable">পাওয়া যায়নি</string>
+    <string name="home_balance_unavailable_note">কার্ড শনাক্ত হয়েছে; ব্যালেন্স পাঠ এখনো যাচাইয়ের অপেক্ষায়</string>
+    <string name="home_fare_calculator_sub">সরকারি এমআরটি লাইন ৬</string>
+    <string name="home_station_explorer_sub">ঢাকার ১৬টি স্টেশন</string>
+    <string name="home_recent_activity">সাম্প্রতিক ভ্রমণ</string>
+    <string name="home_recent_empty_title">কোনো যাচাইকৃত ভ্রমণ নেই</string>
+    <string name="home_recent_empty_body">কার্ডের ভ্রমণ তথ্য পাঠ সমর্থিত হলে এখানে প্রদর্শিত হবে।</string>
+    <string name="home_offline_footer">অফলাইন-ফার্স্ট · ডেটা কেবল এই ডিভাইসে সংরক্ষিত</string>
+
+    <!-- NFC Scanner -->
+    <string name="scanner_title">NFC স্ক্যানার</string>
+    <string name="scanner_ready_pill">NFC হার্ডওয়্যার প্রস্তুত</string>
+    <string name="scanner_waiting_title">আপনার এমআরটি পাস বা র‍্যাপিড পাস ফোনের পেছনে ধরে রাখুন</string>
+    <string name="scanner_waiting_subtitle">কার্ডটি ফোনের ওপরের অংশে ১–২ সেকেন্ড স্থির রাখুন।</string>
+    <string name="scanner_waiting_chip">কার্ডের অপেক্ষায়…</string>
+    <string name="scanner_reading_title">কার্ড পড়া হচ্ছে…</string>
+    <string name="scanner_reading_subtitle">শনাক্তকরণ শেষ না হওয়া পর্যন্ত কার্ড সরাবেন না।</string>
+    <string name="scanner_detected_title">কার্ড শনাক্ত হয়েছে</string>
+    <string name="scanner_detected_subtitle">ফলাফল খোলা হচ্ছে…</string>
+    <string name="scanner_cancel">স্ক্যান বাতিল করুন</string>
+    <string name="scanner_resume">আবার স্ক্যান শুরু করুন</string>
+    <string name="scanner_paused_chip">স্ক্যানিং বিরতিতে রয়েছে</string>
+    <string name="scanner_error_unsupported_title">অসমর্থিত কার্ড</string>
+    <string name="scanner_error_unsupported_body">এই কার্ডটি (%1$s) ট্রানজিট কার্ড হিসেবে সমর্থিত নয়। অনুগ্রহ করে সমর্থিত ফেলিকা কার্ড (এমআরটি বা র‍্যাপিড পাস) ব্যবহার করুন।</string>
+    <string name="scanner_error_tag_lost_title">কার্ড আগেই সরানো হয়েছে</string>
+    <string name="scanner_error_tag_lost_body">সংযোগ বিচ্ছিন্ন হয়েছে। অনুগ্রহ করে কার্ডটি ফোনের পেছনে ১–২ সেকেন্ড স্থির ধরে রাখুন।</string>
+    <string name="scanner_error_comm_title">স্ক্যান সম্পন্ন করা যায়নি</string>
+    <string name="scanner_error_comm_body">কার্ডের সাথে NFC সংযোগ সম্পন্ন হয়নি। অবস্থান সামান্য বদলে আবার চেষ্টা করুন।</string>
+    <string name="scanner_error_id_title">কার্ড আইডি পাওয়া যায়নি</string>
+    <string name="scanner_error_id_body">কার্ড শনাক্ত হয়েছে, কিন্তু ডিভাইস কন্ট্রোলার হার্ডওয়্যার আইডি দেয়নি।</string>
+    <string name="scanner_error_unknown_card_title">অচেনা ফেলিকা কার্ড</string>
+    <string name="scanner_error_unknown_card_body">একটি ফেলিকা (NFC-F) কার্ড শনাক্ত হয়েছে, তবে এর ইস্যুকারী কর্তৃপক্ষ এখনো যাচাই করা যায়নি।</string>
+    <string name="scanner_antenna_guide">অ্যান্টেনা গাইড</string>
+
+    <!-- Scan Result -->
+    <string name="result_title">স্ক্যান ফলাফল</string>
+    <string name="result_banner_detected">কার্ড সফলভাবে শনাক্ত হয়েছে</string>
+    <string name="result_card_detected_title">শনাক্তকৃত ট্রানজিট কার্ড</string>
+    <string name="result_badge_unverified">ধরন অযাচাইকৃত</string>
+    <string name="result_masked_id">সুরক্ষিত পরিচয়পত্র</string>
+    <string name="result_balance_label">ব্যালেন্স প্রাপ্যতা</string>
+    <string name="result_balance_unavailable">ব্যালেন্স তথ্য পাওয়া যায়নি</string>
+    <string name="result_balance_unavailable_desc">NFC-F দিয়ে কার্ড শনাক্ত হয়েছে, তবে ব্যালেন্স পাঠ এখনো অযাচাইকৃত বা সুরক্ষিত।</string>
+    <string name="result_row_detection">কার্ড শনাক্তকরণ</string>
+    <string name="result_row_detection_ok">সফল</string>
+    <string name="result_row_technology">প্রযুক্তি</string>
+    <string name="result_row_recognition">কার্ড যাচাই</string>
+    <string name="result_row_recognition_pending">শনাক্তকরণ অপেক্ষমাণ</string>
+    <string name="result_row_last_scanned">সর্বশেষ স্ক্যান</string>
+    <string name="result_save_card">আমার কার্ডে সংরক্ষণ করুন</string>
+    <string name="result_saved_view_card">কার্ড তালিকা দেখুন</string>
+    <string name="result_scan_another">আরেকটি কার্ড স্ক্যান করুন</string>
+
+    <!-- My Cards & Card Details -->
+    <string name="my_cards_title">আমার কার্ডসমূহ</string>
+    <string name="my_cards_saved_header">ডিভাইসে সংরক্ষিত (%1$d)</string>
+    <string name="my_cards_empty_title">এখনো কোনো কার্ড সংরক্ষিত নেই</string>
+    <string name="my_cards_empty_body">দ্রুত ব্যবহারের জন্য আপনার এমআরটি পাস বা র‍্যাপিড পাস স্ক্যান করে ফোনে সংরক্ষণ করুন।</string>
+    <string name="my_cards_empty_cta">কার্ড স্ক্যান করুন</string>
+    <string name="my_cards_scan_add">নতুন কার্ড স্ক্যান ও যুক্ত করুন</string>
+    <string name="my_cards_privacy_footer">কার্ডের তথ্য সম্পূর্ণ অফলাইনে এই ফোনে সংরক্ষিত থাকে</string>
+    <string name="card_details_title">কার্ডের বিবরণ</string>
+    <string name="card_details_refresh">আপডেট করতে কার্ড ট্যাপ করুন</string>
+    <string name="card_details_added_on">যুক্ত করা হয়েছে</string>
+    <string name="card_details_set_primary">প্রাথমিক কার্ড হিসেবে নির্ধারণ</string>
+    <string name="card_details_activity_title">কার্ডের ভ্রমণ তথ্য</string>
+    <string name="card_details_activity_empty">এই কার্ডের কোনো ভ্রমণ তথ্য সংরক্ষিত নেই। কার্ড পার্সিং চালু হলে এখানে দেখাবে।</string>
+    <string name="card_details_remove">ডিভাইস থেকে কার্ড মুছুন</string>
+    <string name="card_details_not_found">সংরক্ষিত কার্ডটি খুঁজে পাওয়া যায়নি।</string>
+    <string name="dialog_delete_card_title">কার্ডটি মুছে ফেলবেন?</string>
+    <string name="dialog_delete_card_message">এই ডিভাইস থেকে \"%1$s\" এবং এর স্থানীয় তথ্য মুছে ফেলবেন? আপনার মূল কার্ডে কোনো পরিবর্তন হবে না।</string>
+    <string name="dialog_rename_card_title">কার্ডের নাম পরিবর্তন করুন</string>
+    <string name="dialog_save_card_title">কার্ড সংরক্ষণ করুন</string>
+    <string name="dialog_rename_card_hint">সহজে চেনার জন্য একটি নাম দিন।</string>
+    <string name="label_card_nickname">কার্ডের নাম</string>
+    <string name="default_card_nickname">আমার কার্ড</string>
+
+    <!-- History & Insights -->
+    <string name="history_title">লেনদেনের ইতিহাস</string>
+    <string name="history_filter_all">সব কার্ড</string>
+    <string name="history_filter_trips">ভ্রমণ</string>
+    <string name="history_filter_topups">রিচার্জ</string>
+    <string name="history_verified_trips">যাচাইকৃত ভ্রমণ</string>
+    <string name="history_recorded_spend">নথিভুক্ত খরচ</string>
+    <string name="history_unavailable_title">ভ্রমণ তথ্য যাচাই অপেক্ষমাণ</string>
+    <string name="history_unavailable_body">কার্ডের ভ্রমণ ব্লক যাচাই হলে এখানে স্বয়ংক্রিয়ভাবে ভ্রমণের তালিকা দেখা যাবে।</string>
+    <string name="history_empty_title">এখনো কোনো যাচাইকৃত লেনদেন নেই</string>
+    <string name="history_empty_body">TransitMate কখনোই অনুমাননির্ভর ভ্রমণ তথ্য দেখায় না।</string>
+    <string name="insights_title">ভ্রমণ বিশ্লেষণ</string>
+    <string name="insights_period_month">এই মাস</string>
+    <string name="insights_period_all">সব সময়</string>
+    <string name="insights_metric_trips">ভ্রমণ</string>
+    <string name="insights_metric_spent">খরচ</string>
+    <string name="insights_metric_avg">গড় ভাড়া</string>
+    <string name="insights_empty_title">বিশ্লেষণের জন্য তথ্য পাওয়া যায়নি</string>
+    <string name="insights_empty_body">যাচাইকৃত ভ্রমণ রেকর্ড পাওয়া গেলে খরচের চার্ট ও স্টেশন বিশ্লেষণ দেখা যাবে।</string>
+    <string name="insights_tools_header">ট্রানজিট টুলস ও রেকর্ড</string>
+
+    <!-- Fare Calculator & Stations -->
+    <string name="fare_calc_title">ভাড়া হিসাব</string>
+    <string name="fare_calc_from">শুরুর স্টেশন</string>
+    <string name="fare_calc_to">গন্তব্য স্টেশন</string>
+    <string name="fare_calc_select_prompt">স্টেশন নির্বাচন করুন</string>
+    <string name="fare_calc_official_badge">সরকারি তালিকা</string>
+    <string name="fare_calc_pass_label" formatted="false">এমআরটি / র‍্যাপিড পাস (১০% ছাড়)</string>
+    <string name="fare_calc_single_label">একক যাত্রা টিকেট</string>
+    <string name="fare_calc_discount_note" formatted="false">ডিএমটিসিএল নীতিমালা অনুযায়ী স্মার্ট কার্ডে ১০% ছাড় প্রযোজ্য।</string>
+    <string name="fare_calc_offline_note" formatted="false">ডিএমটিসিএল এমআরটি লাইন ৬ তালিকা অনুযায়ী সম্পূর্ণ অফলাইনে কাজ করে</string>
+    <string name="fare_calc_empty_title">শুরু ও গন্তব্য স্টেশন নির্বাচন করুন</string>
+    <string name="fare_calc_empty_body">একক যাত্রা এবং স্মার্ট কার্ডের ভাড়া দেখতে দুটি ভিন্ন স্টেশন বেছে নিন।</string>
+    <string name="fare_calc_same_station">শুরু ও গন্তব্য স্টেশন আলাদা হতে হবে।</string>
+    <string name="stations_title">স্টেশন তালিকা</string>
+    <string name="stations_search_hint">বাংলা বা ইংরেজিতে স্টেশন খুঁজুন…</string>
+    <string name="stations_filter_all">এমআরটি লাইন ৬ (%1$d)</string>
+    <string name="stations_filter_terminals">টার্মিনাল (২)</string>
+    <string name="stations_terminal_badge">টার্মিনাল</string>
+    <string name="stations_empty_title">কোনো স্টেশন পাওয়া যায়নি</string>
+    <string name="stations_empty_body">\"%1$s\" অনুযায়ী কোনো মেট্রো স্টেশন খুঁজে পাওয়া যায়নি।</string>
+    <string name="stations_calc_from_here">এখান থেকে ভাড়া হিসাব করুন</string>
+    <string name="stations_landmarks_label">নিকটবর্তী স্থান</string>
+    <string name="stations_distance_label">লাইন দূরত্ব</string>
+
+    <!-- Settings, Diagnostics, Help, About -->
+    <string name="settings_title">সেটিংস</string>
+    <string name="settings_group_appearance">থিম ও ভাষা</string>
+    <string name="settings_group_privacy">গোপনীয়তা ও ডেটা</string>
+    <string name="settings_group_support">সহায়তা ও অ্যাডভান্সড</string>
+    <string name="settings_theme">থিম</string>
+    <string name="theme_system">সিস্টেম ডিফল্ট</string>
+    <string name="theme_light">লাইট (হালকা)</string>
+    <string name="theme_dark">ডার্ক (গ্রাফাইট)</string>
+    <string name="settings_language">ভাষা / Language</string>
+    <string name="lang_english">English</string>
+    <string name="lang_bangla">বাংলা</string>
+    <string name="settings_data_mgmt">ডেটা ব্যবস্থাপনা</string>
+    <string name="settings_data_mgmt_sub">স্থানীয় তথ্য এক্সপোর্ট বা মুছুন</string>
+    <string name="settings_privacy">গোপনীয়তা তথ্য</string>
+    <string name="settings_privacy_sub" formatted="false">১০০% অফলাইন · রিড-অনলি NFC</string>
+    <string name="settings_help">সহায়তা ও প্রশ্নোত্তর</string>
+    <string name="settings_help_sub">স্ক্যান নিয়ম ও কার্ড সহায়তা</string>
+    <string name="settings_about">TransitMate সম্পর্কে</string>
+    <string name="settings_about_sub">ভার্সন %1$s · স্বতন্ত্র অ্যাপ ঘোষণা</string>
+    <string name="settings_diagnostics">NFC ডায়াগনস্টিকস</string>
+    <string name="settings_diagnostics_sub">ডেভেলপার প্রযুক্তিগত তথ্য</string>
+
+    <string name="data_mgmt_storage_header">স্থানীয় সংরক্ষণ সারাংশ</string>
+    <string name="data_mgmt_saved_cards">সংরক্ষিত কার্ড</string>
+    <string name="data_mgmt_history_records">যাচাইকৃত ইতিহাস</string>
+    <string name="data_mgmt_cloud_backups">ক্লাউড ব্যাকআপ</string>
+    <string name="data_mgmt_cloud_disabled">বন্ধ (শুধু অফলাইন)</string>
+    <string name="data_mgmt_export_title">স্থানীয় ডেটা এক্সপোর্ট প্রিভিউ</string>
+    <string name="data_mgmt_export_sub">সুরক্ষিত ও মাস্ক করা JSON সারাংশ</string>
+    <string name="data_mgmt_clear_history_title">স্ক্যান ইতিহাস মুছুন</string>
+    <string name="data_mgmt_clear_history_sub">কার্ড রেখে ইতিহাস মুছে ফেলুন</string>
+    <string name="data_mgmt_delete_all">সব স্থানীয় ডেটা মুছুন</string>
+    <string name="sheet_export_title">ডেটা এক্সপোর্ট প্রিভিউ</string>
+    <string name="sheet_export_desc">সকল কার্ড আইডি গোপন রেখে JSON সারাংশ তৈরি করা হয়েছে।</string>
+    <string name="sheet_export_copy">JSON কপি করুন</string>
+    <string name="sheet_privacy_title">গোপনীয়তা ও অফলাইন নিশ্চয়তা</string>
+
+    <string name="diagnostics_title">NFC ডায়াগনস্টিকস</string>
+    <string name="diagnostics_banner_title">ডেভেলপার প্রযুক্তিগত স্ক্রিন</string>
+    <string name="diagnostics_banner_body">সাধারণ ব্যবহারকারীর স্ক্রিন থেকে আলাদা। শুধুমাত্র পাঠযোগ্য অ্যান্টিকলিশন মেটাডেটা।</string>
+    <string name="diagnostics_adapter_header">অ্যাডাপ্টার ও রিডার মোড</string>
+    <string name="diagnostics_last_scan_header">সর্বশেষ ডায়াগনস্টিক স্ক্যান</string>
+    <string name="diagnostics_empty">এখনো কোনো ডায়াগনস্টিক স্ক্যান পাওয়া যায়নি। এই স্ক্রিনে থেকে কার্ড ট্যাপ করুন।</string>
+    <string name="diagnostics_copy_log">সুরক্ষিত লগ কপি করুন</string>
+    <string name="diagnostics_clear">মুছুন</string>
+    <string name="diagnostics_copied_msg">ডায়াগনস্টিক সারাংশ কপি করা হয়েছে</string>
+
+    <string name="help_title">সহায়তা ও প্রশ্নোত্তর</string>
+    <string name="help_search_hint">NFC বা কার্ড সংক্রান্ত প্রশ্ন খুঁজুন…</string>
+    <string name="help_guide_title">এমআরটি ও র‍্যাপিড পাস স্ক্যান করার নিয়ম</string>
+    <string name="help_guide_body">ফোনের পেছনের উপরের অংশে কার্ডটি ১–২ সেকেন্ড স্থির রাখুন। মোটা ধাতব বা ম্যাগনেটিক কভার থাকলে খুলে নিন।</string>
+    <string name="help_replay_onboarding">পরিচিতি গাইড পুনরায় দেখুন</string>
+
+    <string name="about_title">সম্পর্কে</string>
+    <string name="about_notice_title">স্বতন্ত্র অ্যাপ্লিকেশন ঘোষণা</string>
+    <string name="about_notice_body">TransitMate একটি স্বতন্ত্র অ্যাপ এবং এটি ডিএমটিসিএল, ডিটিসিএ বা কোনো সরকারি সংস্থার অনুমোদিত অফিশিয়াল অ্যাপ নয়।</string>
+    <string name="about_operating_mode">পরিচালনা পদ্ধতি</string>
+    <string name="about_operating_val" formatted="false">১০০% অফলাইন ও রিড-অনলি</string>
+    <string name="about_target_cards">লক্ষ্য কার্ড</string>
+    <string name="about_target_val">এমআরটি পাস ও র‍্যাপিড পাস</string>
+    <string name="about_scope_label">ব্যালেন্স ও ইতিহাস</string>
+    <string name="about_scope_val">ফিজিক্যাল যাচাইকরণ সাপেক্ষে</string>
+    <string name="about_storage_label">তথ্য সংরক্ষণ</string>
+    <string name="about_storage_val">শুধুমাত্র এই ডিভাইসে (লগইন নেই)</string>
+</resources>

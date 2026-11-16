@@ -37,12 +37,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.transitmate.bd.R
-import com.transitmate.bd.core.designsystem.theme.CyanPrimary
-import com.transitmate.bd.core.designsystem.theme.GoldAccent
-import com.transitmate.bd.core.designsystem.theme.StatusAvailable
-import com.transitmate.bd.core.designsystem.theme.StatusDisabled
-import com.transitmate.bd.core.designsystem.theme.StatusUnsupported
 import com.transitmate.bd.core.designsystem.theme.TransitMateTheme
+import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.core.nfc.NfcDiagnosticData
 import com.transitmate.bd.domain.model.NfcHardwareStatus
 
@@ -80,37 +76,7 @@ fun StartupScreenContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 16.dp)
             ) {
-                // Phase Badge
-                Surface(
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.padding(bottom = 16.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.startup_phase_badge),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        style = MaterialTheme.typography.labelSmall,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
-                    )
-                }
-
-                // Brand Symbol
-                Box(
-                    modifier = Modifier
-                        .size(72.dp)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "💳",
-                        fontSize = 34.sp
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // App Title
+                // Brand Title
                 Text(
                     text = stringResource(R.string.app_name),
                     style = MaterialTheme.typography.headlineLarge,
@@ -151,23 +117,24 @@ fun StartupScreenContent(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = stringResource(R.string.startup_status_header),
+                        text = stringResource(R.string.app_name),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 10.dp)
                     )
 
+                    val semantic = TransitMateThemeTokens.semantic
                     if (uiState.isLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = CyanPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             strokeWidth = 3.dp
                         )
                     } else {
                         val (statusColor, statusText) = when (uiState.nfcStatus) {
-                            NfcHardwareStatus.AVAILABLE -> StatusAvailable to stringResource(R.string.startup_nfc_available)
-                            NfcHardwareStatus.DISABLED -> StatusDisabled to stringResource(R.string.startup_nfc_disabled)
-                            NfcHardwareStatus.NOT_SUPPORTED -> StatusUnsupported to stringResource(R.string.startup_nfc_unsupported)
+                            NfcHardwareStatus.AVAILABLE -> semantic.success to stringResource(R.string.nfc_status_ready)
+                            NfcHardwareStatus.DISABLED -> semantic.warning to stringResource(R.string.nfc_status_disabled)
+                            NfcHardwareStatus.NOT_SUPPORTED -> MaterialTheme.colorScheme.error to stringResource(R.string.nfc_status_unsupported)
                         }
 
                         Row(
@@ -216,19 +183,19 @@ fun StartupScreenContent(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(R.string.diagnostic_card_header),
+                                text = stringResource(R.string.diagnostics_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold
                             )
                             Surface(
-                                color = CyanPrimary.copy(alpha = 0.2f),
+                                color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
-                                    text = stringResource(R.string.diagnostic_scan_badge, diag.scanCount),
+                                    text = "#${diag.scanCount}",
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = CyanPrimary,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                     fontWeight = FontWeight.Bold
                                 )
@@ -239,25 +206,25 @@ fun StartupScreenContent(
 
                         // Technologies
                         DiagnosticRow(
-                            label = stringResource(R.string.diagnostic_tech_label),
+                            label = "Technologies",
                             value = diag.techList.joinToString(", ")
                         )
 
                         // IDm (Redacted)
                         DiagnosticRow(
-                            label = stringResource(R.string.diagnostic_idm_label),
+                            label = "IDm (Masked)",
                             value = diag.idmRedacted ?: "Unavailable"
                         )
 
                         // System Code
                         DiagnosticRow(
-                            label = stringResource(R.string.diagnostic_system_code_label),
+                            label = "System Code",
                             value = diag.systemCodeHex?.let { "0x$it" } ?: "Not detected"
                         )
 
                         // Manufacturer / PMm
                         DiagnosticRow(
-                            label = stringResource(R.string.diagnostic_pmm_label),
+                            label = "PMm",
                             value = diag.manufacturerPmmHex ?: "Not detected"
                         )
 
@@ -266,13 +233,13 @@ fun StartupScreenContent(
                             Text(
                                 text = "Notice: ${diag.errorMessage}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = StatusDisabled
+                                color = TransitMateThemeTokens.semantic.warning
                             )
                         }
 
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = stringResource(R.string.diagnostic_read_only_notice),
+                            text = stringResource(R.string.diagnostics_banner_body),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -286,9 +253,9 @@ fun StartupScreenContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = stringResource(R.string.diagnostic_ready_prompt),
+                        text = stringResource(R.string.scanner_waiting_title),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(14.dp)
                     )
@@ -303,16 +270,10 @@ fun StartupScreenContent(
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 Text(
-                    text = stringResource(R.string.startup_smoke_test_notice),
+                    text = stringResource(R.string.offline_readonly_badge),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Clean Architecture · Diagnostic Reader Mode Active",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.outline
                 )
             }
         }
