@@ -3,29 +3,46 @@ package com.transitmate.bd.core.nfc
 import android.app.Activity
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.nfc.TagLostException
 import android.nfc.tech.NfcF
 import android.os.Bundle
+import com.transitmate.bd.domain.model.CardScanOutcome
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * Isolated diagnostic reader harness for Phase 03 physical card validation.
+ * Isolated NFC Reader Mode harness for both physical card discovery and diagnostics.
  *
  * Uses modern Android Reader Mode (API 19+) to capture anticollision metadata
- * on a dedicated background thread without triggering system chime dialogs.
+ * on a system background binder thread without triggering system chime dialogs.
  *
  * Strictly read-only: does NOT attempt service block reading, card writing, or balance parsing.
  */
-class NfcDiagnosticReader {
+class NfcDiagnosticReader(
+    private val scanMapper: NfcTagScanMapper = NfcTagScanMapper()
+) {
 
-    private var scanCounter = 0
+    private val scanCounter = AtomicInteger(0)
+
+    @Volatile
+    private var lastTagDigest: String? = null
+
+    @Volatile
+    private var lastTagTimestamp: Long = 0L
 
     /**
      * Enables Reader Mode on the host activity if an NFC adapter is available.
      *
      * @param activity Host Activity.
-     * @param onTagScanned Callback invoked on a background thread when a tag is detected.
+     * @param debounceMs Suppresses rapid duplicate callbacks for the exact same resting tag.
+     * @param onTagScanned Callback invoked on a background thread when a tag is processed.
      */
-    fun enable(activity: Activity, onTagScanned: (NfcDiagnosticData) -> Unit) {
+    fun enable(
+        activity: Activity,
+        debounceMs: Long = DEFAULT_DEBOUNCE_MS,
+        onOutcome: ((CardScanOutcome) -> Unit)? = null,
+        onTagScanned: (NfcDiagnosticData) -> Unit
+    ) {
         val adapter = try {
             NfcAdapter.getDefaultAdapter(activity)
         } catch (_: Exception) {
@@ -47,8 +64,17 @@ class NfcDiagnosticReader {
             adapter.enableReaderMode(
                 activity,
                 { tag ->
+                    val now = System.currentTimeMillis()
+                    val digest = NfcDiagnosticData.sha256Digest(tag.id)
+                    if (debounceMs > 0 && digest != null && digest == lastTagDigest && (now - lastTagTimestamp) < debounceMs) {
+                        return@enableReaderMode
+                    }
+                    lastTagDigest = digest
+                    lastTagTimestamp = now
+
                     val result = processTag(tag)
                     onTagScanned(result)
+                    onOutcome?.invoke(scanMapper.mapToOutcome(result))
                 },
                 flags,
                 options
@@ -59,7 +85,7 @@ class NfcDiagnosticReader {
     }
 
     /**
-     * Disables Reader Mode when host activity pauses.
+     * Disables Reader Mode when host activity pauses or scanner stops.
      */
     fun disable(activity: Activity) {
         val adapter = try {
@@ -76,31 +102,37 @@ class NfcDiagnosticReader {
     }
 
     /**
-     * Extracts discovery metadata from a newly detected [Tag] without executing block reads.
+     * Extracts discovery metadata from a newly detected [Tag] without executing unverified block reads.
      */
     fun processTag(tag: Tag): NfcDiagnosticData {
-        scanCounter++
+        val count = scanCounter.incrementAndGet()
         val techs = tag.techList.map { it.substringAfterLast('.') }
-        val isNfcF = tag.techList.contains("android.nfc.tech.NfcF")
+        val isNfcF = tag.techList.contains(TECH_NFC_F)
         val rawId = tag.id
         val idmHex = NfcDiagnosticData.bytesToHex(rawId)
         val idmRedacted = NfcDiagnosticData.redactIdm(rawId)
+        val idmDigest = NfcDiagnosticData.sha256Digest(rawId)
 
         var systemCodeHex: String? = null
         var pmmHex: String? = null
+        var rfLinkOk = false
+        var isTagLost = false
         var errorMsg: String? = null
 
         if (isNfcF) {
             val nfcF = NfcF.get(tag)
             if (nfcF != null) {
-                systemCodeHex = NfcDiagnosticData.bytesToHex(nfcF.systemCode)
+                systemCodeHex = NfcDiagnosticData.formatSystemCodeHex(nfcF.systemCode)
                 pmmHex = NfcDiagnosticData.bytesToHex(nfcF.manufacturer)
 
-                // Establish test connection and immediately close safely to verify RF link
                 try {
                     nfcF.connect()
+                    rfLinkOk = true
+                } catch (_: TagLostException) {
+                    isTagLost = true
+                    errorMsg = "Tag removed too early before RF link completed"
                 } catch (e: IOException) {
-                    errorMsg = "RF connection failed: ${e.message}"
+                    errorMsg = "RF connection failed: ${e.message ?: "IO error"}"
                 } finally {
                     try {
                         nfcF.close()
@@ -109,7 +141,7 @@ class NfcDiagnosticReader {
                     }
                 }
             } else {
-                errorMsg = "NfcF technology present in techList but NfcF.get(tag) returned null"
+                errorMsg = "NfcF technology listed but NfcF.get(tag) returned null"
             }
         }
 
@@ -119,15 +151,24 @@ class NfcDiagnosticReader {
             isNfcF = isNfcF,
             idmHex = idmHex,
             idmRedacted = idmRedacted,
+            idmDigestKey = idmDigest,
             systemCodeHex = systemCodeHex,
             manufacturerPmmHex = pmmHex,
-            scanCount = scanCounter,
+            scanCount = count,
+            rfLinkOk = rfLinkOk,
+            isTagLost = isTagLost,
             errorMessage = errorMsg
         )
     }
 
     fun resetCounter() {
-        scanCounter = 0
+        scanCounter.set(0)
+        lastTagDigest = null
+        lastTagTimestamp = 0L
+    }
+
+    companion object {
+        private const val TECH_NFC_F = "android.nfc.tech.NfcF"
+        private const val DEFAULT_DEBOUNCE_MS = 1200L
     }
 }
-
