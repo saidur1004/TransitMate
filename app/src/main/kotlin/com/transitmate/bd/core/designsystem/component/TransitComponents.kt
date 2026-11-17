@@ -1,6 +1,7 @@
 package com.transitmate.bd.core.designsystem.component
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -56,7 +57,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -224,23 +229,56 @@ fun SurfaceSectionCard(
 fun TransitHeroCard(
     modifier: Modifier = Modifier,
     accentColor: Color = MaterialTheme.colorScheme.primary,
+    showWatermarkArcs: Boolean = true,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(20.dp)
     val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    val surfaceColor = MaterialTheme.colorScheme.surface
+    val tintBrush = Brush.verticalGradient(
+        colors = listOf(
+            accentColor.copy(alpha = 0.08f),
+            surfaceColor
+        )
+    )
     val inner: @Composable () -> Unit = {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .background(accentColor)
-            )
-            Column(
-                modifier = Modifier.padding(20.dp),
-                content = content
-            )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(tintBrush)
+        ) {
+            if (showWatermarkArcs) {
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    val stroke = Stroke(width = 2.dp.toPx())
+                    val cx = size.width - 12.dp.toPx()
+                    val cy = 20.dp.toPx()
+                    listOf(44.dp, 72.dp, 100.dp).forEach { rDp ->
+                        val r = rDp.toPx()
+                        drawArc(
+                            color = accentColor.copy(alpha = 0.14f),
+                            startAngle = 100f,
+                            sweepAngle = 120f,
+                            useCenter = false,
+                            topLeft = Offset(cx - r, cy - r),
+                            size = Size(r * 2f, r * 2f),
+                            style = stroke
+                        )
+                    }
+                }
+            }
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .background(accentColor)
+                )
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    content = content
+                )
+            }
         }
     }
     if (onClick != null) {
@@ -248,7 +286,7 @@ fun TransitHeroCard(
             onClick = onClick,
             modifier = modifier.fillMaxWidth(),
             shape = shape,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = surfaceColor),
             border = border,
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) { inner() }
@@ -256,7 +294,7 @@ fun TransitHeroCard(
         Card(
             modifier = modifier.fillMaxWidth(),
             shape = shape,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            colors = CardDefaults.cardColors(containerColor = surfaceColor),
             border = border,
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) { inner() }
@@ -672,12 +710,12 @@ fun FullIdmRow(
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = label,
+                text = label.uppercase(),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -693,16 +731,29 @@ fun FullIdmRow(
             )
         }
         if (onCopy != null) {
-            IconButton(
+            Surface(
                 onClick = onCopy,
-                modifier = Modifier.size(36.dp)
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.ContentCopy,
-                    contentDescription = stringResource(R.string.result_copy_idm),
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(18.dp)
-                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ContentCopy,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(14.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.result_copy_idm),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
             }
         }
     }

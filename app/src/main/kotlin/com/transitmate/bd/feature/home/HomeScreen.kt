@@ -25,8 +25,10 @@ import androidx.compose.material.icons.rounded.DirectionsSubway
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.material.icons.rounded.Verified
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material.icons.rounded.WifiOff
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -38,8 +40,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.AppLogoMark
 import com.transitmate.bd.core.designsystem.component.BannerSeverity
@@ -61,10 +65,12 @@ import java.util.Date
 fun HomeScreen(
     nfcStatus: NfcHardwareStatus,
     primaryCard: SavedTransitCard?,
+    savedCardCount: Int,
     recentTransactions: List<VerifiedTransaction>,
     onScanClick: () -> Unit,
     onOpenNfcSettings: () -> Unit,
     onPrimaryCardClick: (Long) -> Unit,
+    onOpenMyCards: () -> Unit,
     onOpenFareCalculator: () -> Unit,
     onOpenStationExplorer: () -> Unit,
     onOpenHistory: () -> Unit
@@ -149,12 +155,21 @@ fun HomeScreen(
         // Primary Transit Card Hero
         item {
             if (primaryCard != null) {
+                val isVerifiedCard = primaryCard.recognitionStatus != CardRecognitionStatus.UNVERIFIED
                 val recognitionLabel = when (primaryCard.recognitionStatus) {
-                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> "Rapid Pass"
-                    CardRecognitionStatus.VERIFIED_MRT_PASS -> "MRT Pass"
+                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> "Rapid Pass · DTCA"
+                    CardRecognitionStatus.VERIFIED_MRT_PASS -> "MRT Pass · DMTCL"
                     CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_row_recognition_pending)
                 }
-                TransitHeroCard(onClick = { onPrimaryCardClick(primaryCard.id) }) {
+                val accentColor = when (primaryCard.recognitionStatus) {
+                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> MaterialTheme.colorScheme.secondary
+                    CardRecognitionStatus.VERIFIED_MRT_PASS -> MaterialTheme.colorScheme.primary
+                    CardRecognitionStatus.UNVERIFIED -> MaterialTheme.colorScheme.outline
+                }
+                TransitHeroCard(
+                    accentColor = accentColor,
+                    onClick = { onPrimaryCardClick(primaryCard.id) }
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -170,9 +185,13 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "${primaryCard.rfTechnology} · $recognitionLabel",
+                                text = recognitionLabel,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (primaryCard.recognitionStatus == CardRecognitionStatus.VERIFIED_RAPID_PASS) {
+                                    MaterialTheme.colorScheme.secondary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
@@ -183,56 +202,68 @@ fun HomeScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        modifier = Modifier.fillMaxWidth()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(R.string.home_balance_label),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                if (primaryCard.lastVerifiedBalanceBdt != null) {
-                                    Text(
-                                        text = "৳ ${primaryCard.lastVerifiedBalanceBdt}",
-                                        style = MaterialTheme.typography.displayMedium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (primaryCard.lastVerifiedBalanceBdt != null) {
+                                    stringResource(R.string.result_balance_verified_label)
                                 } else {
-                                    Text(
-                                        text = stringResource(R.string.home_balance_unavailable),
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = stringResource(R.string.home_balance_unavailable_note),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                            if (primaryCard.lastVerifiedBalanceBdt == null) {
-                                Icon(
-                                    imageVector = Icons.Rounded.Info,
-                                    contentDescription = null,
-                                    tint = semantic.warning,
-                                    modifier = Modifier.size(22.dp)
+                                    stringResource(R.string.home_balance_label)
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            if (primaryCard.lastVerifiedBalanceBdt != null) {
+                                Text(
+                                    text = "৳ ${primaryCard.lastVerifiedBalanceBdt}",
+                                    style = MaterialTheme.typography.displayMedium.copy(
+                                        fontSize = 34.sp,
+                                        lineHeight = 40.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        fontFeatureSettings = "tnum"
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            } else {
+                                Text(
+                                    text = stringResource(R.string.home_balance_unavailable),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = stringResource(R.string.home_balance_unavailable_note),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
+                        if (primaryCard.lastVerifiedBalanceBdt != null && isVerifiedCard) {
+                            StatusPill(
+                                text = stringResource(R.string.result_badge_verified),
+                                containerColor = semantic.successContainer,
+                                contentColor = semantic.onSuccessContainer,
+                                icon = Icons.Rounded.Verified
+                            )
+                        } else if (primaryCard.lastVerifiedBalanceBdt == null) {
+                            Icon(
+                                imageVector = Icons.Rounded.Info,
+                                contentDescription = null,
+                                tint = semantic.warning,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
+                    HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -253,6 +284,22 @@ fun HomeScreen(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    }
+                }
+
+                if (savedCardCount > 1) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = onOpenMyCards) {
+                            Text(text = stringResource(R.string.home_manage_all_cards, savedCardCount))
+                            Icon(
+                                imageVector = Icons.Rounded.ChevronRight,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
                     }
                 }
             } else {

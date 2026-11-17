@@ -21,4 +21,5 @@ interface CardRepository {
     suspend fun clearScanHistory()
     suspend fun clearAllData()
     suspend fun buildSanitizedExportJson(): String
+    suspend fun buildTransactionsCsv(isBangla: Boolean): String
 }

@@ -79,9 +79,9 @@ private val FaqEntries = listOf(
     ),
     FaqEntry(
         qEn = "How is my card privacy protected?",
-        aEn = "Card identifiers are masked in the UI and hashed before local database storage. Zero data ever leaves your device.",
+        aEn = "Your card IDm and travel history are stored strictly offline on your device inside local database storage. Zero data ever leaves your phone.",
         qBn = "আমার কার্ডের গোপনীয়তা কীভাবে সুরক্ষিত থাকে?",
-        aBn = "কার্ডের আইডি স্ক্রিনে আড়াল করা থাকে এবং কোনো তথ্য কখনোই আপনার ফোনের বাইরে পাঠানো হয় না।"
+        aBn = "আপনার কার্ড IDm এবং ভ্রমণ ইতিহাস কেবল এই ডিভাইসেই সম্পূর্ণ অফলাইনে সংরক্ষিত থাকে। কোনো তথ্য ফোনের বাইরে বা কোনো সার্ভারে পাঠানো হয় না।"
     )
 )
 

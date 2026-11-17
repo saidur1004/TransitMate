@@ -52,6 +52,7 @@
 
     <!-- Home Dashboard -->
     <string name="home_primary_badge">Primary</string>
+    <string name="home_manage_all_cards">My Cards (%1$d)</string>
     <string name="home_no_card_title">No Saved Card Yet</string>
     <string name="home_no_card_subtitle">Tap your MRT Pass or Rapid Pass behind your phone to inspect it and save it locally.</string>
     <string name="home_balance_label">BALANCE STATUS</string>
@@ -91,7 +92,6 @@
 
     <!-- Scan Result -->
     <string name="result_title">Scan Result</string>
-    <string name="result_banner_detected">Card Detected Successfully</string>
     <string name="result_card_detected_title">Detected Transit Card</string>
     <string name="result_badge_verified">Verified</string>
     <string name="result_badge_unverified">Unverified Type</string>
@@ -106,8 +106,6 @@
     <string name="result_balance_empty_desc">FeliCa service blocks were read cleanly, but no trip or balance history records exist on this card yet.</string>
     <string name="result_activity_title">Recent Card Activity</string>
     <string name="result_activity_records">%1$d records</string>
-    <string name="result_row_detection">Card Detection</string>
-    <string name="result_row_detection_ok">Successful</string>
     <string name="result_row_technology">Technology</string>
     <string name="result_row_recognition">Card Recognition</string>
     <string name="result_row_recognition_pending">Unidentified / Pending</string>
@@ -160,7 +158,10 @@
     <string name="insights_period_all">All Time</string>
     <string name="insights_metric_trips">Trips</string>
     <string name="insights_metric_spent">Spent</string>
+    <string name="insights_metric_topups">Top-Ups</string>
     <string name="insights_metric_avg">Avg Fare</string>
+    <string name="insights_top_routes">Top Travel Routes</string>
+    <string name="insights_route_trips">%1$d trips · ৳ %2$d</string>
     <string name="insights_empty_title">No Analytics Data Available</string>
     <string name="insights_empty_body">Spending trends and frequent station charts populate strictly from verified card travel records.</string>
     <string name="insights_tools_header">Transit Tools &amp; Records</string>
@@ -171,10 +172,11 @@
     <string name="fare_calc_to">TO STATION</string>
     <string name="fare_calc_select_prompt">Select station</string>
     <string name="fare_calc_official_badge">Official Chart</string>
+    <string name="fare_calc_route_summary">MRT Line 6 · %1$d Stations</string>
     <string name="fare_calc_pass_label" formatted="false">MRT / RAPID PASS (10% OFF)</string>
     <string name="fare_calc_single_label">SINGLE JOURNEY</string>
     <string name="fare_calc_discount_note" formatted="false">Includes published 10% contactless smart card discount per DMTCL fare policy.</string>
-    <string name="fare_calc_offline_note" formatted="false">Works 100% offline using published DMTCL MRT Line 6 fare matrix</string>
+    <string name="fare_calc_offline_note" formatted="false">Source: DMTCL Official MRT Line 6 Tariff Chart (100% offline)</string>
     <string name="fare_calc_empty_title">Select Origin &amp; Destination</string>
     <string name="fare_calc_empty_body">Choose two different stations on MRT Line 6 to view single-journey and smart-card fares.</string>
     <string name="fare_calc_same_station">Origin and destination stations must be different.</string>
@@ -217,13 +219,19 @@
     <string name="data_mgmt_history_records">Verified History Records</string>
     <string name="data_mgmt_cloud_backups">Cloud Backups</string>
     <string name="data_mgmt_cloud_disabled">Disabled (Offline-Only)</string>
-    <string name="data_mgmt_export_title">Preview &amp; Export Local Data</string>
-    <string name="data_mgmt_export_sub">Sanitized JSON summary (masked IDs)</string>
+    <string name="data_mgmt_export_csv_title">Export History as CSV (UTF-8)</string>
+    <string name="data_mgmt_export_csv_sub">Save spreadsheet file with English &amp; বাংলা text</string>
+    <string name="data_mgmt_csv_saved">CSV exported cleanly (%1$d records)</string>
+    <string name="data_mgmt_csv_empty">No verified transactions to export yet</string>
+    <string name="data_mgmt_history_cleared">Scan history cleared</string>
+    <string name="data_mgmt_all_deleted">All local data deleted</string>
+    <string name="data_mgmt_export_title">Preview JSON Summary</string>
+    <string name="data_mgmt_export_sub">Sanitized JSON summary (hashed card keys)</string>
     <string name="data_mgmt_clear_history_title">Clear Scan History</string>
     <string name="data_mgmt_clear_history_sub">Keep saved cards, remove logs</string>
     <string name="data_mgmt_delete_all">Delete All Local Data</string>
     <string name="sheet_export_title">Local Data Export Preview</string>
-    <string name="sheet_export_desc">All identifiers remain privacy-masked in exported JSON summaries.</string>
+    <string name="sheet_export_desc">Identifiers remain hashed in exported JSON summaries.</string>
     <string name="sheet_export_copy">Copy Sanitized JSON</string>
     <string name="sheet_privacy_title">Privacy &amp; Offline Guarantee</string>
 
@@ -251,7 +259,7 @@
     <string name="about_target_cards">Target Cards</string>
     <string name="about_target_val">MRT Pass &amp; Rapid Pass</string>
     <string name="about_scope_label">Balance / History Scope</string>
-    <string name="about_scope_val">Subject to Physical Verification</string>
+    <string name="about_scope_val">Rapid Pass Verified · MRT Pass Pending</string>
     <string name="about_storage_label">Data Storage</string>
     <string name="about_storage_val">Local Device Only (No Login)</string>
 </resources>

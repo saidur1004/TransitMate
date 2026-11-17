@@ -142,6 +142,46 @@ class TransitCardBlockDecoderTest {
         assertEquals(300, snapshot.latestBalanceBdt)
     }
 
+    @Test
+    fun decodeCardData_rapidPassToppedUpAtMetroCounterRemainsRapidPass() {
+        // Real hardware regression: a physical Rapid Pass (IDm starting 01:27) recharged at
+        // an MRT Line 6 machine carries header 1D 60 02 01 + metro trips, yet must classify as RAPID_PASS.
+        val metroTrip = buildBlock(
+            header = byteArrayOf(0x08, 0x52, 0x10, 0x00),
+            packedTimestamp = encodeTime(26, 10, 3, 18),
+            fromStation = 10, // Motijheel
+            toStation = 55,   // Shewrapara
+            balanceBdt = 14
+        )
+        val mrtStationTopUp = buildBlock(
+            header = byteArrayOf(0x1D, 0x60, 0x02, 0x01),
+            packedTimestamp = encodeTime(26, 2, 22, 18),
+            fromStation = 0,
+            toStation = 0,
+            balanceBdt = 104
+        )
+        val priorMetroTrip = buildBlock(
+            header = byteArrayOf(0x08, 0x52, 0x10, 0x00),
+            packedTimestamp = encodeTime(26, 2, 22, 16),
+            fromStation = 30, // Shahbagh
+            toStation = 55,   // Shewrapara
+            balanceBdt = 4
+        )
+
+        val snapshot = TransitCardBlockDecoder.decodeCardData(
+            idmBytes = rapidIdm,
+            systemCodeHex = "90E3",
+            rawBlocks = listOf(metroTrip, mrtStationTopUp, priorMetroTrip),
+            readSucceeded = true
+        )
+
+        assertEquals(CardType.RAPID_PASS, snapshot.cardType)
+        assertEquals(CardRecognitionStatus.VERIFIED_RAPID_PASS, snapshot.recognitionStatus)
+        assertEquals(14, snapshot.latestBalanceBdt)
+        assertEquals(TransactionType.TOP_UP, snapshot.transactions[1].type)
+        assertEquals(100, snapshot.transactions[1].amountBdt)
+    }
+
     private fun encodeTime(yearOffset: Int, month: Int, day: Int, hour: Int): Int =
         (yearOffset shl 17) or (month shl 13) or (day shl 8) or (hour shl 3)
 

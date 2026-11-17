@@ -182,7 +182,7 @@ fun FareCalculatorScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "MRT Line 6 · ${fare.stationCount} Stations",
+                                text = stringResource(R.string.fare_calc_route_summary, fare.stationCount),
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )

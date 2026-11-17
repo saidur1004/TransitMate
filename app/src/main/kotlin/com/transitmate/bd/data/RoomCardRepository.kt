@@ -120,6 +120,12 @@ class RoomCardRepository(
         return """{"app":"TransitMate","mode":"offline-read-only","savedCardCount":${cards.size},"verifiedTransactionCount":${tx.size},"cards":[$cardEntries]}"""
     }
 
+    override suspend fun buildTransactionsCsv(isBangla: Boolean): String {
+        val cards = dao.getAllCardsOnce().map { it.toDomain() }
+        val tx = dao.getAllTransactionsOnce().map { it.toDomain() }
+        return CsvExportFormatter.formatTransactionsCsv(cards, tx, isBangla)
+    }
+
     private fun escapeJson(value: String): String =
         value.replace("\\", "\\\\").replace("\"", "\\\"")
 

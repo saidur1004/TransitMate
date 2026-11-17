@@ -122,6 +122,9 @@ class MainViewModelTest {
         }
 
         override suspend fun buildSanitizedExportJson(): String = """{"savedCardCount":${cardsFlow.value.size}}"""
+
+        override suspend fun buildTransactionsCsv(isBangla: Boolean): String =
+            com.transitmate.bd.data.CsvExportFormatter.formatTransactionsCsv(cardsFlow.value, txFlow.value, isBangla)
     }
 
     @Test

@@ -22,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.transitmate.bd.core.designsystem.component.TransitBottomNavigation
+import com.transitmate.bd.domain.model.AppLanguage
 import com.transitmate.bd.domain.repository.TransitInfoRepository
 import com.transitmate.bd.feature.about.AboutScreen
 import com.transitmate.bd.feature.carddetails.CardDetailsScreen
@@ -145,7 +146,7 @@ fun TransitMateAppShell(
                         onFinishOnboarding = {
                             viewModel.completeOnboarding()
                             navController.navigate(TransitRoutes.HOME) {
-                                popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                                popUpTo(TransitRoutes.ONBOARDING) { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
@@ -157,10 +158,12 @@ fun TransitMateAppShell(
                     HomeScreen(
                         nfcStatus = uiState.nfcStatus,
                         primaryCard = primaryCard,
+                        savedCardCount = uiState.savedCards.size,
                         recentTransactions = uiState.verifiedTransactions,
                         onScanClick = { navigateToTab(TransitRoutes.SCAN) },
                         onOpenNfcSettings = onOpenNfcSettings,
                         onPrimaryCardClick = { cardId -> navController.navigate(TransitRoutes.cardDetails(cardId)) },
+                        onOpenMyCards = { navigateToTab(TransitRoutes.MY_CARDS) },
                         onOpenFareCalculator = { navController.navigate(TransitRoutes.fareCalculator()) },
                         onOpenStationExplorer = { navController.navigate(TransitRoutes.STATION_EXPLORER) },
                         onOpenHistory = { navController.navigate(TransitRoutes.history()) }
@@ -202,6 +205,7 @@ fun TransitMateAppShell(
                                 popUpTo(TransitRoutes.SCAN_RESULT) { inclusive = true }
                             }
                         },
+                        onOpenCardHistory = { cardId -> navController.navigate(TransitRoutes.history(cardId)) },
                         onScanAnother = {
                             navController.popBackStack()
                             viewModel.startScannerSession()
@@ -248,13 +252,10 @@ fun TransitMateAppShell(
                     })
                 ) { entry ->
                     val cardId = entry.arguments?.getString("cardId")?.toLongOrNull()
-                    val scopedTx = if (cardId != null) {
-                        uiState.verifiedTransactions.filter { it.cardId == cardId }
-                    } else {
-                        uiState.verifiedTransactions
-                    }
                     TransactionHistoryScreen(
-                        transactions = scopedTx,
+                        transactions = uiState.verifiedTransactions,
+                        savedCards = uiState.savedCards,
+                        initialCardId = cardId,
                         onBack = { navController.popBackStack() },
                         onOpenScanner = { navigateToTab(TransitRoutes.SCAN) }
                     )
@@ -302,7 +303,9 @@ fun TransitMateAppShell(
                     DataManagementScreen(
                         savedCardCount = uiState.savedCards.size,
                         historyCount = uiState.verifiedTransactions.size,
+                        isBangla = uiState.preferences.language == AppLanguage.BANGLA,
                         onLoadExportPreview = viewModel::getSanitizedExportJson,
+                        onBuildCsvExport = viewModel::getTransactionsCsv,
                         onClearHistory = viewModel::clearScanHistory,
                         onDeleteAllData = viewModel::clearAllLocalData,
                         onBack = { navController.popBackStack() }

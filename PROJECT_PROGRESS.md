@@ -167,16 +167,30 @@ Executed after the final code edit:
 - **Reference Audit (`mrt-buddy`):** **Completed** (`../_external_reference/mrt-buddy/`, kept strictly outside project Git repo; GPL-3.0 compliance enforced with zero copied code)
 - **Root Cause Analysis:** **Completed** (`docs/PHASE_06_FELICA_BALANCE_READING_REPORT.md`)
 - **Code Implemented:** **Completed** (`FelicaProtocol`, `TransitCardBlockDecoder`, `FelicaBlockTransceiver`, `NfcDiagnosticReader`, `NfcTagScanMapper`, Room `v2` `MIGRATION_1_2`, `MainViewModel`, `ScanResultScreen` redesign, full unmasked `IDm` + Copy IDm action)
-- **Unit Tested:** **Completed** (`40/40` passed, `0` failed, `0` skipped)
-- **Emulator Verified:** **Not Applicable for RF NFC** (AVDs do not emulate RF FeliCa taps; no emulator booted during Phase 06 turn)
-- **Physical Device Verified:** **In Progress / Pending Owner Rapid Pass Tap** (`MRT Pass` remains **Blocked — Card Not Available**)
+- **Baseline Physical Rapid Pass Test:** **Verified** — Read **`৳ 14`** balance and **`14` records** over `NfcF` on real Android device; exposed `1D 60 02 01` recharge header misclassification bug.
+- **Physical Rapid Pass Post-Fix Re-Verification & Repeated Scan:** **Pending Physical Verification** (`01:27` `IDm` prefix precedence fix verified via JUnit regression test `decodeCardData_rapidPassToppedUpAtMetroCounterRemainsRapidPass`)
+- **Physical MRT Pass Hardware Validation:** **Blocked (Card Not Available)**
 
-### Build, Test & Lint Verification (17 Nov 2026)
-- **Command:** `./gradlew clean testDebugUnitTest lintDebug assembleDebug --no-daemon` -> `BUILD SUCCESSFUL in 58s` (exit code `0`)
-- **Unit Tests:** **40/40 passed** (`FelicaProtocolTest`: 5, `TransitCardBlockDecoderTest`: 4, `NfcFCardReaderTest`: 4, `NfcTagScanMapperTest`: 7, `NfcDiagnosticModelTest`: 4, `DefaultNfcAvailabilityRepositoryTest`: 2, `StaticTransitInfoRepositoryTest`: 4, `CardTypeTest`: 3, `MainViewModelTest`: 3, `StartupViewModelTest`: 4)
-- **Android Lint:** `0 errors, 22 warnings`
-- **APK Artifact:** `app/build/outputs/apk/debug/app-debug.apk` (20 MB)
+---
+
+## 9. Phase 06 Closure, Phase 07–08 Audit & UI/UX Wallet Redesign (17 Nov 2026)
+
+### Implemented Fixes & Enhancements
+1. **Rapid Pass vs. MRT Pass Classification Fix (`TransitCardBlockDecoder.kt`):** Prioritized `01:27` Rapid Pass `IDm` signature ahead of `1D 60 02 01` Metro counter recharge header (`hasMrtTopUp`) and added dynamic year guard (`YearMonth.now(DHAKA_ZONE_OFFSET).year + 2`). Deliverable: [`docs/PHASE_06_HARDWARE_VALIDATION.md`](docs/PHASE_06_HARDWARE_VALIDATION.md).
+2. **CSV Transaction Export (`CsvExportFormatter.kt`, `SettingsScreen.kt`):** Implemented RFC-4180 UTF-8 BOM CSV formatting with EN/বাংলা station/header translation and real Android Storage Access Framework (`ActivityResultContracts.CreateDocument("text/csv")`) export.
+3. **Insights & History Audit Fixes (`InsightsScreen.kt`, `TransactionHistoryScreen.kt`):** Switched `Insights` default filter window to `All Time`, added 4 KPI summary tiles and M3 `Top Travel Routes` breakdown bars, and added per-card filter chips to `TransactionHistoryScreen`.
+4. **Priority UI/UX Wallet Redesign (`v2_redesign` + Compose):** Generated 8 reference mockups (`design/ui_designs/v2_redesign/`), enhanced `TransitHeroCard` (tonal gradients + `Canvas` contactless arcs) and `FullIdmRow` (`Copy IDm` pill), and redesigned `HomeScreen`, `ScanResultScreen`, `MyCardsScreen`, and `CardDetailsScreen`. Deliverable: [`docs/UI_UX_REDESIGN_REPORT.md`](docs/UI_UX_REDESIGN_REPORT.md).
+5. **Onboarding Back-Stack & Localization Polish (`TransitMateNavHost.kt`, `FareCalculatorScreen.kt`, `StationExplorerScreen.kt`):** Fixed `popUpTo(TransitRoutes.ONBOARDING) { inclusive = true }` caught during emulator QA, localized fare route summary + added DMTCL tariff attribution, and ordered Bangla station names first in `bn` locale.
+
+### Automated Build, Unit, Lint & Emulator QA Verification (17 Nov 2026)
+- **Clean Build, Unit Test & Lint Gate:** `./gradlew clean testDebugUnitTest lintDebug assembleDebug --no-daemon` -> `BUILD SUCCESSFUL in 28s` (exit code `0`)
+  - **Unit Tests:** **`43/43 passed`** (`0 failed`, `0 skipped` across 11 suites including `TransitCardBlockDecoderTest`: 5/5 and `CsvExportAndRepositoryTest`: 2/2)
+  - **Android Lint:** **`0 errors, 22 warnings`**
+  - **Debug APK:** `app/build/outputs/apk/debug/app-debug.apk` (`20 MB`)
+- **Android Instrumentation & UI Tests (`Pixel_9` AVD):** `./gradlew connectedDebugAndroidTest --no-daemon` -> `BUILD SUCCESSFUL in 53s`
+  - **Instrumented Tests:** **`6/6 passed`** (`0 failed`, `0 skipped` — `TransitMateInstrumentedTest`: Room `MIGRATION_1_2`, ScanResult Hero + Copy IDm, Home & Insights All-Time Route Breakdown, Bangla Station Explorer, Bottom Navigation switching)
+- **Emulator Visual Walkthrough (`Pixel_9` AVD):** Verified Light (English) and Dark Graphite (বাংলা) theme switching, onboarding transition, bottom navigation, and offline tools (`Fare Calculator`, `Station Explorer`, `Insights`, `Settings`).
 
 ### Next Recommended Task
-1. Install `app/build/outputs/apk/debug/app-debug.apk` on an NFC-enabled Android device and tap a physical **Rapid Pass** on the **Scan** screen to validate live BDT purse balance, full `IDm`, `Rapid Pass` classification, and Room transaction persistence.
-2. When a physical **MRT Pass** becomes available, test it on **Settings → NFC Diagnostics** (`SF1/SF2` status + `0x220F` block read) to extend hardware-verified MRT Pass support.
+1. Install `app/build/outputs/apk/debug/app-debug.apk` on an NFC-enabled Android device and tap the physical **Rapid Pass** twice to verify post-fix `Rapid Pass · DTCA` classification and repeated-scan persistence (`Pending Physical Verification`).
+2. When a physical **MRT Pass** becomes available, test it on **Settings → NFC Diagnostics** and **Scan** to unblock MRT Pass hardware verification (`Blocked (Card Not Available)`).

@@ -242,7 +242,7 @@ All buttons enforce minimum touch height `48.dp` (`minHeight = 48.dp`), `padding
 
 1. **Hero Transit Card (`TransitCardHero`):**
    - Corner Radius: `20.dp`, Padding: `20.dp`, `1.dp` subtle `Outline` border, `Surface` fill with a restrained `4.dp` left/top authority indicator bar (Transit Teal for MRT Pass, Metro Blue for Rapid Pass, Slate Grey for Unidentified).
-   - Displays: Card Nickname + Authority subtitle, Status badge (`Verified` / `Detected` / `Saved`), Privacy-masked identifier row with toggle/copy icon, and **Verified Balance** (`৳ ...`) OR crisp `Balance Unavailable` pill.
+   - Displays: Card Nickname + Authority subtitle, Status badge (`Verified` / `Detected` / `Saved`), Full read-only `Card IDm` identifier row (`01:27:...` format) with copy pill button, and **Verified Balance** (`৳ ...`) OR crisp `Balance Unavailable` pill.
 2. **Standard Info / Summary Card (`StandardSurfaceCard`):**
    - Corner Radius: `16.dp`, Padding: `16.dp`, `Surface` background, `1.dp` `Outline` border. Used for hardware readiness, recent trips container, settings groups, and insights summaries.
 3. **Alert / Status Banner Card (`StatusBannerCard`):**

@@ -31,6 +31,11 @@ import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Storage
 import androidx.compose.material.icons.rounded.Terminal
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -42,6 +47,8 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,13 +63,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import java.nio.charset.StandardCharsets
 import com.transitmate.bd.BuildConfig
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
@@ -353,7 +358,9 @@ fun PrivacyInfoSheetContent(onClose: () -> Unit) {
 fun DataManagementScreen(
     savedCardCount: Int,
     historyCount: Int,
+    isBangla: Boolean,
     onLoadExportPreview: suspend () -> String,
+    onBuildCsvExport: suspend (Boolean) -> String,
     onClearHistory: () -> Unit,
     onDeleteAllData: () -> Unit,
     onBack: () -> Unit
@@ -361,11 +368,35 @@ fun DataManagementScreen(
     val semantic = TransitMateThemeTokens.semantic
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     var exportPreviewJson by remember { mutableStateOf<String?>(null) }
     var showDeleteAllConfirm by remember { mutableStateOf(false) }
 
+    val csvSavedMsg = stringResource(R.string.data_mgmt_csv_saved, historyCount)
+    val csvEmptyMsg = stringResource(R.string.data_mgmt_csv_empty)
+    val historyClearedMsg = stringResource(R.string.data_mgmt_history_cleared)
+    val allDeletedMsg = stringResource(R.string.data_mgmt_all_deleted)
+
+    val createCsvLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val csvText = onBuildCsvExport(isBangla)
+                runCatching {
+                    context.contentResolver.openOutputStream(uri)?.use { out ->
+                        out.write(csvText.toByteArray(StandardCharsets.UTF_8))
+                    }
+                }.onSuccess {
+                    snackbarHostState.showSnackbar(csvSavedMsg)
+                }
+            }
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TransitTopBar(
                 title = stringResource(R.string.settings_data_mgmt),
@@ -401,6 +432,25 @@ fun DataManagementScreen(
             SurfaceSectionCard(contentPadding = 4.dp) {
                 SettingsRow(
                     icon = Icons.Rounded.Download,
+                    title = stringResource(R.string.data_mgmt_export_csv_title),
+                    subtitle = stringResource(R.string.data_mgmt_export_csv_sub),
+                    badgeBg = semantic.successContainer,
+                    badgeFg = semantic.onSuccessContainer,
+                    onClick = {
+                        if (historyCount == 0) {
+                            scope.launch { snackbarHostState.showSnackbar(csvEmptyMsg) }
+                        } else {
+                            createCsvLauncher.launch("transitmate_history.csv")
+                        }
+                    }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 14.dp),
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                SettingsRow(
+                    icon = Icons.Rounded.Download,
                     title = stringResource(R.string.data_mgmt_export_title),
                     subtitle = stringResource(R.string.data_mgmt_export_sub),
                     badgeBg = MaterialTheme.colorScheme.primaryContainer,
@@ -420,7 +470,10 @@ fun DataManagementScreen(
                     subtitle = stringResource(R.string.data_mgmt_clear_history_sub),
                     badgeBg = semantic.warningContainer,
                     badgeFg = semantic.onWarningContainer,
-                    onClick = onClearHistory
+                    onClick = {
+                        onClearHistory()
+                        scope.launch { snackbarHostState.showSnackbar(historyClearedMsg) }
+                    }
                 )
             }
 
@@ -507,6 +560,7 @@ fun DataManagementScreen(
                     onClick = {
                         showDeleteAllConfirm = false
                         onDeleteAllData()
+                        scope.launch { snackbarHostState.showSnackbar(allDeletedMsg) }
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(

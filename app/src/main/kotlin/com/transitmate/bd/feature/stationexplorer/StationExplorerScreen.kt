@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
@@ -65,6 +66,7 @@ fun StationExplorerScreen(
     var selectedStation by remember { mutableStateOf<MetroStation?>(null) }
 
     val allStations = remember { transitInfoRepository.getStations() }
+    val isBangla = LocalConfiguration.current.locales[0]?.language == "bn"
     val filteredStations = remember(query, terminalsOnly) {
         transitInfoRepository.searchStations(query)
             .let { list -> if (terminalsOnly) list.filter { it.isTerminal } else list }
@@ -183,9 +185,12 @@ fun StationExplorerScreen(
                                         }
                                     }
                                     Column {
-                                        Text(text = station.nameEn, style = MaterialTheme.typography.titleSmall)
                                         Text(
-                                            text = station.nameBn,
+                                            text = if (isBangla) station.nameBn else station.nameEn,
+                                            style = MaterialTheme.typography.titleSmall
+                                        )
+                                        Text(
+                                            text = if (isBangla) station.nameEn else station.nameBn,
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )

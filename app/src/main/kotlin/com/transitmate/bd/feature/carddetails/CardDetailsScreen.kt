@@ -64,6 +64,7 @@ import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.CardType
 import com.transitmate.bd.domain.model.SavedTransitCard
+import com.transitmate.bd.domain.model.TransactionType
 import com.transitmate.bd.domain.model.VerifiedTransaction
 import kotlinx.coroutines.launch
 import java.text.DateFormat
@@ -268,6 +269,32 @@ fun CardDetailsScreen(
                 onClick = onRefreshScan
             )
 
+            if (transactions.isNotEmpty()) {
+                val trips = transactions.filter { it.type == TransactionType.TRIP }
+                val totalSpent = trips.sumOf { it.amountBdt ?: 0 }
+                val totalTopUps = transactions.filter { it.type == TransactionType.TOP_UP }.sumOf { it.amountBdt ?: 0 }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    CardStatBox(
+                        label = stringResource(R.string.insights_metric_trips),
+                        value = "${trips.size}",
+                        modifier = Modifier.weight(1f)
+                    )
+                    CardStatBox(
+                        label = stringResource(R.string.insights_metric_spent),
+                        value = "৳ $totalSpent",
+                        modifier = Modifier.weight(1f)
+                    )
+                    CardStatBox(
+                        label = stringResource(R.string.insights_metric_topups),
+                        value = "৳ $totalTopUps",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
             SurfaceSectionCard {
                 InfoKeyValueRow(
                     label = stringResource(R.string.result_row_technology),
@@ -380,5 +407,33 @@ fun CardDetailsScreen(
             },
             onDismiss = { showDeleteDialog = false }
         )
+    }
+}
+
+@Composable
+private fun CardStatBox(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(3.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
     }
 }

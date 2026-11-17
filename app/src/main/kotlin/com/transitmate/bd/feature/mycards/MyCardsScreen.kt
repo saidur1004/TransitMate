@@ -39,7 +39,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.DeleteCardConfirmationDialog
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
@@ -121,14 +123,14 @@ fun MyCardsScreen(
             items(cards, key = { it.id }) { card ->
                 var menuExpanded by remember { mutableStateOf(false) }
                 val isVerified = card.recognitionStatus != CardRecognitionStatus.UNVERIFIED
-                val stripColor = when {
-                    card.isPrimary -> MaterialTheme.colorScheme.primary
-                    isVerified -> MaterialTheme.colorScheme.secondary
-                    else -> MaterialTheme.colorScheme.outline
+                val stripColor = when (card.recognitionStatus) {
+                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> MaterialTheme.colorScheme.secondary
+                    CardRecognitionStatus.VERIFIED_MRT_PASS -> MaterialTheme.colorScheme.primary
+                    CardRecognitionStatus.UNVERIFIED -> MaterialTheme.colorScheme.outline
                 }
                 val recognitionText = when (card.recognitionStatus) {
-                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> CardType.RAPID_PASS.displayName
-                    CardRecognitionStatus.VERIFIED_MRT_PASS -> CardType.MRT_PASS.displayName
+                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> "Rapid Pass · DTCA"
+                    CardRecognitionStatus.VERIFIED_MRT_PASS -> "MRT Pass · DMTCL"
                     CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_row_recognition_pending)
                 }
 
@@ -142,33 +144,19 @@ fun MyCardsScreen(
                         verticalAlignment = Alignment.Top
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = card.nickname,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                if (card.isPrimary) {
-                                    StatusPill(
-                                        text = stringResource(R.string.home_primary_badge),
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                } else if (!isVerified) {
-                                    StatusPill(
-                                        text = stringResource(R.string.result_badge_unverified),
-                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(3.dp))
+                            Text(
+                                text = card.nickname,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "$recognitionText · ${card.rfTechnology}",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (card.recognitionStatus == CardRecognitionStatus.VERIFIED_RAPID_PASS) {
+                                    MaterialTheme.colorScheme.secondary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
                             )
                         }
 
@@ -216,8 +204,6 @@ fun MyCardsScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
@@ -225,28 +211,57 @@ fun MyCardsScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = card.cardIdm,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontFamily = FontFamily.Monospace,
-                                fontFeatureSettings = "tnum"
-                            ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        if (card.isPrimary) {
+                            StatusPill(
+                                text = stringResource(R.string.home_primary_badge),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        } else if (!isVerified) {
+                            StatusPill(
+                                text = stringResource(R.string.result_badge_unverified),
+                                containerColor = semantic.warningContainer,
+                                contentColor = semantic.onWarningContainer
+                            )
+                        } else {
+                            StatusPill(
+                                text = stringResource(R.string.result_badge_verified),
+                                containerColor = semantic.successContainer,
+                                contentColor = semantic.onSuccessContainer
+                            )
+                        }
+
                         if (card.lastVerifiedBalanceBdt != null) {
                             Text(
                                 text = "৳ ${card.lastVerifiedBalanceBdt}",
-                                style = MaterialTheme.typography.titleSmall,
-                                color = semantic.success
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFeatureSettings = "tnum"
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         } else {
                             Text(
-                                text = stringResource(R.string.result_balance_unavailable),
-                                style = MaterialTheme.typography.bodySmall,
+                                text = stringResource(R.string.home_balance_unavailable),
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = semantic.warning
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Text(
+                        text = card.cardIdm,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontFeatureSettings = "tnum"
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
 

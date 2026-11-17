@@ -52,6 +52,7 @@
 
     <!-- Home Dashboard -->
     <string name="home_primary_badge">প্রাথমিক</string>
+    <string name="home_manage_all_cards">আমার কার্ড (%1$d)</string>
     <string name="home_no_card_title">কোনো কার্ড সংরক্ষিত নেই</string>
     <string name="home_no_card_subtitle">কার্ড শনাক্ত ও সংরক্ষণ করতে এমআরটি পাস বা র‍্যাপিড পাস ফোনের পেছনে ট্যাপ করুন।</string>
     <string name="home_balance_label">ব্যালেন্স অবস্থা</string>
@@ -91,7 +92,6 @@
 
     <!-- Scan Result -->
     <string name="result_title">স্ক্যান ফলাফল</string>
-    <string name="result_banner_detected">কার্ড সফলভাবে শনাক্ত হয়েছে</string>
     <string name="result_card_detected_title">শনাক্তকৃত ট্রানজিট কার্ড</string>
     <string name="result_badge_verified">যাচাইকৃত</string>
     <string name="result_badge_unverified">ধরন অযাচাইকৃত</string>
@@ -106,8 +106,6 @@
     <string name="result_balance_empty_desc">কার্ডের সার্ভিস ব্লক পড়া গেছে, তবে এখনো কোনো ভ্রমণ বা ব্যালেন্স রেকর্ড নেই।</string>
     <string name="result_activity_title">সাম্প্রতিক কার্ড লেনদেন</string>
     <string name="result_activity_records">%1$dটি রেকর্ড</string>
-    <string name="result_row_detection">কার্ড শনাক্তকরণ</string>
-    <string name="result_row_detection_ok">সফল</string>
     <string name="result_row_technology">প্রযুক্তি</string>
     <string name="result_row_recognition">কার্ড যাচাই</string>
     <string name="result_row_recognition_pending">শনাক্তকরণ অপেক্ষমাণ</string>
@@ -160,7 +158,10 @@
     <string name="insights_period_all">সব সময়</string>
     <string name="insights_metric_trips">ভ্রমণ</string>
     <string name="insights_metric_spent">খরচ</string>
+    <string name="insights_metric_topups">রিচার্জ</string>
     <string name="insights_metric_avg">গড় ভাড়া</string>
+    <string name="insights_top_routes">জনপ্রিয় রুটসমূহ</string>
+    <string name="insights_route_trips">%1$dটি ভ্রমণ · ৳ %2$d</string>
     <string name="insights_empty_title">বিশ্লেষণের জন্য তথ্য পাওয়া যায়নি</string>
     <string name="insights_empty_body">যাচাইকৃত ভ্রমণ রেকর্ড পাওয়া গেলে খরচের চার্ট ও স্টেশন বিশ্লেষণ দেখা যাবে।</string>
     <string name="insights_tools_header">ট্রানজিট টুলস ও রেকর্ড</string>
@@ -171,10 +172,11 @@
     <string name="fare_calc_to">গন্তব্য স্টেশন</string>
     <string name="fare_calc_select_prompt">স্টেশন নির্বাচন করুন</string>
     <string name="fare_calc_official_badge">সরকারি তালিকা</string>
+    <string name="fare_calc_route_summary">এমআরটি লাইন ৬ · %1$dটি স্টেশন</string>
     <string name="fare_calc_pass_label" formatted="false">এমআরটি / র‍্যাপিড পাস (১০% ছাড়)</string>
     <string name="fare_calc_single_label">একক যাত্রা টিকেট</string>
     <string name="fare_calc_discount_note" formatted="false">ডিএমটিসিএল নীতিমালা অনুযায়ী স্মার্ট কার্ডে ১০% ছাড় প্রযোজ্য।</string>
-    <string name="fare_calc_offline_note" formatted="false">ডিএমটিসিএল এমআরটি লাইন ৬ তালিকা অনুযায়ী সম্পূর্ণ অফলাইনে কাজ করে</string>
+    <string name="fare_calc_offline_note" formatted="false">সূত্র: ডিএমটিসিএল অফিসিয়াল এমআরটি লাইন ৬ ভাড়ার তালিকা (১০০% অফলাইন)</string>
     <string name="fare_calc_empty_title">শুরু ও গন্তব্য স্টেশন নির্বাচন করুন</string>
     <string name="fare_calc_empty_body">একক যাত্রা এবং স্মার্ট কার্ডের ভাড়া দেখতে দুটি ভিন্ন স্টেশন বেছে নিন।</string>
     <string name="fare_calc_same_station">শুরু ও গন্তব্য স্টেশন আলাদা হতে হবে।</string>
@@ -217,13 +219,19 @@
     <string name="data_mgmt_history_records">যাচাইকৃত ইতিহাস</string>
     <string name="data_mgmt_cloud_backups">ক্লাউড ব্যাকআপ</string>
     <string name="data_mgmt_cloud_disabled">বন্ধ (শুধু অফলাইন)</string>
-    <string name="data_mgmt_export_title">স্থানীয় ডেটা এক্সপোর্ট প্রিভিউ</string>
-    <string name="data_mgmt_export_sub">সুরক্ষিত ও মাস্ক করা JSON সারাংশ</string>
+    <string name="data_mgmt_export_csv_title">CSV ফাইলে ইতিহাস সংরক্ষণ (UTF-8)</string>
+    <string name="data_mgmt_export_csv_sub">ইংরেজি ও বাংলাসহ স্প্রেডশিট ফাইল ডাউনলোড</string>
+    <string name="data_mgmt_csv_saved">CSV ফাইল সংরক্ষণ সম্পন্ন (%1$dটি রেকর্ড)</string>
+    <string name="data_mgmt_csv_empty">এক্সপোর্ট করার মতো কোনো যাচাইকৃত লেনদেন নেই</string>
+    <string name="data_mgmt_history_cleared">স্ক্যান ইতিহাস মুছে ফেলা হয়েছে</string>
+    <string name="data_mgmt_all_deleted">সকল স্থানীয় ডেটা মুছে ফেলা হয়েছে</string>
+    <string name="data_mgmt_export_title">JSON সারাংশ প্রিভিউ</string>
+    <string name="data_mgmt_export_sub">গোপনীয় হ্যাশকৃত JSON সারাংশ</string>
     <string name="data_mgmt_clear_history_title">স্ক্যান ইতিহাস মুছুন</string>
     <string name="data_mgmt_clear_history_sub">কার্ড রেখে ইতিহাস মুছে ফেলুন</string>
     <string name="data_mgmt_delete_all">সব স্থানীয় ডেটা মুছুন</string>
     <string name="sheet_export_title">ডেটা এক্সপোর্ট প্রিভিউ</string>
-    <string name="sheet_export_desc">সকল কার্ড আইডি গোপন রেখে JSON সারাংশ তৈরি করা হয়েছে।</string>
+    <string name="sheet_export_desc">সকল কার্ড আইডি হ্যাশ রেখে JSON সারাংশ তৈরি করা হয়েছে।</string>
     <string name="sheet_export_copy">JSON কপি করুন</string>
     <string name="sheet_privacy_title">গোপনীয়তা ও অফলাইন নিশ্চয়তা</string>
 
@@ -251,7 +259,7 @@
     <string name="about_target_cards">লক্ষ্য কার্ড</string>
     <string name="about_target_val">এমআরটি পাস ও র‍্যাপিড পাস</string>
     <string name="about_scope_label">ব্যালেন্স ও ইতিহাস</string>
-    <string name="about_scope_val">ফিজিক্যাল যাচাইকরণ সাপেক্ষে</string>
+    <string name="about_scope_val">র‍্যাপিড পাস যাচাইকৃত · এমআরটি পাস অপেক্ষমাণ</string>
     <string name="about_storage_label">তথ্য সংরক্ষণ</string>
     <string name="about_storage_val">শুধুমাত্র এই ডিভাইসে (লগইন নেই)</string>
 </resources>

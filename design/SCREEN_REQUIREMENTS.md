@@ -98,7 +98,7 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
 7. **Header Structure:** Clean Left Brand Title (`TransitMate` + concise subtle wordmark/icon) + Right contextual status chip (`Offline` / NFC Ready dot). **Strictly NO user avatar, profile greeting, or notification bell.**
 8. **Main Content Sections (Visual Hierarchy Order):**
    1. **NFC Readiness Alert Banner** *(conditional — shown only if NFC is Disabled or Unsupported, with `[ Enable NFC ]` action)*.
-   2. **Primary Card Hero (`TransitCardHero`):** Shows primary saved/last card nickname, Card Type (`MRT Pass` / `Rapid Pass` / `Unverified`), Status Pill, Privacy-masked Identifier (compact), and **Balance Area**:
+   2. **Primary Card Hero (`TransitCardHero`):** Shows primary saved/last card nickname, Card Type (`MRT Pass` / `Rapid Pass` / `Unverified`), Status Pill, Full read-only `Card IDm` (stored strictly locally on device), and **Balance Area**:
       - If verified balance exists (Phase 06+): bold tabular `৳ 150` + verified timestamp.
       - If balance not verified/unavailable: honest `"Balance Unavailable"` state with clear brief note (*"Card detected; balance reading pending verification"*), NEVER fake numbers.
       - If no card saved yet: calm `"Tap a transit card to get started"` prompt card.
@@ -111,7 +111,7 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
 12. **Loading State:** Subtle placeholder surface blocks (`SurfaceVariant`) during initial local database hydration.
 13. **Empty State:** When no cards are saved: Hero area shows clean onboarding-style `"No card added yet"` card with `[ Scan Your First Card ]` CTA; Offline tools (`Fare Calculator`, `Stations`) remain fully usable.
 14. **Error State:** Actionable `NFC Disabled` banner with button to open `android.settings.NFC_SETTINGS`; non-intrusive `NFC Not Supported` informational banner explaining offline tools still work.
-15. **Data Requirements:** `nfcHardwareStatus`, `primarySavedCard?` (`nickname`, `cardType`, `maskedId`, `verifiedBalance?`, `lastScannedAt?`), `recentActivity: List` (strictly local verified entries). Zero raw `systemCode`/`PMm` shown here.
+15. **Data Requirements:** `nfcHardwareStatus`, `primarySavedCard?` (`nickname`, `cardType`, `fullIdm`, `verifiedBalance?`, `lastScannedAt?`), `recentActivity: List` (strictly local verified entries). Zero raw `systemCode`/`PMm` shown here.
 16. **Light Theme Behavior:** `#F6F7F8` background, `#FFFFFF` cards with `1.dp` `#DCE1E7` border, `#12746A` CTA button.
 17. **Dark Theme Behavior:** `#111315` background, `#191C1F` hero & section cards, `#2E343B` `1.dp` borders, `#2FA497` CTA.
 18. **Bangla Localization Requirements:** All headers, shortcut titles (`ভাড়া হিসাব`, `স্টেশন তালিকা`), and honest empty/unavailable notes fully localized with `maxLines = 2` safety.
@@ -161,14 +161,11 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
 7. **Header Structure:** `TopAppBar` with Back arrow + `"Scan Result"` title + optional `BookmarkAdd` / Save action.
 8. **Main Content Sections (Strict Honest Hierarchy):**
    1. **Outcome Confirmation Pill:** Clean `SuccessContainer` banner (`CheckCircle` icon + `"Card Detected Successfully"`).
-   2. **Card Preview Header (`TransitCardHero`):** Visual card card showing Card Recognition status (`Rapid Pass · DTCA` / `MRT Pass · DMTCL` / `Unidentified Transit Card`), Detected Technology chip (`FeliCa / NFC-F`), and **Privacy-Safe Masked Identifier** (`01:27:••:••:••:••:••:A0` — optional reveal toggle or copy only if user taps).
-   3. **Balance & History Capability Card:**
-      - *When verified balance is available (Phase 06+):* Prominent `৳ ...` (`displayLarge`, tabular numerals) + `Last Scanned: Today, 2:35 PM`.
-      - *When balance is not yet supported/verified (Current Phase):* Calm neutral-warning card with `InfoOutline` icon: **"Balance Not Available"** + honest explanation (*"NFC-F card detected cleanly. Verified balance parsing for this card type is not yet enabled or is protected."*). Zero fabricated figures!
+   2. **Card Preview Header (`TransitCardHero`):** Visual card showing Card Recognition status (`Rapid Pass · DTCA` / `MRT Pass · DMTCL` / `Detected Transit Card`), Verified/Unverified Badge, **Verified Balance** hero inset box (`৳ ...` or `"Balance Not Available"`), and **Full Read-Only Card IDm** (`01:27:...`) with one-tap `Copy IDm` pill button.
+   3. **Recent Card Activity Card *(when verified records exist)*:** Chronological local transaction list (`Origin -> Destination` or `Balance Top-Up`, formatted date/time, amount pill, running balance) plus `View All` when card is saved.
    4. **Structured Summary Rows (`SurfaceSectionCard`):**
-      - `Detection Status`: `Successful`
-      - `RF Technology`: `FeliCa (NFC-F)`
-      - `Card Recognition`: `Unverified / Pending Classification` *(or Verified `Rapid Pass` / `MRT Pass` once system/service proof passes)*
+      - `Technology`: `FeliCa (NFC-F)`
+      - `Card Recognition`: `Rapid Pass` / `MRT Pass` / `Unidentified / Pending`
       - `Last Scanned`: Formatted local date & time
       *(Strictly NO `System Code`, NO `PMm`, NO `Scan #`, NO `Anticollision` jargon!)*
    5. **Action Buttons:** Primary `Button` (`Save to My Cards` or `View in My Cards` if already saved) + Secondary `OutlinedButton` (`Scan Another Card`).
@@ -196,11 +193,12 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
 6. **Layout Structure:** `Scaffold` with `TopAppBar` (`Back`, Card Title, Overflow `MoreVert` menu for Rename/Delete) + scrollable `Column`.
 7. **Header Structure:** `TopAppBar` with Back button, Card Nickname (e.g., *"Daily Commute Card"*), and action icons (`Edit`, `Delete`).
 8. **Main Content Sections:**
-   1. **Hero Card Header:** Card nickname, Authority (`DTCA` / `DMTCL` / `Unverified`), Card Status chip (`Active Saved` / `Primary`), Masked Identifier (`•••• •••• ••A0` with optional tap-to-toggle partial mask), Verified Balance (or `"Not Available"`).
-   2. **Primary Action:** `Button` (`Tap to Refresh / Scan Card`) — clearly clarifies balance updates only upon fresh physical scan.
-   3. **Card Metadata Card (`SurfaceSectionCard`):** `Card Technology` (`FeliCa / NFC-F`), `Added On`, `Last Scanned`, `Primary Card` switch (`Switch` to pin card to Home Dashboard).
-   4. **Card-Scoped Activity Preview:** Recent verified trips/scans for this card + `View Card History ->` or honest `No recorded trips` empty card.
-   5. **Danger Action Row:** Subtle outlined/text destructive button (`Remove Card from Device`).
+   1. **Hero Card Header:** Card nickname, Authority (`DTCA` / `DMTCL` / `Detected`), Card Status chip (`Primary` / `Verified`), Full Read-Only `Card IDm` with `Copy IDm` button, and Verified Balance inset box (`৳ ...` or `"Not Available"`).
+   2. **Primary Action:** `Button` (`Tap Card to Refresh`) — clearly clarifies balance updates only upon fresh physical scan.
+   3. **3-Stat Quick KPI Row:** `Trips`, `Spent` (`৳ ...`), `Top-Ups` (`৳ ...`).
+   4. **Card Metadata Card (`SurfaceSectionCard`):** `Card Technology` (`FeliCa (NFC-F)`), `Card Recognition`, `Added On`, `Last Scanned`, `Primary Card` switch (`Switch` to pin card to Home Dashboard).
+   5. **Card-Scoped Activity Preview:** Recent verified trips/top-ups for this card + `View All ->` or honest `No recorded trips` empty card.
+   6. **Danger Action Row:** Subtle outlined/text destructive button (`Remove Card from Device`).
 9. **Required Components:** `TransitTopBar`, `TransitCardHero`, `Button`, `SurfaceSectionCard`, `InfoKeyValueRow`, `Switch`, `RenameCardDialog`, `DeleteCardDialog`.
 10. **Icon Requirements:** `ArrowBack`, `Edit`, `DeleteOutline`, `Contactless`, `Star` / `PushPin`, `History`, `VerifiedUser`.
 11. **Primary & Secondary Actions:** `Scan Card to Update`, `Set as Primary Card` toggle, `Rename Card`, `Delete Card`, `View Full History`.

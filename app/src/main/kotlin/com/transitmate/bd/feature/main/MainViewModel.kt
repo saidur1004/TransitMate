@@ -244,6 +244,8 @@ class MainViewModel(
 
     suspend fun getSanitizedExportJson(): String = cardRepository.buildSanitizedExportJson()
 
+    suspend fun getTransactionsCsv(isBangla: Boolean): String = cardRepository.buildTransactionsCsv(isBangla)
+
     fun setThemeMode(mode: AppThemeMode) {
         viewModelScope.launch(dispatchers.io) {
             preferencesRepository.setThemeMode(mode)

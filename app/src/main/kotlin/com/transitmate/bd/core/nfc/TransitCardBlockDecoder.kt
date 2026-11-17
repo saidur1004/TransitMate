@@ -99,7 +99,8 @@ object TransitCardBlockDecoder {
      */
     fun decodeBlock(
         block: ByteArray,
-        baseYear: Int = 2000
+        baseYear: Int = 2000,
+        maxValidYear: Int = YearMonth.now(DHAKA_ZONE_OFFSET).year + 2
     ): DecodedTransactionBlock? {
         if (block.size != FelicaProtocol.FELICA_BLOCK_SIZE) return null
         if (block.all { it == 0.toByte() }) return null
@@ -117,7 +118,7 @@ object TransitCardBlockDecoder {
         val hour = (packedTime ushr 3) and 0x1F
         val fullYear = baseYear + yearOffset
 
-        if (fullYear < MIN_VALID_YEAR) return null
+        if (fullYear < MIN_VALID_YEAR || fullYear > maxValidYear) return null
         if (month !in 1..12 || hour !in 0..23) return null
         val maxDay = YearMonth.of(fullYear, month).lengthOfMonth()
         if (day !in 1..maxDay) return null
@@ -234,16 +235,13 @@ object TransitCardBlockDecoder {
         val isRapidSystemCode = systemCodeHex.equals(FelicaProtocol.SYSTEM_CODE_DTCA_RAPID_PASS, ignoreCase = true)
 
         return when {
-            hasMrtTopUp && !hasRapidTopUp && !hasHatirjheel -> {
-                CardType.MRT_PASS to CardRecognitionStatus.VERIFIED_MRT_PASS
+            isRapidIdmPrefix && (readSucceeded || isRapidSystemCode) -> {
+                CardType.RAPID_PASS to CardRecognitionStatus.VERIFIED_RAPID_PASS
             }
             hasRapidTopUp || hasHatirjheel -> {
                 CardType.RAPID_PASS to CardRecognitionStatus.VERIFIED_RAPID_PASS
             }
-            isRapidIdmPrefix && (readSucceeded || isRapidSystemCode) -> {
-                CardType.RAPID_PASS to CardRecognitionStatus.VERIFIED_RAPID_PASS
-            }
-            !isRapidIdmPrefix && hasMetroTrip -> {
+            !isRapidIdmPrefix && (hasMrtTopUp || hasMetroTrip) -> {
                 CardType.MRT_PASS to CardRecognitionStatus.VERIFIED_MRT_PASS
             }
             else -> CardType.UNKNOWN to CardRecognitionStatus.UNVERIFIED

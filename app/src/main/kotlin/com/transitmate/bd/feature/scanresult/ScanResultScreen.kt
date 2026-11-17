@@ -31,6 +31,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -74,6 +75,7 @@ fun ScanResultScreen(
     savedCardId: Long?,
     onSaveCard: (nickname: String, cardType: CardType) -> Unit,
     onViewSavedCard: (Long) -> Unit,
+    onOpenCardHistory: (Long) -> Unit,
     onScanAnother: () -> Unit,
     onOpenHelp: () -> Unit,
     onBack: () -> Unit
@@ -314,11 +316,17 @@ fun ScanResultScreen(
                             text = stringResource(R.string.result_activity_title),
                             style = MaterialTheme.typography.titleMedium
                         )
-                        StatusPill(
-                            text = stringResource(R.string.result_activity_records, outcome.parsedTransactions.size),
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
+                        if (savedCardId != null) {
+                            TextButton(onClick = { onOpenCardHistory(savedCardId) }) {
+                                Text(stringResource(R.string.action_view_all))
+                            }
+                        } else {
+                            StatusPill(
+                                text = stringResource(R.string.result_activity_records, outcome.parsedTransactions.size),
+                                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     val previewList = outcome.parsedTransactions.take(5)
