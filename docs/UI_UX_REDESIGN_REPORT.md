@@ -39,3 +39,34 @@
   - `04_card_details_light.png` & `04_card_details_dark.png`
 - **Synthetic Identifiers:** All mockups and UI tests exclusively use synthetic `01:27:AA:BB:CC:DD:EE:A0` (never real user hardware `IDm` bytes).
 - **Emulator QA (`Pixel_9` AVD):** Verified Light (English) and Dark Graphite (বাংলা) theme/locale switching, navigation structure, typography line-heights without Bangla clipping, and all **6/6** tests in `TransitMateInstrumentedTest`.
+
+---
+
+## 4. Phase 09 — Complete 17-Screen Audit & V3 Execution Summary
+
+**Baseline Audit:** [`docs/PHASE_09_UI_UX_AUDIT.md`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/docs/PHASE_09_UI_UX_AUDIT.md) classified all `17` screens (`4` Production-ready, `9` Needs improvement, `4` Requires redesign) paired with `20` V3 mockups (`780×1688` Light/Dark) in `design/ui_designs/v3_phase09/`.
+
+### 4.1 Reusable Design System Components Added
+All implemented in [`TransitComponents.kt`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/app/src/main/kotlin/com/transitmate/bd/core/designsystem/component/TransitComponents.kt):
+- `ResponsiveScreenContainer`: Caps content width to `600.dp` centered horizontally across all screens for tablet/foldable readiness.
+- `SecondaryTonalButton` & `SecondaryOutlinedButton`: Standardized `48.dp` min-height pill actions across core & support screens.
+- `MetricStatTile`: Unified KPI stat block used across `Card Details` and `Insights`.
+- `IdmPrivacyCaption`: Localized privacy caution paired with unmasked read-only `Card IDm` rows warning against exposing raw IDm bytes in public screenshots or logs.
+- `ErrorStateView` & `LoadingStateView`: Unified error/NFC-off recovery and brand loading components (`Splash`, `NFC Scanner`, `History`, `Station Explorer`, `Help`).
+- `localizedRecognitionLabel()`: Clean bilingual issuer/protocol formatting helper (`DTCA · FeliCa (NFC-F)` / `DMTCL`).
+
+### 4.2 Execution Across Priority Batches (1–4)
+1. **Batch 1 — Core UX:** `HomeScreen`, `NfcScannerScreen` (unified guide + `Supported Cards · Read-Only` strip + single `ErrorStateView` for NFC Disabled), `ScanResultScreen` (`IdmPrivacyCaption` + localized subheadline), `MyCardsScreen` (`SecondaryTonalButton`), `CardDetailsScreen` (`MetricStatTile` + `IdmPrivacyCaption` + `48.dp` touch target).
+2. **Batch 2 — Ledger & Analytics:** `TransactionHistoryScreen` (chronological month-grouped ledgers + `VerticalDivider` KPI card + split empty states) & `InsightsScreen` (dual explicit `All Time` / `Last 30 Days` filter chips + unified KPI tiles + empty 30-day recovery CTA).
+3. **Batch 3 — Transit Utilities:** `FareCalculatorScreen` (3-dot origin-to-destination route connector + `48.dp` swap button + locale-aware EN/বাংলা ordering + picker empty state) & `StationExplorerScreen` + `Station Details` bottom sheet (continuous MRT Line 6 rail `01`–`16`, fixed `IntrinsicSize.Min` click blocker, `Station #%02d` / `স্টেশন #%02d` badge, stacked landmarks block, localized `km`/`কিমি`).
+4. **Batch 4 — Settings, Support, Onboarding & Legacy Cleanup:**
+   - Removed dead legacy `feature/startup/` (`StartupScreen`, `StartupUiState`, `StartupViewModel`, `StartupViewModelTest`).
+   - Fixed critical `MainActivity` crash caught during emulator QA when navigating to `Data Management` (`IllegalStateException: No ActivityResultRegistryOwner was provided via LocalActivityResultRegistryOwner` caused by `createLocalizedContext`) by providing `LocalActivityResultRegistryOwner` and `LocalOnBackPressedDispatcherOwner` in [`MainActivity.kt`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/app/src/main/kotlin/com/transitmate/bd/MainActivity.kt), backed by [`MainActivitySmokeTest.kt`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/app/src/androidTest/kotlin/com/transitmate/bd/MainActivitySmokeTest.kt).
+   - Upgraded `SettingsScreen` & `DataManagementScreen` (scrollable layout, `IDm Privacy Reminder` banner, `Clear Scan History` confirmation dialog, accurate `Delete All` counts, scrollable JSON preview sheet), `NfcDiagnosticsScreen` (full EN/বাংলা localization, `IdmPrivacyCaption`, unified bottom pills), `HelpFaqScreen` (updated IDm & balance FAQs, search `EmptyStateView`), `AboutScreen`, `OnboardingScreen` (orbital ring framing + per-slide `StatusPill` across all 3 slides), and `SplashScreen` (`LoadingStateView`).
+
+### 4.3 Mockup-vs-Implementation Notes & Verification Metrics
+- **Verification Results:** `./gradlew testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon` passed (`39/39` unit tests across `10` test files, `0` lint errors / `26` warnings, `8/8` instrumented tests on `Pixel_9` AVD).
+- **Documented Minor Implementation Nuances:**
+  - `TransactionHistoryScreen` retains `R.string.history_filter_all` (`"All Cards"` / `"সব কার্ড"`) on the transaction-type chip row alongside `"Trips"` / `"Top-Ups"`.
+  - Material `ModalBottomSheet` surfaces resolve `Dialog` window Activity context rather than Compose `CompositionLocalProvider` for string resources on pre-restart dynamic locale switches.
+- **Physical NFC Boundaries:** All emulator checks test offline UI, navigation, Room persistence, CSV export formatting, and FeliCa unit fixtures; physical `Rapid Pass` repeat-scan (`Pending Physical Verification`) and physical `MRT Pass` validation (`Blocked (Card Not Available)`) still require an NFC-enabled Android device with physical cards.

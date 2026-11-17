@@ -252,7 +252,7 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
 8. **Main Content Sections:**
    1. **Summary KPI Banner (`SurfaceSectionCard`):** Clean 2-column metric bar (`Total Trips` | `Total Spent` in tabular `৳` — strictly computed from real stored records; shows `—` or hidden if unavailable).
    2. **Filter Chips Row:** Horizontal scrollable `FilterChip`s (`All Cards`, `MRT Pass`, `Rapid Pass`, `Trips`, `Top-Ups`).
-   3. **Date-Grouped Timeline List:** Sticky/grouped date headers (`Today · Nov 16`, `Yesterday · Nov 15`) -> Individual `TransactionRowItem` cards featuring: concise origin/destination (or station entry/exit), timestamp, card label badge, and fare (`- ৳ 30` or `+ ৳ 500` in Success green) with subtle vertical timeline rail (`2.dp` `Outline` line + `8.dp` muted teal dot — zero neon glow).
+   3. **Month-Grouped Timeline List:** Chronological month-grouped `SurfaceSectionCard` containers (`SimpleDateFormat("LLLL yyyy", locale)`) holding `TransactionRowItem` entries with origin/destination stations, formatted timestamp, card label/type badge, and signed fare (`- ৳ 30` or `+ ৳ 500` in Success green).
 9. **Required Components:** `TransitTopBar`, `SummaryMetricCard`, `FilterChip` row, `TransactionRowItem`, `EmptyStateView`, `StatusBannerCard` (`Transaction Not Available`).
 10. **Icon Requirements:** `ArrowBack`, `FilterList`, `DirectionsSubway`, `SwapHoriz` / `ArrowForward`, `AddCard` (for top-up), `Schedule`, `History`.
 11. **Primary & Secondary Actions:** Filter by Card / Type, Clear Filters, Tap trip row for quick station/time breakdown sheet.
@@ -347,7 +347,7 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
 8. **Main Content Sections:**
    1. **Search Input:** Pill-rounded search bar (`"Search stations in English or বাংলা..."`) with instant local filtering.
    2. **Corridor / Filter Chips:** `All Stations`, `MRT Line 6` (with clean status note for operational stations).
-   3. **Station List (`StationItem`):** Sequence indicator (`01`–`16`) connected by a subtle `2.dp` vertical transit line (`Primary` color), Station Name (primary locale) + secondary locale subtitle, operational badge, and right chevron -> tapping opens **Station Detail Sheet** (showing nearby landmarks, exits/gates summary if verified offline, and `[ Calculate Fare from Here ]`).
+   3. **Station List (`StationItem`):** Sequence indicator (`01`–`16`) connected by a continuous vertical MRT Line 6 rail (`Primary` color, fixed connector segment heights), primary locale Station Name + secondary locale subtitle, and chevron -> tapping opens the redesigned **Station Detail `ModalBottomSheet`** (localized header, zero-padded `Station #%02d` / `স্টেশন #%02d` badge, full-width stacked nearby landmarks block, localized `km` / `কিমি` distance unit, and `[ Calculate Fare from Here ]`).
 9. **Required Components:** `TransitTopBar`, `SearchInputField`, `FilterChip`s, `StationListItem`, `ModalBottomSheet` (Station Detail), `EmptyStateView`.
 10. **Icon Requirements:** `ArrowBack`, `Search`, `Close`, `DirectionsSubway`, `Place`, `Calculate`.
 11. **Primary & Secondary Actions:** Type to search, Tap station -> inspect Station Sheet, `[ Calculate Fare from Here ]` -> Fare Calculator (10).
@@ -377,11 +377,11 @@ Following an audit of `PROJECT_UI_AUDIT.md`, the application inventory consists 
    3. **Live Diagnostic Scan Output Card:** Active only while this screen is foregrounded (or displays current diagnostic session):
       - `Scan Counter` (`Scan #1`)
       - `Tech List` (`android.nfc.tech.NfcF`)
-      - `IDm (Redacted by default)` (`01:27:**:**:**:**:**:A0` — optional explicit `"Show Full IDm"` toggle for local debugging only, never persisted)
-      - `System Code` (cleanly formatted `0x90E3` — fixes prior `0x90:E3` colon artifact)
+      - Full read-only `Card IDm` (`01:27:...` — displayed locally inside `FullIdmRow` with explicit `Copy Diagnostic Log` redaction notice and `IdmPrivacyCaption` warning users not to expose raw IDm bytes in public screenshots or shared logs).
+      - `System Code` (cleanly formatted `0x90E3`)
       - `Manufacturer (PMm)` (`01:46:42:45:45:46:9B:FF`)
       - `RF Link Check` (`Connect & Close OK` or exact `IOException` / `TagLostException` trace)
-   4. **Actions Row:** `[ Copy Redacted Log ]` (copies sanitized markdown/text report for sharing without unredacted card IDs) + `[ Clear Session ]`.
+   4. **Actions Row:** Twin equal-height pills: `SecondaryTonalButton` (`[ Copy Diagnostic Log ]`, copies diagnostic report safely) + `SecondaryOutlinedButton` (`[ Clear ]`). All labels, badges, and fallback strings localized in EN & বাংলা.
 9. **Required Components:** `TransitTopBar`, `StatusBannerCard`, `SurfaceSectionCard`, `MonospaceKeyValueRow`, `FilledTonalButton`, `Switch` (reveal/mask toggle).
 10. **Icon Requirements:** `ArrowBack`, `Memory` / `DeveloperMode`, `RestartAlt`, `ContentCopy`, `Shield`.
 11. **Primary & Secondary Actions:** Tap card while on screen -> captures live diagnostic data; `Copy Redacted Summary`; `Clear Output`.
@@ -541,7 +541,7 @@ Every one of the 25 Supporting States identified in Stage 1 is mapped below with
 ### 3.5 Settings Sub-Route (1)
 | # | State Name | Trigger | User Message / Content | Available Action | Recovery Path |
 |:---:|---|---|---|---|---|
-| 25 | **Data Management** (Sub-route from Settings 13) | User taps `Data Management` | Storage summary (`Saved Cards: X`, `History Records: Y`), `Export Preview`, `Clear Scan History`, `Delete All Local Data` (with confirmation dialog) | `Preview Export`, `Clear History`, `Clear All` | Back to Settings (13); destructive actions require explicit confirmation |
+| 25 | **Data Management** (Sub-route from Settings 13) | User taps `Data Management` | Scrollable view with `Storage Summary` (`Saved Cards: X`, `Verified History Records: Y`, `Cloud Backups`), `IDm Privacy Reminder` info banner, `Export History as CSV (UTF-8)`, `Preview JSON Summary` (scrollable sheet), `Clear Scan History` (with confirmation `AlertDialog`), and `Delete All Local Data` (confirmation dialog showing `%1$d` cards / `%2$d` records) | `Export CSV`, `Preview JSON`, `Clear History`, `Delete All` | Back to Settings (13); destructive actions require explicit confirmation |
 
 ---
 

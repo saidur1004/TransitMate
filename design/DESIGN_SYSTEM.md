@@ -149,7 +149,7 @@ Base font family uses Android's system sans-serif (`FontFamily.Default` -> Robot
 
 - **Portrait Phone (< 600.dp width):** Single-column scrollable layout (`LazyColumn` / vertical `Column` with `verticalScroll`), `20.dp` left/right screen margins, `12.dp` or `16.dp` vertical card gutters.
 - **2-Column Compact Grids:** Allowed strictly for small symmetrical metric tiles (e.g., `Total Trips` | `Total Spent`, or `Fare Calculator` | `Station Explorer` quick-shortcut pair on Home) with `12.dp` horizontal gap.
-- **Expanded / Tablet (`>= 600.dp` width):** Constrain primary content width to `600.dp` centered horizontally or split master-detail (`My Cards` + `Card Details`) when window width allows.
+- **Expanded / Tablet (`>= 600.dp` width):** Constrain primary content width to `600.dp` centered horizontally via `ResponsiveScreenContainer(maxWidth = 600.dp)` across all feature screens, ensuring comfortable reading measure on tablets and foldables.
 
 ---
 
@@ -224,10 +224,10 @@ All buttons enforce minimum touch height `48.dp` (`minHeight = 48.dp`), `padding
 1. **Primary Filled Button (`Button`):**
    - Fill: `Primary` (`#2FA497` Dark / `#12746A` Light), Content: `OnPrimary`.
    - Usage: Primary action per screen (`Scan Card`, `Get Started`, `Calculate Fare`, `Open NFC Settings`). Maximum one primary filled CTA visible per viewport.
-2. **Secondary Tonal Button (`FilledTonalButton`):**
-   - Fill: `PrimaryContainer` or `SurfaceVariant`, Content: `OnPrimaryContainer` or `OnSurface`.
-   - Usage: Supportive actions (`View Card Details`, `Export Data`, `Retry Scan`).
-3. **Outlined Button (`OutlinedButton`):**
+2. **Secondary Tonal Button (`SecondaryTonalButton`):**
+   - Fill: `PrimaryContainer` / `SecondaryContainer` tonal fill (`minHeight = 48.dp`, `CircleShape`), Content: `OnPrimaryContainer` / `OnSecondaryContainer`.
+   - Usage: Supportive secondary actions (`Card Details`, `Copy Diagnostic Log`, `Replay Welcome Guide`, `Go to My Cards`).
+3. **Outlined Button (`SecondaryOutlinedButton` / `OutlinedButton`):**
    - Fill: `Transparent`, Border: `1.dp` `Outline`, Content: `OnSurface`.
    - Usage: Neutral cancel or escape actions (`Cancel` on Scanner, `Close`).
 4. **Text Button (`TextButton`):**
@@ -361,5 +361,5 @@ All animations respect `Settings.Global.ANIMATOR_DURATION_SCALE` (reduced motion
 
 1. **Theme Entry (`TransitMateTheme`):** Set `dynamicColor = false` by default so the carefully calibrated Neutral Graphite / Warm Off-White transit tokens remain consistent across OEM devices (Samsung, Xiaomi, Pixel, Walton/Symphony).
 2. **No Hardcoded Colors in Composables:** Every color inside `feature/` must read from `MaterialTheme.colorScheme` or a dedicated `TransitMateSemanticColors` `CompositionLocalProvider`.
-3. **Reusable Component Contract:** Build shared primitives inside `core/designsystem/component/` (`TransitTopBar`, `TransitBottomNav`, `TransitHeroCard`, `SurfaceSectionCard`, `StatusBanner`, `EmptyStateView`, `ErrorStateView`, `InfoKeyValueRow`, `TransactionRowItem`, `ConfirmationDialog`, `OptionPickerBottomSheet`).
+3. **Reusable Component Contract:** Build shared primitives inside [`TransitComponents.kt`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/app/src/main/kotlin/com/transitmate/bd/core/designsystem/component/TransitComponents.kt): `ResponsiveScreenContainer`, `TransitTopBar`, `TransitBottomNavigation`, `TransitHeroCard`, `SurfaceSectionCard`, `StatusBannerCard`, `MetricStatTile`, `IdmPrivacyCaption`, `SecondaryTonalButton`, `SecondaryOutlinedButton`, `EmptyStateView`, `ErrorStateView`, `LoadingStateView`, `InfoKeyValueRow`, `TransactionRowItem`, and `localizedRecognitionLabel()`.
 4. **Clean Previews:** Every component and screen provides paired `@Preview(name = "Light")` and `@Preview(name = "Dark")`, plus bilingual preview samples for long বাংলা strings.
