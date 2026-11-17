@@ -48,11 +48,13 @@ import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.AppLogoMark
 import com.transitmate.bd.core.designsystem.component.BannerSeverity
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitHeroCard
 import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
+import com.transitmate.bd.core.designsystem.component.localizedRecognitionLabel
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.NfcHardwareStatus
@@ -77,10 +79,12 @@ fun HomeScreen(
 ) {
     val semantic = TransitMateThemeTokens.semantic
 
+    ResponsiveScreenContainer(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+    ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
             .statusBarsPadding(),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -156,11 +160,7 @@ fun HomeScreen(
         item {
             if (primaryCard != null) {
                 val isVerifiedCard = primaryCard.recognitionStatus != CardRecognitionStatus.UNVERIFIED
-                val recognitionLabel = when (primaryCard.recognitionStatus) {
-                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> "Rapid Pass · DTCA"
-                    CardRecognitionStatus.VERIFIED_MRT_PASS -> "MRT Pass · DMTCL"
-                    CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_row_recognition_pending)
-                }
+                val recognitionLabel = localizedRecognitionLabel(primaryCard.recognitionStatus)
                 val accentColor = when (primaryCard.recognitionStatus) {
                     CardRecognitionStatus.VERIFIED_RAPID_PASS -> MaterialTheme.colorScheme.secondary
                     CardRecognitionStatus.VERIFIED_MRT_PASS -> MaterialTheme.colorScheme.primary
@@ -515,5 +515,6 @@ fun HomeScreen(
                 )
             }
         }
+    }
     }
 }

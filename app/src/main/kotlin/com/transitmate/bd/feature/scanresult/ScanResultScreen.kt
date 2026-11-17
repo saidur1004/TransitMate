@@ -49,9 +49,11 @@ import androidx.compose.ui.unit.sp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
 import com.transitmate.bd.core.designsystem.component.FullIdmRow
+import com.transitmate.bd.core.designsystem.component.IdmPrivacyCaption
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
 import com.transitmate.bd.core.designsystem.component.RenameCardDialog
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.SecondaryOutlinedButton
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
@@ -59,6 +61,7 @@ import com.transitmate.bd.core.designsystem.component.TransitHeroCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
 import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
 import com.transitmate.bd.core.designsystem.component.copyPlainTextToClipboard
+import com.transitmate.bd.core.designsystem.component.localizedRecognitionLabel
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.BalanceAvailability
 import com.transitmate.bd.domain.model.BalanceUnavailableReason
@@ -131,11 +134,11 @@ fun ScanResultScreen(
             CardRecognitionStatus.VERIFIED_MRT_PASS -> CardType.MRT_PASS.displayName
             CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_card_detected_title)
         }
-        val cardSubheadline = when (outcome.recognitionStatus) {
-            CardRecognitionStatus.VERIFIED_RAPID_PASS -> "DTCA · ${outcome.rfTechnology}"
-            CardRecognitionStatus.VERIFIED_MRT_PASS -> "DMTCL · ${outcome.rfTechnology}"
-            CardRecognitionStatus.UNVERIFIED -> outcome.rfTechnology
-        }
+        val cardSubheadline = localizedRecognitionLabel(
+            status = outcome.recognitionStatus,
+            rfTechnology = outcome.rfTechnology,
+            includeCardName = false
+        )
         val recognitionBadgeText = when (outcome.recognitionStatus) {
             CardRecognitionStatus.VERIFIED_RAPID_PASS,
             CardRecognitionStatus.VERIFIED_MRT_PASS -> stringResource(R.string.result_badge_verified)
@@ -147,10 +150,12 @@ fun ScanResultScreen(
             CardRecognitionStatus.UNVERIFIED -> MaterialTheme.colorScheme.outline
         }
 
+        ResponsiveScreenContainer(
+            modifier = Modifier.padding(innerPadding)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -302,6 +307,10 @@ fun ScanResultScreen(
                         }
                     }
                 )
+                if (outcome.cardIdm != null) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    IdmPrivacyCaption()
+                }
             }
 
             // Extracted Card Transactions Preview (Directly on Scan Result!)
@@ -384,6 +393,7 @@ fun ScanResultScreen(
                 icon = Icons.Rounded.Contactless,
                 onClick = onScanAnother
             )
+        }
         }
     }
 

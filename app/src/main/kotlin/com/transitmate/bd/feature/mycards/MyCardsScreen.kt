@@ -23,7 +23,6 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,9 +45,12 @@ import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.DeleteCardConfirmationDialog
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
 import com.transitmate.bd.core.designsystem.component.RenameCardDialog
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
+import com.transitmate.bd.core.designsystem.component.SecondaryTonalButton
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.TransitHeroCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
+import com.transitmate.bd.core.designsystem.component.localizedRecognitionLabel
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.CardType
@@ -104,11 +106,13 @@ fun MyCardsScreen(
             return@Scaffold
         }
 
-        LazyColumn(
+        ResponsiveScreenContainer(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
@@ -128,11 +132,7 @@ fun MyCardsScreen(
                     CardRecognitionStatus.VERIFIED_MRT_PASS -> MaterialTheme.colorScheme.primary
                     CardRecognitionStatus.UNVERIFIED -> MaterialTheme.colorScheme.outline
                 }
-                val recognitionText = when (card.recognitionStatus) {
-                    CardRecognitionStatus.VERIFIED_RAPID_PASS -> "Rapid Pass · DTCA"
-                    CardRecognitionStatus.VERIFIED_MRT_PASS -> "MRT Pass · DMTCL"
-                    CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_row_recognition_pending)
-                }
+                val recognitionSubtitle = localizedRecognitionLabel(card.recognitionStatus, card.rfTechnology)
 
                 TransitHeroCard(
                     accentColor = stripColor,
@@ -150,7 +150,7 @@ fun MyCardsScreen(
                             )
                             Spacer(modifier = Modifier.height(2.dp))
                             Text(
-                                text = "$recognitionText · ${card.rfTechnology}",
+                                text = recognitionSubtitle,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (card.recognitionStatus == CardRecognitionStatus.VERIFIED_RAPID_PASS) {
                                     MaterialTheme.colorScheme.secondary
@@ -266,20 +266,11 @@ fun MyCardsScreen(
             }
 
             item {
-                FilledTonalButton(
-                    onClick = onScanNewCard,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Contactless,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.my_cards_scan_add))
-                }
+                SecondaryTonalButton(
+                    text = stringResource(R.string.my_cards_scan_add),
+                    icon = Icons.Rounded.Contactless,
+                    onClick = onScanNewCard
+                )
             }
 
             item {
@@ -304,6 +295,7 @@ fun MyCardsScreen(
                     )
                 }
             }
+        }
         }
     }
 

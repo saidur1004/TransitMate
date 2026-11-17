@@ -3,6 +3,12 @@
     <string name="app_tagline">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
     <string name="app_tagline_bn">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
     <string name="offline_readonly_badge">অফলাইন-ফার্স্ট · শুধুমাত্র পাঠযোগ্য</string>
+    <string name="loading_default_message">স্থানীয় ট্রানজিট তথ্য লোড হচ্ছে…</string>
+    <string name="idm_privacy_caption">কার্ড IDm একটি স্থায়ী পরিচয় নম্বর যা কেবল ডিভাইসে থাকে — পাবলিক স্ক্রিনশট বা রিপোর্টে এটি শেয়ার করা এড়িয়ে চলুন।</string>
+    <string name="issuer_rapid_pass">র‍্যাপিড পাস · ডিটিসিএ</string>
+    <string name="issuer_mrt_pass">এমআরটি পাস · ডিএমটিসিএল</string>
+    <string name="issuer_authority_dtca">ডিটিসিএ</string>
+    <string name="issuer_authority_dmtcl">ডিএমটিসিএল</string>
 
     <!-- Accessibility -->
     <string name="cd_navigate_back">পিছনে যান</string>
@@ -78,6 +84,9 @@
     <string name="scanner_cancel">স্ক্যান বাতিল করুন</string>
     <string name="scanner_resume">আবার স্ক্যান শুরু করুন</string>
     <string name="scanner_paused_chip">স্ক্যানিং বিরতিতে রয়েছে</string>
+    <string name="scanner_supported_header">সমর্থিত কার্ড · রিড-অনলি</string>
+    <string name="scanner_supported_body">ফেলিকা (NFC-F) · র‍্যাপিড পাস ও এমআরটি পাস</string>
+    <string name="scanner_supported_tip">কার্ড শনাক্ত না হলে মোটা ধাতব বা ম্যাগনেটিক কভার খুলে নিন।</string>
     <string name="scanner_error_unsupported_title">অসমর্থিত কার্ড</string>
     <string name="scanner_error_unsupported_body">এই কার্ডটি (%1$s) ট্রানজিট কার্ড হিসেবে সমর্থিত নয়। অনুগ্রহ করে সমর্থিত ফেলিকা কার্ড (এমআরটি বা র‍্যাপিড পাস) ব্যবহার করুন।</string>
     <string name="scanner_error_tag_lost_title">কার্ড আগেই সরানো হয়েছে</string>

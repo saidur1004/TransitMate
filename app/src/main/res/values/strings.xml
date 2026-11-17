@@ -3,6 +3,12 @@
     <string name="app_tagline">Dhaka Metro &amp; Rapid Pass Companion</string>
     <string name="app_tagline_bn">ঢাকা মেট্রো ও র‍্যাপিড পাস সঙ্গী</string>
     <string name="offline_readonly_badge">Offline-First · Read-Only</string>
+    <string name="loading_default_message">Loading local transit data…</string>
+    <string name="idm_privacy_caption">Card IDm is a persistent identifier stored locally — avoid sharing raw IDm in public screenshots or reports.</string>
+    <string name="issuer_rapid_pass">Rapid Pass · DTCA</string>
+    <string name="issuer_mrt_pass">MRT Pass · DMTCL</string>
+    <string name="issuer_authority_dtca">DTCA</string>
+    <string name="issuer_authority_dmtcl">DMTCL</string>
 
     <!-- Accessibility / Content Descriptions -->
     <string name="cd_navigate_back">Navigate back</string>
@@ -78,6 +84,9 @@
     <string name="scanner_cancel">Cancel Scan</string>
     <string name="scanner_resume">Resume Scanning</string>
     <string name="scanner_paused_chip">Scanning paused</string>
+    <string name="scanner_supported_header">SUPPORTED CARDS · READ-ONLY</string>
+    <string name="scanner_supported_body">FeliCa (NFC-F) · Rapid Pass &amp; MRT Pass</string>
+    <string name="scanner_supported_tip">Remove thick metallic or magnetic cases if detection fails.</string>
     <string name="scanner_error_unsupported_title">Unsupported Card Detected</string>
     <string name="scanner_error_unsupported_body">This card uses a contactless standard (%1$s) not supported for transit inspection. Use a compatible FeliCa card (MRT Pass / Rapid Pass).</string>
     <string name="scanner_error_tag_lost_title">Card Moved Too Early</string>

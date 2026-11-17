@@ -30,7 +30,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Contactless
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.material.icons.rounded.WifiOff
@@ -57,10 +56,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
-import com.transitmate.bd.core.designsystem.component.BannerSeverity
+import com.transitmate.bd.core.designsystem.component.EmptyStateView
+import com.transitmate.bd.core.designsystem.component.ErrorStateView
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.SecondaryOutlinedButton
-import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
@@ -102,103 +102,47 @@ fun NfcScannerScreen(
             )
         }
     ) { innerPadding ->
+        ResponsiveScreenContainer(
+            modifier = Modifier.padding(innerPadding)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             when (nfcStatus) {
                 NfcHardwareStatus.NOT_SUPPORTED -> {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(14.dp),
-                        modifier = Modifier.padding(horizontal = 12.dp)
-                    ) {
-                        Surface(
-                            modifier = Modifier.size(72.dp),
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Rounded.WifiOff,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(32.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Text(
-                            text = stringResource(R.string.nfc_banner_unsupported_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                            textAlign = TextAlign.Center
-                        )
-                        Text(
-                            text = stringResource(R.string.nfc_banner_unsupported_body),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        PrimaryActionButton(
-                            text = stringResource(R.string.fare_calc_title),
-                            icon = Icons.Rounded.Calculate,
-                            onClick = onOpenOfflineTools
+                    Spacer(modifier = Modifier.weight(1f, fill = false))
+                    SurfaceSectionCard(contentPadding = 12.dp) {
+                        EmptyStateView(
+                            icon = Icons.Rounded.WifiOff,
+                            title = stringResource(R.string.nfc_banner_unsupported_title),
+                            message = stringResource(R.string.nfc_banner_unsupported_body),
+                            actionLabel = stringResource(R.string.fare_calc_title),
+                            actionIcon = Icons.Rounded.Calculate,
+                            onAction = onOpenOfflineTools
                         )
                     }
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.weight(1f, fill = false))
                 }
 
                 NfcHardwareStatus.DISABLED -> {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        StatusBannerCard(
-                            severity = BannerSeverity.WARNING,
+                    SurfaceSectionCard(contentPadding = 12.dp) {
+                        ErrorStateView(
                             icon = Icons.Rounded.WarningAmber,
                             title = stringResource(R.string.nfc_banner_disabled_title),
-                            message = stringResource(R.string.nfc_banner_disabled_body)
+                            message = stringResource(R.string.nfc_banner_disabled_body),
+                            isWarning = true,
+                            primaryActionLabel = stringResource(R.string.action_open_nfc_settings),
+                            onPrimaryAction = onOpenNfcSettings,
+                            secondaryActionLabel = stringResource(R.string.fare_calc_title),
+                            onSecondaryAction = onOpenOfflineTools
                         )
-                        SurfaceSectionCard(contentPadding = 24.dp) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(14.dp)
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(64.dp)
-                                        .clip(CircleShape)
-                                        .background(semantic.warningContainer),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Contactless,
-                                        contentDescription = null,
-                                        tint = semantic.onWarningContainer,
-                                        modifier = Modifier.size(30.dp)
-                                    )
-                                }
-                                Text(
-                                    text = stringResource(R.string.nfc_banner_disabled_title),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    textAlign = TextAlign.Center
-                                )
-                                PrimaryActionButton(
-                                    text = stringResource(R.string.action_open_nfc_settings),
-                                    icon = Icons.Rounded.Settings,
-                                    onClick = onOpenNfcSettings
-                                )
-                            }
-                        }
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SupportedCardsTipCard()
                 }
 
                 NfcHardwareStatus.AVAILABLE -> {
@@ -227,8 +171,6 @@ fun NfcScannerScreen(
                         dotColor = semantic.success
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
                     SurfaceSectionCard(contentPadding = 24.dp) {
                         Column(
                             modifier = Modifier
@@ -253,6 +195,12 @@ fun NfcScannerScreen(
                                         style = MaterialTheme.typography.bodyMedium,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         textAlign = TextAlign.Center
+                                    )
+                                    StatusPill(
+                                        text = stringResource(R.string.scanner_waiting_chip),
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        dotColor = MaterialTheme.colorScheme.primary
                                     )
                                 }
                                 ScannerSessionPhase.READING -> {
@@ -309,36 +257,27 @@ fun NfcScannerScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    SupportedCardsTipCard()
 
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (scannerPhase == ScannerSessionPhase.PAUSED) {
-                            PrimaryActionButton(
-                                text = stringResource(R.string.scanner_resume),
-                                icon = Icons.Rounded.Contactless,
-                                onClick = onResumeScan
-                            )
-                        } else {
-                            StatusPill(
-                                text = stringResource(R.string.scanner_waiting_chip),
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                dotColor = MaterialTheme.colorScheme.primary
-                            )
-                            SecondaryOutlinedButton(
-                                text = stringResource(R.string.scanner_cancel),
-                                icon = Icons.Rounded.Close,
-                                onClick = onPauseScan,
-                                enabled = scannerPhase == ScannerSessionPhase.WAITING
-                            )
-                        }
+                    Spacer(modifier = Modifier.weight(1f, fill = false))
+
+                    if (scannerPhase == ScannerSessionPhase.PAUSED) {
+                        PrimaryActionButton(
+                            text = stringResource(R.string.scanner_resume),
+                            icon = Icons.Rounded.Contactless,
+                            onClick = onResumeScan
+                        )
+                    } else {
+                        SecondaryOutlinedButton(
+                            text = stringResource(R.string.scanner_cancel),
+                            icon = Icons.Rounded.Close,
+                            onClick = onPauseScan,
+                            enabled = scannerPhase == ScannerSessionPhase.WAITING
+                        )
                     }
                 }
             }
+        }
         }
     }
 
@@ -450,6 +389,32 @@ private fun ScannerErrorSheetContent(
         SecondaryOutlinedButton(
             text = stringResource(R.string.scanner_antenna_guide),
             onClick = onOpenHelp
+        )
+    }
+}
+
+@Composable
+private fun SupportedCardsTipCard() {
+    SurfaceSectionCard(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        contentPadding = 16.dp
+    ) {
+        Text(
+            text = stringResource(R.string.scanner_supported_header),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = stringResource(R.string.scanner_supported_body),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = stringResource(R.string.scanner_supported_tip),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

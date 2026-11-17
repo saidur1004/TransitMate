@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -51,15 +52,19 @@ import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.DeleteCardConfirmationDialog
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
 import com.transitmate.bd.core.designsystem.component.FullIdmRow
+import com.transitmate.bd.core.designsystem.component.IdmPrivacyCaption
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
+import com.transitmate.bd.core.designsystem.component.MetricStatTile
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
 import com.transitmate.bd.core.designsystem.component.RenameCardDialog
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitHeroCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
 import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
 import com.transitmate.bd.core.designsystem.component.copyPlainTextToClipboard
+import com.transitmate.bd.core.designsystem.component.localizedRecognitionLabel
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.CardType
@@ -135,11 +140,7 @@ fun CardDetailsScreen(
             return@Scaffold
         }
 
-        val recognitionText = when (card.recognitionStatus) {
-            CardRecognitionStatus.VERIFIED_RAPID_PASS -> CardType.RAPID_PASS.displayName
-            CardRecognitionStatus.VERIFIED_MRT_PASS -> CardType.MRT_PASS.displayName
-            CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_row_recognition_pending)
-        }
+        val recognitionText = localizedRecognitionLabel(card.recognitionStatus)
 
         val isVerified = card.recognitionStatus != CardRecognitionStatus.UNVERIFIED
         val stripeColor = when (card.recognitionStatus) {
@@ -148,10 +149,12 @@ fun CardDetailsScreen(
             CardRecognitionStatus.UNVERIFIED -> MaterialTheme.colorScheme.outline
         }
 
+        ResponsiveScreenContainer(
+            modifier = Modifier.padding(innerPadding)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -261,6 +264,8 @@ fun CardDetailsScreen(
                         scope.launch { snackbarHostState.showSnackbar(copiedMsg) }
                     }
                 )
+                Spacer(modifier = Modifier.height(8.dp))
+                IdmPrivacyCaption()
             }
 
             PrimaryActionButton(
@@ -277,17 +282,17 @@ fun CardDetailsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    CardStatBox(
+                    MetricStatTile(
                         label = stringResource(R.string.insights_metric_trips),
                         value = "${trips.size}",
                         modifier = Modifier.weight(1f)
                     )
-                    CardStatBox(
+                    MetricStatTile(
                         label = stringResource(R.string.insights_metric_spent),
                         value = "৳ $totalSpent",
                         modifier = Modifier.weight(1f)
                     )
-                    CardStatBox(
+                    MetricStatTile(
                         label = stringResource(R.string.insights_metric_topups),
                         value = "৳ $totalTopUps",
                         modifier = Modifier.weight(1f)
@@ -316,6 +321,7 @@ fun CardDetailsScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(min = 48.dp)
                         .clickable(role = Role.Switch) { onSetPrimary(card.id) }
                         .padding(top = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -367,7 +373,10 @@ fun CardDetailsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 contentAlignment = Alignment.Center
             ) {
-                TextButton(onClick = { showDeleteDialog = true }) {
+                TextButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.heightIn(min = 48.dp)
+                ) {
                     Icon(
                         imageVector = Icons.Rounded.DeleteOutline,
                         contentDescription = null,
@@ -382,6 +391,7 @@ fun CardDetailsScreen(
                     )
                 }
             }
+        }
         }
     }
 
@@ -407,33 +417,5 @@ fun CardDetailsScreen(
             },
             onDismiss = { showDeleteDialog = false }
         )
-    }
-}
-
-@Composable
-private fun CardStatBox(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surface,
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(3.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
     }
 }

@@ -11,12 +11,14 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import android.content.ClipData
@@ -28,12 +30,15 @@ import androidx.compose.material.icons.rounded.AddCircleOutline
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.DirectionsTransit
+import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,10 +81,60 @@ import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.core.nfc.TransitStationDirectory
+import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.TransactionType
 import com.transitmate.bd.domain.model.VerifiedTransaction
 import java.text.DateFormat
 import java.util.Date
+
+@Composable
+fun ResponsiveScreenContainer(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        Box(
+            modifier = Modifier
+                .widthIn(max = 600.dp)
+                .fillMaxSize()
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+fun localizedRecognitionLabel(
+    status: CardRecognitionStatus,
+    rfTechnology: String? = null,
+    includeCardName: Boolean = true
+): String {
+    val label = when (status) {
+        CardRecognitionStatus.VERIFIED_RAPID_PASS -> if (includeCardName) {
+            stringResource(R.string.issuer_rapid_pass)
+        } else {
+            stringResource(R.string.issuer_authority_dtca)
+        }
+        CardRecognitionStatus.VERIFIED_MRT_PASS -> if (includeCardName) {
+            stringResource(R.string.issuer_mrt_pass)
+        } else {
+            stringResource(R.string.issuer_authority_dmtcl)
+        }
+        CardRecognitionStatus.UNVERIFIED -> if (includeCardName) {
+            stringResource(R.string.result_row_recognition_pending)
+        } else {
+            ""
+        }
+    }
+    return when {
+        rfTechnology.isNullOrBlank() -> label
+        label.isBlank() -> rfTechnology
+        else -> "$label · $rfTechnology"
+    }
+}
 
 @Composable
 fun AppLogoMark(
@@ -472,6 +527,7 @@ fun EmptyStateView(
 ) {
     Column(
         modifier = modifier
+            .widthIn(max = 420.dp)
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 28.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -518,9 +574,194 @@ fun EmptyStateView(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
-                Text(text = actionLabel, style = MaterialTheme.typography.labelLarge)
+                Text(
+                    text = actionLabel,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    textAlign = TextAlign.Center
+                )
             }
         }
+    }
+}
+
+@Composable
+fun ErrorStateView(
+    icon: ImageVector,
+    title: String,
+    message: String,
+    modifier: Modifier = Modifier,
+    isWarning: Boolean = false,
+    primaryActionLabel: String? = null,
+    onPrimaryAction: (() -> Unit)? = null,
+    secondaryActionLabel: String? = null,
+    onSecondaryAction: (() -> Unit)? = null
+) {
+    val semantic = TransitMateThemeTokens.semantic
+    val containerColor = if (isWarning) semantic.warningContainer else MaterialTheme.colorScheme.errorContainer
+    val contentColor = if (isWarning) semantic.onWarningContainer else MaterialTheme.colorScheme.onErrorContainer
+
+    Column(
+        modifier = modifier
+            .widthIn(max = 420.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 28.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            modifier = Modifier.size(64.dp),
+            shape = CircleShape,
+            color = containerColor
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        if (primaryActionLabel != null && onPrimaryAction != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            PrimaryActionButton(text = primaryActionLabel, onClick = onPrimaryAction)
+        }
+        if (secondaryActionLabel != null && onSecondaryAction != null) {
+            SecondaryOutlinedButton(text = secondaryActionLabel, onClick = onSecondaryAction)
+        }
+    }
+}
+
+@Composable
+fun LoadingStateView(
+    message: String = stringResource(R.string.loading_default_message),
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(28.dp),
+            strokeWidth = 3.dp,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun MetricStatTile(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    centered: Boolean = false
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
+            horizontalAlignment = if (centered) Alignment.CenterHorizontally else Alignment.Start
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = if (centered) TextAlign.Center else TextAlign.Start
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun IdmPrivacyCaption(
+    modifier: Modifier = Modifier,
+    text: String = stringResource(R.string.idm_privacy_caption)
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Shield,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(top = 2.dp)
+                .size(14.dp)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun SecondaryTonalButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    enabled: Boolean = true
+) {
+    FilledTonalButton(
+        onClick = onClick,
+        enabled = enabled,
+        shape = CircleShape,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+    ) {
+        if (icon != null) {
+            Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Text(
+            text = text,
+            style = MaterialTheme.typography.labelLarge,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
+        )
     }
 }
 
