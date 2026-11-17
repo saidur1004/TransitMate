@@ -316,6 +316,24 @@ class TransitMateInstrumentedTest {
     }
 
     @Test
+    fun stationExplorer_clickingStation_opensRedesignedDetailsSheet() {
+        composeRule.setContent {
+            TransitMateTheme(themeMode = AppThemeMode.LIGHT) {
+                StationExplorerScreen(
+                    transitInfoRepository = StaticTransitInfoRepository(),
+                    onBack = {},
+                    onCalculateFareFromStation = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("Uttara North").performClick()
+        composeRule.onNodeWithText("Station #01").assertIsDisplayed()
+        composeRule.onNodeWithText("0.0 km").assertIsDisplayed()
+        composeRule.onNodeWithText("Calculate Fare from Here").assertIsDisplayed()
+    }
+
+    @Test
     fun bottomNavigation_switchesBetweenPrimaryDestinations() {
         val navDestinationNames = listOf(
             com.transitmate.bd.feature.navigation.TransitRoutes.HOME,

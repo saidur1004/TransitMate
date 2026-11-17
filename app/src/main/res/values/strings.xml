@@ -203,8 +203,11 @@
     <string name="stations_empty_title">No Matching Stations</string>
     <string name="stations_empty_body">No Dhaka Metro stations matched \"%1$s\".</string>
     <string name="stations_calc_from_here">Calculate Fare from Here</string>
-    <string name="stations_landmarks_label">Nearby Landmarks</string>
+    <string name="stations_landmarks_label">NEARBY LANDMARKS</string>
     <string name="stations_distance_label">Corridor Distance</string>
+    <string name="stations_distance_km">%1$.1f km</string>
+    <string name="stations_line_subtitle">MRT Line 6</string>
+    <string name="stations_number_badge">Station #%1$02d</string>
 
     <!-- Settings, Data Management, Help, About, Diagnostics -->
     <string name="settings_title">Settings</string>

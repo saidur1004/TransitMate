@@ -203,8 +203,11 @@
     <string name="stations_empty_title">কোনো স্টেশন পাওয়া যায়নি</string>
     <string name="stations_empty_body">\"%1$s\" অনুযায়ী কোনো মেট্রো স্টেশন খুঁজে পাওয়া যায়নি।</string>
     <string name="stations_calc_from_here">এখান থেকে ভাড়া হিসাব করুন</string>
-    <string name="stations_landmarks_label">নিকটবর্তী স্থান</string>
+    <string name="stations_landmarks_label">নিকটবর্তী পরিচিত স্থান</string>
     <string name="stations_distance_label">লাইন দূরত্ব</string>
+    <string name="stations_distance_km">%1$.1f কিমি</string>
+    <string name="stations_line_subtitle">এমআরটি লাইন ৬</string>
+    <string name="stations_number_badge">স্টেশন #%1$02d</string>
 
     <!-- Settings, Diagnostics, Help, About -->
     <string name="settings_title">সেটিংস</string>

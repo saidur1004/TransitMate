@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
@@ -34,6 +35,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,7 @@ import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
@@ -82,11 +85,13 @@ fun StationExplorerScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        ResponsiveScreenContainer(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -154,7 +159,7 @@ fun StationExplorerScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { selectedStation = station }
-                                    .padding(vertical = 10.dp, horizontal = 4.dp),
+                                    .padding(horizontal = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
@@ -163,28 +168,56 @@ fun StationExplorerScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier = Modifier.weight(1f)
                                 ) {
-                                    Surface(
-                                        modifier = Modifier.size(30.dp),
-                                        shape = CircleShape,
-                                        color = if (station.isTerminal) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.primaryContainer
+                                    // Vertical transit line rail + station order node
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Box(
+                                            modifier = Modifier
+                                                .width(2.5.dp)
+                                                .height(14.dp)
+                                                .background(
+                                                    if (index > 0 && !terminalsOnly) {
+                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                                                    } else {
+                                                        androidx.compose.ui.graphics.Color.Transparent
+                                                    }
+                                                )
+                                        )
+                                        Surface(
+                                            modifier = Modifier.size(30.dp),
+                                            shape = CircleShape,
+                                            color = if (station.isTerminal) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            }
+                                        ) {
+                                            Box(contentAlignment = Alignment.Center) {
+                                                Text(
+                                                    text = "%02d".format(station.order),
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = if (station.isTerminal) {
+                                                        MaterialTheme.colorScheme.onPrimary
+                                                    } else {
+                                                        MaterialTheme.colorScheme.onPrimaryContainer
+                                                    }
+                                                )
+                                            }
                                         }
-                                    ) {
-                                        Box(contentAlignment = Alignment.Center) {
-                                            Text(
-                                                text = "%02d".format(station.order),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = if (station.isTerminal) {
-                                                    MaterialTheme.colorScheme.onPrimary
-                                                } else {
-                                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                                }
-                                            )
-                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .width(2.5.dp)
+                                                .height(14.dp)
+                                                .background(
+                                                    if (index < filteredStations.lastIndex && !terminalsOnly) {
+                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
+                                                    } else {
+                                                        androidx.compose.ui.graphics.Color.Transparent
+                                                    }
+                                                )
+                                        )
                                     }
-                                    Column {
+
+                                    Column(modifier = Modifier.padding(vertical = 10.dp)) {
                                         Text(
                                             text = if (isBangla) station.nameBn else station.nameEn,
                                             style = MaterialTheme.typography.titleSmall
@@ -223,11 +256,14 @@ fun StationExplorerScreen(
                 }
             }
         }
+        }
     }
 
     selectedStation?.let { station ->
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(
             onDismissRequest = { selectedStation = null },
+            sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
         ) {
@@ -235,26 +271,62 @@ fun StationExplorerScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 24.dp, end = 24.dp, bottom = 28.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                Text(text = station.nameEn, style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    text = "${station.nameBn} · ${station.lineName}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                SurfaceSectionCard(contentPadding = 14.dp) {
-                    InfoKeyValueRow(
-                        label = stringResource(R.string.stations_landmarks_label),
-                        value = "${station.landmarksEn}\n${station.landmarksBn}"
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (isBangla) station.nameBn else station.nameEn,
+                            style = MaterialTheme.typography.headlineSmall
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "${if (isBangla) station.nameEn else station.nameBn} · ${stringResource(R.string.stations_line_subtitle)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    StatusPill(
+                        text = stringResource(R.string.stations_number_badge, station.order),
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     )
+                }
+
+                SurfaceSectionCard(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentPadding = 16.dp
+                ) {
+                    Text(
+                        text = stringResource(R.string.stations_landmarks_label),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = if (isBangla) station.landmarksBn else station.landmarksEn,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = if (isBangla) station.landmarksEn else station.landmarksBn,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
                     InfoKeyValueRow(
                         label = stringResource(R.string.stations_distance_label),
-                        value = "${station.distanceKmFromStart} km",
+                        value = stringResource(R.string.stations_distance_km, station.distanceKmFromStart),
                         showDivider = false
                     )
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+
                 PrimaryActionButton(
                     text = stringResource(R.string.stations_calc_from_here),
                     icon = Icons.Rounded.Calculate,

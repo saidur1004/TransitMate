@@ -49,13 +49,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.BannerSeverity
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
@@ -97,6 +100,7 @@ fun FareCalculatorScreen(
     }
 
     val semantic = TransitMateThemeTokens.semantic
+    val isBangla = LocalConfiguration.current.locales[0]?.language == "bn"
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -108,33 +112,62 @@ fun FareCalculatorScreen(
             )
         }
     ) { innerPadding ->
+        ResponsiveScreenContainer(
+            modifier = Modifier.padding(innerPadding)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             SurfaceSectionCard {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
                         StationPickerField(
                             label = stringResource(R.string.fare_calc_from),
                             station = originStation,
+                            isBangla = isBangla,
                             icon = Icons.Rounded.TripOrigin,
                             iconTint = MaterialTheme.colorScheme.primary,
                             onClick = { pickerTarget = PickerTarget.ORIGIN }
                         )
+                        // Subtle 3-dot vertical route connector matching V3 mockup
+                        Row(
+                            modifier = Modifier.padding(start = 22.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                repeat(3) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(3.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.outline)
+                                    )
+                                }
+                            }
+                        }
                         StationPickerField(
                             label = stringResource(R.string.fare_calc_to),
                             station = destinationStation,
+                            isBangla = isBangla,
                             icon = Icons.Rounded.Place,
                             iconTint = MaterialTheme.colorScheme.secondary,
                             onClick = { pickerTarget = PickerTarget.DESTINATION }
                         )
                     }
 
+                    // 48.dp Material 3 compliant swap button touch target
                     Surface(
                         onClick = {
                             val oldO = originCode
@@ -142,13 +175,10 @@ fun FareCalculatorScreen(
                             destinationCode = oldO
                             swapTurns++
                         },
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 10.dp)
-                            .size(38.dp),
+                        modifier = Modifier.size(48.dp),
                         shape = CircleShape,
                         color = MaterialTheme.colorScheme.surface,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                     ) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(
@@ -156,7 +186,7 @@ fun FareCalculatorScreen(
                                 contentDescription = stringResource(R.string.cd_swap_stations),
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier
-                                    .size(20.dp)
+                                    .size(22.dp)
                                     .rotate(swapRotation)
                             )
                         }
@@ -284,6 +314,7 @@ fun FareCalculatorScreen(
                 )
             }
         }
+        }
     }
 
     pickerTarget?.let { target ->
@@ -294,6 +325,7 @@ fun FareCalculatorScreen(
         ) {
             StationPickerSheetContent(
                 stations = stations,
+                isBangla = isBangla,
                 onSelect = { selected ->
                     if (target == PickerTarget.ORIGIN) originCode = selected.code
                     else destinationCode = selected.code
@@ -308,6 +340,7 @@ fun FareCalculatorScreen(
 private fun StationPickerField(
     label: String,
     station: MetroStation?,
+    isBangla: Boolean,
     icon: ImageVector,
     iconTint: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit
@@ -334,7 +367,8 @@ private fun StationPickerField(
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = if (station != null) {
-                        "${station.nameEn} · ${station.nameBn}"
+                        if (isBangla) "${station.nameBn} · ${station.nameEn}"
+                        else "${station.nameEn} · ${station.nameBn}"
                     } else {
                         stringResource(R.string.fare_calc_select_prompt)
                     },
@@ -353,6 +387,7 @@ private fun StationPickerField(
 @Composable
 private fun StationPickerSheetContent(
     stations: List<MetroStation>,
+    isBangla: Boolean,
     onSelect: (MetroStation) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -387,39 +422,53 @@ private fun StationPickerSheetContent(
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(10.dp))
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(filtered, key = { it.code }) { station ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(station) }
-                        .padding(vertical = 12.dp, horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Surface(
-                        modifier = Modifier.size(28.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer
+        if (filtered.isEmpty()) {
+            EmptyStateView(
+                icon = Icons.Rounded.Search,
+                title = stringResource(R.string.stations_empty_title),
+                message = stringResource(R.string.stations_empty_body, query),
+                actionLabel = stringResource(R.string.action_clear_search),
+                actionIcon = Icons.Rounded.Close,
+                onAction = { query = "" }
+            )
+        } else {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(filtered, key = { it.code }) { station ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(station) }
+                            .padding(vertical = 12.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
+                        Surface(
+                            modifier = Modifier.size(28.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primaryContainer
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "%02d".format(station.order),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "%02d".format(station.order),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                                text = if (isBangla) station.nameBn else station.nameEn,
+                                style = MaterialTheme.typography.titleSmall
+                            )
+                            Text(
+                                text = if (isBangla) station.nameEn else station.nameBn,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(text = station.nameEn, style = MaterialTheme.typography.titleSmall)
-                        Text(
-                            text = station.nameBn,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
                 }
-                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
             }
         }
     }

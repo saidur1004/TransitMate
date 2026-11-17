@@ -215,3 +215,10 @@ Executed after the final code edit:
 - **Verification (Batch 2):**
   - `./gradlew clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL` (`43/43` unit tests passed, `0` lint errors / `23` warnings, `6/6` instrumented tests passed on `Pixel_9` AVD).
   - Emulator Light (EN) & Dark (বাংলা) walkthrough verified cleanly (`Insights` + `Transaction History`).
+
+### Batch 3 — Transit Utilities (`FareCalculatorScreen`, `StationExplorerScreen` + `Station Details Sheet`)
+- **Fare Calculator:** Added `ResponsiveScreenContainer`, visual 3-dot origin-to-destination route connector, `48.dp` touch-target swap button, locale-aware English/বাংলা station ordering in fields and picker sheet, plus `EmptyStateView` in picker search.
+- **Station Explorer & Redesigned Details Sheet:** Added continuous vertical MRT Line 6 rail connecting station nodes `01`–`16` and redesigned the `Station Details` `ModalBottomSheet` with localized header, station number badge, full-width stacked nearby landmarks block, and localized distance unit (`km` / `কিমি`). Also removed `IntrinsicSize.Min` + `fillMaxHeight` on list rows so station sheet opens instantaneously.
+- **Verification (Batch 3):**
+  - `./gradlew clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL in 57s` (`43/43` unit tests passed, `0` lint errors / `23` warnings, `7/7` instrumented tests passed on `Pixel_9` AVD including `stationExplorer_clickingStation_opensRedesignedDetailsSheet`).
+  - Emulator visual walkthrough verified cleanly (`Fare Calculator`, `Station Explorer`, and `Station Details` bottom sheet).
