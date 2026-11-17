@@ -1,9 +1,9 @@
 # TransitMate — Project Progress & Verification Log
 
-**Document Version:** 2.0  
-**Last Updated:** 17 November 2026, 12:45 +06:00  
+**Document Version:** 2.1  
+**Last Updated:** 17 November 2026, 13:05 +06:00  
 **Responsible Agent:** Antigravity Autonomous Coding Agent  
-**Current Phase:** Phase 09 Hardware Validation Prep & Phase 10 Release Readiness Audit In Progress — Automated Gates Green (`39/39` Unit, `9/9` Instrumented, `0` Lint Errors) · Rapid Pass Physical Verification Pending · MRT Pass Blocked · Release Signing Pending
+**Current Phase:** Phase 09.1 Hardware Validation Handover Complete — Reproducible Debug APK (`SHA-256: 2645fcf0...`) & Bangla Guide Ready · Rapid Pass Physical Test Pending · MRT Pass Blocked · Phase 10 Release In Progress
 
 ---
 
@@ -19,8 +19,8 @@
 | **Phase 06** | FeliCa Balance Reading, MRT Buddy Audit & Full IDm | **In Progress / Testing** | **Code Implemented** (clean-room `FelicaProtocol` `0x06`/`0x220F`, `TransitCardBlockDecoder`, full IDm display, `ScanResultScreen` redesign, Room `v2` deduplicated transactions) · **Unit Tested** (40/40 passed, 0 lint errors) · **Physical Device Verified: Pending** |
 | **Phase 07** | Core Product Features (UI & Persistence) | **Completed** | Local Room card manager, deduplicated verified transaction storage, rename/favorite/delete workflows |
 | **Phase 08** | Advanced Offline Transit Features | **Completed** | 16-station MRT Line 6 Explorer (`UTN`–`MTJ`), official DMTCL fare calculator (10% Smart Card discount), local JSON export |
-| **Phase 09** | Complete UI/UX Redesign, QA & Physical Testing | **In Progress** | 17-screen V3 redesign + emulator Light/Dark & EN/বাংলা verified (`39/39` unit, `9/9` instrumented); `RoomCardRepository.updateCard` rescan fix applied; physical Rapid Pass **Pending**, MRT Pass **Blocked** |
-| **Phase 10** | Release Readiness & Store Preparation | **In Progress (Audit Complete — Blocked on Signing & HW)** | Unsigned `app-release-unsigned.apk` (`13 MB`) & `app-release.aab` (`13 MB`) build cleanly (`allowBackup=false`, `bundle.language.enableSplit=false`); missing release signing keystore, `proguard-rules.pro` (`isMinifyEnabled=false`), external Privacy Policy URL, OSS licenses notice, and physical NFC sign-off |
+| **Phase 09** | Complete UI/UX Redesign, QA & Physical Testing | **In Progress (Handover Ready)** | Code/Unit (`39/39`) & Emulator UI/SQLite (`9/9`) green; `PHYSICAL_DEVICE_TEST_CHECKLIST.md` (`RP-01`–`RP-10`) & Bangla `PHYSICAL_DEVICE_TEST_GUIDE.md` + verified Debug APK delivered; physical Rapid Pass **Pending**, MRT Pass **Blocked** |
+| **Phase 10** | Release Readiness & Store Preparation | **In Progress / Not Completed** | Unsigned `app-release-unsigned.apk` (`13 MB`) & `app-release.aab` (`13 MB`) build cleanly (`allowBackup=false`, `bundle.language.enableSplit=false`); blocked on release signing keystore, `proguard-rules.pro` (`isMinifyEnabled=false`), external Privacy Policy URL, OSS licenses notice, and physical NFC validation |
 
 ---
 
@@ -281,3 +281,35 @@ Executed after the final code edit:
 | External Privacy Policy URL (Play Console) | **Missing / Blocker** | Offline summary exists in-app; Play Console Data Safety requires a public Privacy Policy URL |
 | Third-Party / OSS License Notice | **Missing / Should Add** | About notice confirms clean-room independence, but no dedicated third-party Jetpack/AndroidX license list view exists yet |
 | Physical NFC Hardware Validation | **Pending / Blocked** | Rapid Pass (`RP-01`..`RP-10`): **Pending**; MRT Pass (`MRT-01`..`MRT-05`): **Blocked (Card Not Available)** |
+
+---
+
+## 12. Phase 09.1 — Physical Device Validation Handover & Reproducibility Verification (17 Nov 2026)
+
+- **Last Updated:** 17 November 2026, 13:05 +06:00
+- **Task Status:** **Handover Prepared — Awaiting Real-Device Evidence** (`Physical Rapid Pass`: **Pending** / `Physical MRT Pass`: **Blocked — Card Not Available** / `Phase 10 Release`: **In Progress / Not Completed**)
+
+### 12.1 Deliverables Completed
+1. **Checklist Expanded (`docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md`):** Upgraded all 10 Rapid Pass test cases (`RP-01` through `RP-10`) with structured `Test ID`, `Purpose`, `Preconditions`, `Step-by-Step Procedure`, `Expected Result`, `Actual Result` (`Not Tested`), `Status` (`Not Tested` / `Pass` / `Fail` / `Blocked`), `Evidence`, and `Notes`, plus explicit **MRT Pass (`MRT-01`–`MRT-05`: `Blocked`)** matrix.
+2. **User-Friendly Bangla Test Guide (`docs/PHYSICAL_DEVICE_TEST_GUIDE.md`):** Authored clear Bangla instructions with English technical terms covering pre-test NFC setup, APK installation, two-scan Rapid Pass procedure (`Balance`, `Classification`, `Deduplication & Preservation`, `Restart/Offline`), error checks, evidence template, and strict middle-byte `IDm` masking rules.
+
+### 12.2 Clear Validation Layer Separation & Empirical Evidence
+| Validation Layer | Scope & Status | Verified Result |
+|---|---|---|
+| **Code-Level Validation** | Clean-room FeliCa `0x06`/`0x220F`, `01:27` Rapid Pass precedence, `RoomCardRepository.updateCard`, `allowBackup=false` | Verified in source; zero protocol or classification changes made in Phase 09.1 |
+| **Unit Testing** | `./gradlew clean testDebugUnitTest lintDebug assembleDebug --no-daemon` | **39/39 passed** (`10` test suites, `0` failed, `0` errors, `0` skipped) |
+| **Emulator / Instrumented Testing** | `./gradlew connectedDebugAndroidTest --no-daemon` on `Pixel_9` (`emulator-5554`, non-NFC emulator) | **9/9 passed** (`0` failed, `0` errors, `0` skipped); note emulator has **no physical NFC RF hardware** |
+| **Lint Check** | `lintDebug` | **0 errors, 22 warnings** |
+| **Physical Device Testing** | Real NFC-enabled Android smartphone (`adb devices` confirmed zero physical phones attached) | **Rapid Pass (`RP-01`–`RP-10`): `Not Tested` / Pending**; **MRT Pass (`MRT-01`–`MRT-05`): `Blocked` (Card Not Available)** |
+| **Release Readiness (Phase 10)** | Play Store release criteria | **In Progress / Not Completed** (no keystore, no R8 `proguard-rules.pro`, no public Privacy Policy URL, no OSS license view, physical NFC pending) |
+
+### 12.3 Verified Debug APK Artifact
+- **Exact Path:** `app/build/outputs/apk/debug/app-debug.apk`
+- **File Size:** `20,819,068` bytes (`19.85 MiB` / `20.82 MB`)
+- **Last Modified:** `2026-11-17 13:00:36 +0600`
+- **SHA-256:** `2645fcf093fd315f5a9941966bdba77b535d55e84cc3e44faa9a8fa65f553bbd`
+- **Metadata (`output-metadata.json` / `aapt2`):** `applicationId = com.transitmate.bd.debug` (base `com.transitmate.bd`), `versionCode = 1`, `versionName = "1.0.0"`, `minSdk = 26`, `targetSdk = 36`, `application-debuggable` (`variantName = debug`).
+
+### 12.4 Outstanding Blockers & Next Action Required from User
+- **Blockers:** (1) Physical Rapid Pass RF execution (`RP-01`–`RP-10`) on owner's NFC Android device; (2) Physical MRT Pass card unavailable (`Blocked`); (3) Phase 10 release signing keystore, R8 rules, public Privacy Policy URL, and OSS notices.
+- **Next User Action:** Install `app/build/outputs/apk/debug/app-debug.apk` (`SHA-256: 2645fcf0...`) on a real NFC-enabled Android phone, follow [`docs/PHYSICAL_DEVICE_TEST_GUIDE.md`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/docs/PHYSICAL_DEVICE_TEST_GUIDE.md), run `RP-01`–`RP-10`, and share masked screenshots/logs (`01:27:**:**:**:**:**:A0`) to record real-device pass/fail evidence.

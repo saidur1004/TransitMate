@@ -9,3 +9,5 @@
 .cxx
 local.properties
 .kotlin
+config.bat
+node_modules
