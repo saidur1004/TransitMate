@@ -162,9 +162,15 @@
     <string name="history_unavailable_body">কার্ডের ভ্রমণ ব্লক যাচাই হলে এখানে স্বয়ংক্রিয়ভাবে ভ্রমণের তালিকা দেখা যাবে।</string>
     <string name="history_empty_title">এখনো কোনো যাচাইকৃত লেনদেন নেই</string>
     <string name="history_empty_body">TransitMate কখনোই অনুমাননির্ভর ভ্রমণ তথ্য দেখায় না।</string>
+    <string name="history_filter_empty_title">কোনো মিলে যাওয়া লেনদেন নেই</string>
+    <string name="history_filter_empty_body">নির্বাচিত কার্ড বা লেনদেনের ধরনের সাথে কোনো রেকর্ড মেলেনি।</string>
     <string name="insights_title">ভ্রমণ বিশ্লেষণ</string>
-    <string name="insights_period_month">এই মাস</string>
+    <string name="insights_period_month">গত ৩০ দিন</string>
     <string name="insights_period_all">সব সময়</string>
+    <string name="insights_all_verified">সব যাচাইকৃত</string>
+    <string name="insights_empty_30d_title">গত ৩০ দিনে কোনো ভ্রমণ নেই</string>
+    <string name="insights_empty_30d_body">৩০ দিনের আগের যাচাইকৃত ভ্রমণ তথ্য রয়েছে। সম্পূর্ণ বিশ্লেষণ দেখতে সব সময় নির্বাচন করুন।</string>
+    <string name="insights_switch_all_time">সব সময় দেখুন</string>
     <string name="insights_metric_trips">ভ্রমণ</string>
     <string name="insights_metric_spent">খরচ</string>
     <string name="insights_metric_topups">রিচার্জ</string>

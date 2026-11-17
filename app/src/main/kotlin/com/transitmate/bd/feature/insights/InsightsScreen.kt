@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Calculate
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.DirectionsSubway
 import androidx.compose.material.icons.rounded.History
@@ -28,7 +29,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,11 +42,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
+import com.transitmate.bd.core.designsystem.component.MetricStatTile
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
 import com.transitmate.bd.core.nfc.TransitStationDirectory
@@ -109,78 +110,111 @@ fun InsightsScreen(
         topBar = {
             TransitTopBar(
                 title = stringResource(R.string.insights_title),
-                showBack = false,
-                actions = {
-                    FilterChip(
-                        selected = allTime,
-                        onClick = { allTime = !allTime },
-                        label = {
-                            Text(
-                                text = if (allTime) {
-                                    stringResource(R.string.insights_period_all)
-                                } else {
-                                    stringResource(R.string.insights_period_month)
-                                }
-                            )
-                        },
-                        modifier = Modifier.padding(end = 12.dp)
-                    )
-                }
+                showBack = false
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        ResponsiveScreenContainer(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                SurfaceSectionCard {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        MetricBox(
-                            label = stringResource(R.string.insights_metric_trips),
-                            value = if (trips.isNotEmpty()) "${trips.size}" else "—",
-                            modifier = Modifier.weight(1f)
-                        )
-                        MetricBox(
-                            label = stringResource(R.string.insights_metric_spent),
-                            value = if (tripsWithFare.isNotEmpty()) "৳ $totalSpent" else "—",
-                            modifier = Modifier.weight(1f)
-                        )
-                        MetricBox(
-                            label = stringResource(R.string.insights_metric_topups),
-                            value = if (topUps.isNotEmpty()) "৳ $totalTopUp" else "—",
-                            modifier = Modifier.weight(1f)
-                        )
-                        MetricBox(
-                            label = stringResource(R.string.insights_metric_avg),
-                            value = if (tripsWithFare.isNotEmpty()) "৳ $avgFare" else "—",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(
+                        selected = allTime,
+                        onClick = { allTime = true },
+                        label = { Text(stringResource(R.string.insights_period_all)) },
+                        leadingIcon = if (allTime) {
+                            { Icon(Icons.Rounded.Check, contentDescription = null) }
+                        } else null
+                    )
+                    FilterChip(
+                        selected = !allTime,
+                        onClick = { allTime = false },
+                        label = { Text(stringResource(R.string.insights_period_month)) },
+                        leadingIcon = if (!allTime) {
+                            { Icon(Icons.Rounded.Check, contentDescription = null) }
+                        } else null
+                    )
+                }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    MetricStatTile(
+                        label = stringResource(R.string.insights_metric_trips),
+                        value = if (trips.isNotEmpty()) "${trips.size}" else "—",
+                        centered = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    MetricStatTile(
+                        label = stringResource(R.string.insights_metric_spent),
+                        value = if (tripsWithFare.isNotEmpty()) "৳ $totalSpent" else "—",
+                        centered = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    MetricStatTile(
+                        label = stringResource(R.string.insights_metric_topups),
+                        value = if (topUps.isNotEmpty()) "৳ $totalTopUp" else "—",
+                        centered = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    MetricStatTile(
+                        label = stringResource(R.string.insights_metric_avg),
+                        value = if (tripsWithFare.isNotEmpty()) "৳ $avgFare" else "—",
+                        centered = true,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
 
             item {
                 SurfaceSectionCard {
                     if (routeBreakdown.isEmpty()) {
+                        val is30dFilteredOut = !allTime && transactions.isNotEmpty()
                         EmptyStateView(
                             icon = Icons.Rounded.BarChart,
-                            title = stringResource(R.string.insights_empty_title),
-                            message = stringResource(R.string.insights_empty_body)
+                            title = if (is30dFilteredOut) {
+                                stringResource(R.string.insights_empty_30d_title)
+                            } else {
+                                stringResource(R.string.insights_empty_title)
+                            },
+                            message = if (is30dFilteredOut) {
+                                stringResource(R.string.insights_empty_30d_body)
+                            } else {
+                                stringResource(R.string.insights_empty_body)
+                            },
+                            actionLabel = if (is30dFilteredOut) stringResource(R.string.insights_switch_all_time) else null,
+                            onAction = if (is30dFilteredOut) ({ allTime = true }) else null
                         )
                     } else {
                         val maxTrips = routeBreakdown.maxOf { it.tripCount }.coerceAtLeast(1)
-                        Text(
-                            text = stringResource(R.string.insights_top_routes),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.insights_top_routes),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            if (allTime) {
+                                Text(
+                                    text = stringResource(R.string.insights_all_verified),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                         Spacer(modifier = Modifier.height(12.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                             routeBreakdown.forEachIndexed { idx, item ->
@@ -284,39 +318,6 @@ fun InsightsScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun MetricBox(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 1
-            )
         }
     }
 }

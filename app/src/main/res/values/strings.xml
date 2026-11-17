@@ -162,9 +162,15 @@
     <string name="history_unavailable_body">Card trip logs will appear automatically here once card-specific transaction blocks are validated.</string>
     <string name="history_empty_title">No verified transactions yet</string>
     <string name="history_empty_body">TransitMate never displays simulated trips. Scan a supported card once history reading is active.</string>
+    <string name="history_filter_empty_title">No matching transactions</string>
+    <string name="history_filter_empty_body">No verified records match the selected card or transaction filter.</string>
     <string name="insights_title">Insights</string>
-    <string name="insights_period_month">This Month</string>
+    <string name="insights_period_month">Last 30 Days</string>
     <string name="insights_period_all">All Time</string>
+    <string name="insights_all_verified">All verified</string>
+    <string name="insights_empty_30d_title">No trips in the last 30 days</string>
+    <string name="insights_empty_30d_body">Verified history older than 30 days is available. Switch to All Time to review your routes.</string>
+    <string name="insights_switch_all_time">View All Time</string>
     <string name="insights_metric_trips">Trips</string>
     <string name="insights_metric_spent">Spent</string>
     <string name="insights_metric_topups">Top-Ups</string>

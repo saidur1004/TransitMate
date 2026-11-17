@@ -208,3 +208,10 @@ Executed after the final code edit:
 - **Verification (Batch 1):**
   - `./gradlew clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL` (`43/43` unit tests passed, `0` lint errors / `23` warnings, `6/6` instrumented tests passed on `Pixel_9` AVD).
   - Emulator Light (EN) & Dark (বাংলা) walkthrough verified cleanly.
+
+### Batch 2 — Transaction History & Insights (`TransactionHistoryScreen`, `InsightsScreen`)
+- **Transaction History:** Added `ResponsiveScreenContainer`, chronological month-grouped `SurfaceSectionCard` ledgers (`SimpleDateFormat("LLLL yyyy", locale)`), `VerticalDivider` summary KPI card, and distinct empty states (`transactions.isEmpty()` vs active filter zero matches).
+- **Insights:** Replaced top-bar toggle chip with dual explicit `FilterChip` selectors (`All Time` | `Last 30 Days`), unified KPI cards using `MetricStatTile`, and added a 30-day-empty recovery CTA (`View All Time`).
+- **Verification (Batch 2):**
+  - `./gradlew clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL` (`43/43` unit tests passed, `0` lint errors / `23` warnings, `6/6` instrumented tests passed on `Pixel_9` AVD).
+  - Emulator Light (EN) & Dark (বাংলা) walkthrough verified cleanly (`Insights` + `Transaction History`).
