@@ -37,6 +37,7 @@ import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.AppLogoMark
 import com.transitmate.bd.core.designsystem.component.BannerSeverity
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
@@ -55,17 +56,20 @@ fun AboutScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TransitTopBar(
-                title = stringResource(R.string.about_title),
+                title = stringResource(R.string.settings_about),
                 showBack = true,
                 onBackClick = onBack
             )
         }
     ) { innerPadding ->
+        ResponsiveScreenContainer(
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 20.dp, vertical = 12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp),
@@ -132,6 +136,7 @@ fun AboutScreen(
                     )
                 }
             }
+        }
         }
     }
 

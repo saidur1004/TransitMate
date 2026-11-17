@@ -1,6 +1,7 @@
 package com.transitmate.bd.feature.onboarding
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.Contactless
 import androidx.compose.material.icons.rounded.DirectionsSubway
 import androidx.compose.material.icons.rounded.Shield
@@ -45,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import kotlinx.coroutines.launch
@@ -52,7 +55,9 @@ import kotlinx.coroutines.launch
 private data class OnboardingPage(
     val titleRes: Int,
     val bodyRes: Int,
+    val pillRes: Int,
     val icon: ImageVector,
+    val pillIcon: ImageVector,
     val isPhoneDiagram: Boolean
 )
 
@@ -61,9 +66,30 @@ fun OnboardingScreen(
     onFinishOnboarding: () -> Unit
 ) {
     val pages = listOf(
-        OnboardingPage(R.string.onboarding_slide_1_title, R.string.onboarding_slide_1_body, Icons.Rounded.Contactless, true),
-        OnboardingPage(R.string.onboarding_slide_2_title, R.string.onboarding_slide_2_body, Icons.Rounded.Shield, false),
-        OnboardingPage(R.string.onboarding_slide_3_title, R.string.onboarding_slide_3_body, Icons.Rounded.DirectionsSubway, false)
+        OnboardingPage(
+            titleRes = R.string.onboarding_slide_1_title,
+            bodyRes = R.string.onboarding_slide_1_body,
+            pillRes = R.string.offline_readonly_badge,
+            icon = Icons.Rounded.Contactless,
+            pillIcon = Icons.Rounded.Contactless,
+            isPhoneDiagram = true
+        ),
+        OnboardingPage(
+            titleRes = R.string.onboarding_slide_2_title,
+            bodyRes = R.string.onboarding_slide_2_body,
+            pillRes = R.string.onboarding_pill_storage,
+            icon = Icons.Rounded.Shield,
+            pillIcon = Icons.Rounded.Shield,
+            isPhoneDiagram = false
+        ),
+        OnboardingPage(
+            titleRes = R.string.onboarding_slide_3_title,
+            bodyRes = R.string.onboarding_slide_3_body,
+            pillRes = R.string.onboarding_pill_tools,
+            icon = Icons.Rounded.DirectionsSubway,
+            pillIcon = Icons.Rounded.Calculate,
+            isPhoneDiagram = false
+        )
     )
     val pagerState = rememberPagerState(pageCount = { pages.size })
     val scope = rememberCoroutineScope()
@@ -92,10 +118,12 @@ fun OnboardingScreen(
             }
         }
     ) { innerPadding ->
+        ResponsiveScreenContainer(
+            modifier = Modifier.padding(innerPadding)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
@@ -123,27 +151,42 @@ fun OnboardingScreen(
                             if (page.isPhoneDiagram) {
                                 NfcAlignmentGraphic()
                             } else {
-                                Surface(
-                                    modifier = Modifier.size(104.dp),
-                                    shape = RoundedCornerShape(26.dp),
-                                    color = MaterialTheme.colorScheme.primaryContainer
+                                // Concentric orbital frame matching V3 slide visual parity
+                                Box(
+                                    modifier = Modifier.size(160.dp),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = page.icon,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            modifier = Modifier.size(48.dp)
+                                    Surface(
+                                        modifier = Modifier.size(152.dp),
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.surface,
+                                        border = BorderStroke(
+                                            1.5.dp,
+                                            MaterialTheme.colorScheme.outline
                                         )
+                                    ) {}
+                                    Surface(
+                                        modifier = Modifier.size(110.dp),
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Icon(
+                                                imageVector = page.icon,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                modifier = Modifier.size(46.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
 
                             StatusPill(
-                                text = stringResource(R.string.offline_readonly_badge),
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                icon = Icons.Rounded.Shield
+                                text = stringResource(page.pillRes),
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                dotColor = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -207,6 +250,7 @@ fun OnboardingScreen(
                     }
                 )
             }
+        }
         }
     }
 }

@@ -46,6 +46,8 @@
     <string name="onboarding_slide_2_body">আপনার সংরক্ষিত কার্ডের তথ্য কেবল ফোনেই থাকে। TransitMate শুধুমাত্র রিড-অনলি এবং কার্ডে কোনো পরিবর্তন করে না।</string>
     <string name="onboarding_slide_3_title">সৎ ও নির্ভরযোগ্য তথ্য</string>
     <string name="onboarding_slide_3_body">কেবল যাচাইকৃত তথ্যই ব্যালেন্স বা ভ্রমণের তালিকায় দেখানো হয়। ভাড়া হিসাব ও স্টেশন তথ্য সব ফোনেই কাজ করে।</string>
+    <string name="onboarding_pill_storage">শুধুমাত্র এই ডিভাইসে সংরক্ষিত</string>
+    <string name="onboarding_pill_tools">যাচাইকৃত তথ্য ও অফলাইন টুলস</string>
 
     <!-- NFC Hardware Status -->
     <string name="nfc_status_ready">NFC প্রস্তুত</string>
@@ -247,7 +249,13 @@
     <string name="data_mgmt_export_sub">গোপনীয় হ্যাশকৃত JSON সারাংশ</string>
     <string name="data_mgmt_clear_history_title">স্ক্যান ইতিহাস মুছুন</string>
     <string name="data_mgmt_clear_history_sub">কার্ড রেখে ইতিহাস মুছে ফেলুন</string>
+    <string name="data_mgmt_clear_history_confirm_title">ভ্রমণ ইতিহাস মুছে ফেলবেন?</string>
+    <string name="data_mgmt_clear_history_confirm_body">এই ডিভাইস থেকে সংরক্ষিত %1$dটি যাচাইকৃত লেনদেনের তথ্য মুছে ফেলবেন? আপনার সংরক্ষিত কার্ডগুলো অক্ষত থাকবে।</string>
     <string name="data_mgmt_delete_all">সব স্থানীয় ডেটা মুছুন</string>
+    <string name="data_mgmt_delete_all_confirm_title">সকল স্থানীয় ডেটা মুছবেন?</string>
+    <string name="data_mgmt_delete_all_confirm_body">এই ডিভাইস থেকে সংরক্ষিত %1$dটি কার্ড এবং %2$dটি লেনদেনের ইতিহাস স্থায়ীভাবে মুছে ফেলবেন? আপনার আসল কার্ডে কোনো পরিবর্তন হবে না।</string>
+    <string name="data_mgmt_idm_banner_title">IDm গোপনীয়তা সতর্কতা</string>
+    <string name="data_mgmt_idm_banner_body">কার্ড IDm একটি স্থায়ী পরিচয় নম্বর যা কেবল ডিভাইসে থাকে। পাবলিক স্ক্রিনশট বা শেয়ার করা রিপোর্টে এটি প্রকাশ করা এড়িয়ে চলুন।</string>
     <string name="sheet_export_title">ডেটা এক্সপোর্ট প্রিভিউ</string>
     <string name="sheet_export_desc">সকল কার্ড আইডি হ্যাশ রেখে JSON সারাংশ তৈরি করা হয়েছে।</string>
     <string name="sheet_export_copy">JSON কপি করুন</string>
@@ -262,14 +270,33 @@
     <string name="diagnostics_copy_log">ডায়াগনস্টিক লগ কপি করুন</string>
     <string name="diagnostics_clear">মুছুন</string>
     <string name="diagnostics_copied_msg">ডায়াগনস্টিক সারাংশ কপি করা হয়েছে</string>
+    <string name="diagnostics_scan_badge">স্ক্যান #%1$d</string>
+    <string name="diagnostics_row_hardware">NFC হার্ডওয়্যার</string>
+    <string name="diagnostics_row_flags">রিডার ফ্ল্যাগ</string>
+    <string name="diagnostics_row_full_idm">সম্পূর্ণ কার্ড IDm</string>
+    <string name="diagnostics_row_tech_list">প্রযুক্তি তালিকা</string>
+    <string name="diagnostics_row_system_code">সিস্টেম কোড</string>
+    <string name="diagnostics_row_pmm">নির্মাতা কোড (PMm)</string>
+    <string name="diagnostics_row_service_status">সার্ভিস 0x220F অবস্থা</string>
+    <string name="diagnostics_row_blocks">পঠিত ব্লক</string>
+    <string name="diagnostics_row_decoded">শনাক্তকৃত কার্ড / ব্যালেন্স</string>
+    <string name="diagnostics_row_rf_link">RF লিংক পরীক্ষা</string>
+    <string name="diagnostics_val_unavailable">পাওয়া যায়নি</string>
+    <string name="diagnostics_val_none">নেই</string>
+    <string name="diagnostics_val_not_detected">শনাক্ত হয়নি</string>
+    <string name="diagnostics_val_not_queried">কোয়েরি করা হয়নি</string>
+    <string name="diagnostics_val_blocks">%1$dটি ব্লক (%2$dটি বৈধ)</string>
+    <string name="diagnostics_val_unverified">অযাচাইকৃত</string>
+    <string name="diagnostics_val_rf_non_felica">নন-NfcF ট্যাগ</string>
 
     <string name="help_title">সহায়তা ও প্রশ্নোত্তর</string>
     <string name="help_search_hint">NFC বা কার্ড সংক্রান্ত প্রশ্ন খুঁজুন…</string>
+    <string name="help_empty_title">কোনো প্রশ্ন পাওয়া যায়নি</string>
+    <string name="help_empty_body">\"%1$s\" অনুযায়ী কোনো প্রশ্নোত্তর খুঁজে পাওয়া যায়নি।</string>
     <string name="help_guide_title">এমআরটি ও র‍্যাপিড পাস স্ক্যান করার নিয়ম</string>
     <string name="help_guide_body">ফোনের পেছনের উপরের অংশে কার্ডটি ১–২ সেকেন্ড স্থির রাখুন। মোটা ধাতব বা ম্যাগনেটিক কভার থাকলে খুলে নিন।</string>
     <string name="help_replay_onboarding">পরিচিতি গাইড পুনরায় দেখুন</string>
 
-    <string name="about_title">সম্পর্কে</string>
     <string name="about_notice_title">স্বতন্ত্র অ্যাপ্লিকেশন ঘোষণা</string>
     <string name="about_notice_body">TransitMate একটি স্বতন্ত্র অ্যাপ এবং এটি ডিএমটিসিএল, ডিটিসিএ বা কোনো সরকারি সংস্থার অনুমোদিত অফিশিয়াল অ্যাপ নয়।</string>
     <string name="about_operating_mode">পরিচালনা পদ্ধতি</string>

@@ -222,3 +222,18 @@ Executed after the final code edit:
 - **Verification (Batch 3):**
   - `./gradlew clean testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL in 57s` (`43/43` unit tests passed, `0` lint errors / `23` warnings, `7/7` instrumented tests passed on `Pixel_9` AVD including `stationExplorer_clickingStation_opensRedesignedDetailsSheet`).
   - Emulator visual walkthrough verified cleanly (`Fare Calculator`, `Station Explorer`, and `Station Details` bottom sheet).
+
+### Batch 4 — Settings, Support, Onboarding & Legacy Cleanup
+- **Legacy Cleanup (`feature/startup`):** Removed unused legacy files (`StartupScreen.kt`, `StartupUiState.kt`, `StartupViewModel.kt`, `StartupViewModelTest.kt`) after confirming zero navigation, manifest, or production code references (`4` legacy unit tests removed cleanly -> `39` active unit tests).
+- **Critical `MainActivity` Bug Caught & Fixed During Emulator QA:** Navigating from `Settings` to `Data Management` threw `IllegalStateException: No ActivityResultRegistryOwner was provided via LocalActivityResultRegistryOwner` because `createLocalizedContext` detached `ContextWrapper` resolution from `MainActivity`. Fixed [`MainActivity.kt`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/app/src/main/kotlin/com/transitmate/bd/MainActivity.kt) by explicitly providing `LocalActivityResultRegistryOwner` and `LocalOnBackPressedDispatcherOwner` in `CompositionLocalProvider`, and added [`MainActivitySmokeTest.kt`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/app/src/androidTest/kotlin/com/transitmate/bd/MainActivitySmokeTest.kt).
+- **Settings & Data Management (`SettingsScreen.kt`):** Wrapped both screens in `ResponsiveScreenContainer`, added `IdmPrivacyCaption` to Privacy Info Sheet, made `DataManagementScreen` vertically scrollable with an `IDm Privacy Reminder` banner, added Clear Scan History confirmation dialog, fixed Delete All confirmation copy (`%1$d` cards / `%2$d` records), and made JSON export preview sheet scrollable.
+- **Support, Diagnostics, Onboarding & Splash:**
+  - `NfcDiagnosticsScreen.kt`: Wrapped in `ResponsiveScreenContainer`, localized all labels/badges/fallbacks (`diagnostics_*` EN/বাংলা), added `IdmPrivacyCaption` under `FullIdmRow`, unified bottom controls to `SecondaryTonalButton` + `SecondaryOutlinedButton`.
+  - `HelpFaqScreen.kt`: Wrapped in `ResponsiveScreenContainer`, updated IDm & balance FAQs (EN/বাংলা), added `EmptyStateView` for zero search matches, switched bottom CTA to `SecondaryTonalButton`.
+  - `AboutScreen.kt`: Wrapped in `ResponsiveScreenContainer` and aligned header title with `R.string.settings_about`.
+  - `OnboardingScreen.kt`: Wrapped in `ResponsiveScreenContainer` and unified Slides 2–3 inside concentric orbital ring frames paired with contextual `StatusPill` tags matching Slide 1.
+  - `SplashScreen.kt`: Standardized bottom progress indicator + status caption with `LoadingStateView`.
+- **Verification (Batch 4):**
+  - `./gradlew testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL in 1m 44s` (`39/39` unit tests passed across `10` test files, `0` lint errors / `26` warnings, **`8/8` instrumented tests passed** on `Pixel_9` AVD including `MainActivitySmokeTest`).
+  - Verified Light (EN) & Dark (বাংলা) rendering on `emulator-5554` (`Splash`, `Onboarding`, `Settings`, `Data Management`, `NFC Diagnostics`, `Help & FAQ`, `About TransitMate`).
+  - **Physical Hardware Verification Remaining:** Rapid Pass repeat-scan (`Pending Physical Verification`) and physical MRT Pass validation (`Blocked (Card Not Available)`).

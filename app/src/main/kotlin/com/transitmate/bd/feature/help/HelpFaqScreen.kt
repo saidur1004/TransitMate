@@ -22,7 +22,6 @@ import androidx.compose.material.icons.rounded.Contactless
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +40,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
+import com.transitmate.bd.core.designsystem.component.EmptyStateView
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
+import com.transitmate.bd.core.designsystem.component.SecondaryTonalButton
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
 import com.transitmate.bd.domain.model.AppLanguage
@@ -55,9 +57,9 @@ private data class FaqEntry(
 private val FaqEntries = listOf(
     FaqEntry(
         qEn = "Why does balance say Not Available?",
-        aEn = "TransitMate separates physical NFC detection from verified balance reading. Until balance formats and service keys are physically validated, the app honestly reports Not Available instead of showing guessed numbers.",
+        aEn = "TransitMate reads verified FeliCa purse balance and trip history on Rapid Pass cards. For pending cards (such as unvalidated MRT Pass formats) or protected blocks, TransitMate honestly displays Not Available instead of showing guessed numbers.",
         qBn = "ব্যালেন্স 'পাওয়া যায়নি' দেখায় কেন?",
-        aBn = "TransitMate কার্ড শনাক্তকরণ এবং যাচাইকৃত ব্যালেন্স পাঠ আলাদা রাখে। ব্যালেন্স ব্লক সম্পূর্ণভাবে যাচাই না হওয়া পর্যন্ত অনুমানভিত্তিক সংখ্যা না দেখিয়ে সঠিক তথ্য দেখানো হয়।"
+        aBn = "TransitMate র‍্যাপিড পাস কার্ডের যাচাইকৃত ব্যালেন্স ও ভ্রমণ ইতিহাস পড়ে। তবে অযাচাইকৃত ফরম্যাট (যেমন এমআরটি পাস) বা সুরক্ষিত ব্লকের ক্ষেত্রে অনুমানভিত্তিক সংখ্যা না দেখিয়ে 'পাওয়া যায়নি' দেখায়।"
     ),
     FaqEntry(
         qEn = "How do I scan MRT Pass or Rapid Pass?",
@@ -78,10 +80,10 @@ private val FaqEntries = listOf(
         aBn = "হ্যাঁ। মেট্রোর ভাড়া হিসাব এবং ১৬টি স্টেশনের তালিকা ইন্টারনেট ও NFC ছাড়াই অফলাইনে ব্যবহার করা যাবে।"
     ),
     FaqEntry(
-        qEn = "How is my card privacy protected?",
-        aEn = "Your card IDm and travel history are stored strictly offline on your device inside local database storage. Zero data ever leaves your phone.",
-        qBn = "আমার কার্ডের গোপনীয়তা কীভাবে সুরক্ষিত থাকে?",
-        aBn = "আপনার কার্ড IDm এবং ভ্রমণ ইতিহাস কেবল এই ডিভাইসেই সম্পূর্ণ অফলাইনে সংরক্ষিত থাকে। কোনো তথ্য ফোনের বাইরে বা কোনো সার্ভারে পাঠানো হয় না।"
+        qEn = "How is my card IDm & privacy protected?",
+        aEn = "Your full Card IDm is a persistent hardware identifier stored strictly offline on your device inside local database storage—zero data leaves your phone. Avoid sharing public screenshots or reports that expose your raw Card IDm.",
+        qBn = "আমার কার্ড IDm ও গোপনীয়তা কীভাবে সুরক্ষিত থাকে?",
+        aBn = "কার্ড IDm একটি স্থায়ী পরিচয় নম্বর যা কেবল এই ডিভাইসেই সম্পূর্ণ অফলাইনে সংরক্ষিত থাকে—কোনো তথ্য বাইরে পাঠানো হয় না। পাবলিক স্ক্রিনশট বা শেয়ার করা রিপোর্টে আপনার মূল IDm প্রকাশ করা থেকে বিরত থাকুন।"
     )
 )
 
@@ -115,11 +117,13 @@ fun HelpFaqScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        ResponsiveScreenContainer(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -178,62 +182,74 @@ fun HelpFaqScreen(
                 }
             }
 
-            itemsIndexed(filtered) { index, faq ->
-                val isExpanded = expandedIdx == index
-                val question = if (language == AppLanguage.BANGLA) faq.qBn else faq.qEn
-                val answer = if (language == AppLanguage.BANGLA) faq.aBn else faq.aEn
-
-                SurfaceSectionCard(
-                    modifier = Modifier.animateContentSize(),
-                    onClick = { expandedIdx = if (isExpanded) null else index }
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = question,
-                            style = MaterialTheme.typography.titleSmall,
-                            color = if (isExpanded) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(end = 8.dp)
-                        )
-                        Icon(
-                            imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+            if (filtered.isEmpty()) {
+                item {
+                    SurfaceSectionCard {
+                        EmptyStateView(
+                            icon = Icons.Rounded.Search,
+                            title = stringResource(R.string.help_empty_title),
+                            message = stringResource(R.string.help_empty_body, query),
+                            actionLabel = stringResource(R.string.action_clear_search),
+                            actionIcon = Icons.Rounded.Close,
+                            onAction = { query = "" }
                         )
                     }
-                    if (isExpanded) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Text(
-                            text = answer,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                }
+            } else {
+                itemsIndexed(filtered) { index, faq ->
+                    val isExpanded = expandedIdx == index
+                    val question = if (language == AppLanguage.BANGLA) faq.qBn else faq.qEn
+                    val answer = if (language == AppLanguage.BANGLA) faq.aBn else faq.aEn
+
+                    SurfaceSectionCard(
+                        modifier = Modifier.animateContentSize(),
+                        onClick = { expandedIdx = if (isExpanded) null else index }
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = question,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = if (isExpanded) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(end = 8.dp)
+                            )
+                            Icon(
+                                imageVector = if (isExpanded) Icons.Rounded.ExpandLess else Icons.Rounded.ExpandMore,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        if (isExpanded) {
+                            Spacer(modifier = Modifier.height(10.dp))
+                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Text(
+                                text = answer,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
 
             item {
                 Spacer(modifier = Modifier.height(4.dp))
-                FilledTonalButton(
-                    onClick = onReplayOnboarding,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
-                ) {
-                    Text(stringResource(R.string.help_replay_onboarding))
-                }
+                SecondaryTonalButton(
+                    text = stringResource(R.string.help_replay_onboarding),
+                    onClick = onReplayOnboarding
+                )
             }
+        }
         }
     }
 }

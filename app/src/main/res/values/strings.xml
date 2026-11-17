@@ -46,6 +46,8 @@
     <string name="onboarding_slide_2_body">Your saved cards stay strictly on your device. TransitMate is read-only and never modifies or uploads card data.</string>
     <string name="onboarding_slide_3_title">Transparent &amp; Inclusive Tools</string>
     <string name="onboarding_slide_3_body">Only verified capabilities are shown as balance or trip logs. Fare Calculator and Station Explorer work on any phone.</string>
+    <string name="onboarding_pill_storage">On-Device Storage Only</string>
+    <string name="onboarding_pill_tools">Verified Data &amp; Offline Tools</string>
 
     <!-- NFC Hardware Status -->
     <string name="nfc_status_ready">NFC Ready</string>
@@ -247,7 +249,13 @@
     <string name="data_mgmt_export_sub">Sanitized JSON summary (hashed card keys)</string>
     <string name="data_mgmt_clear_history_title">Clear Scan History</string>
     <string name="data_mgmt_clear_history_sub">Keep saved cards, remove logs</string>
+    <string name="data_mgmt_clear_history_confirm_title">Clear Verified History?</string>
+    <string name="data_mgmt_clear_history_confirm_body">Remove %1$d locally stored transaction records from this device? Your saved cards will remain intact.</string>
     <string name="data_mgmt_delete_all">Delete All Local Data</string>
+    <string name="data_mgmt_delete_all_confirm_title">Delete All Local Data?</string>
+    <string name="data_mgmt_delete_all_confirm_body">Permanently delete %1$d saved cards and %2$d transaction records from this device? Physical cards are never modified.</string>
+    <string name="data_mgmt_idm_banner_title">IDm Privacy Reminder</string>
+    <string name="data_mgmt_idm_banner_body">Card IDm is a persistent card identifier stored locally. Avoid exposing raw IDm in public screenshots or shared reports.</string>
     <string name="sheet_export_title">Local Data Export Preview</string>
     <string name="sheet_export_desc">Identifiers remain hashed in exported JSON summaries.</string>
     <string name="sheet_export_copy">Copy Sanitized JSON</string>
@@ -262,14 +270,33 @@
     <string name="diagnostics_copy_log">Copy Diagnostic Log</string>
     <string name="diagnostics_clear">Clear</string>
     <string name="diagnostics_copied_msg">Diagnostic summary copied</string>
+    <string name="diagnostics_scan_badge">Scan #%1$d</string>
+    <string name="diagnostics_row_hardware">NFC Hardware</string>
+    <string name="diagnostics_row_flags">Reader Flags</string>
+    <string name="diagnostics_row_full_idm">Full Card IDm</string>
+    <string name="diagnostics_row_tech_list">Tech List</string>
+    <string name="diagnostics_row_system_code">System Code</string>
+    <string name="diagnostics_row_pmm">Manufacturer (PMm)</string>
+    <string name="diagnostics_row_service_status">Service 0x220F Status</string>
+    <string name="diagnostics_row_blocks">Blocks Read</string>
+    <string name="diagnostics_row_decoded">Decoded Card / Balance</string>
+    <string name="diagnostics_row_rf_link">RF Link Check</string>
+    <string name="diagnostics_val_unavailable">Unavailable</string>
+    <string name="diagnostics_val_none">None</string>
+    <string name="diagnostics_val_not_detected">Not detected</string>
+    <string name="diagnostics_val_not_queried">Not queried</string>
+    <string name="diagnostics_val_blocks">%1$d blocks (%2$d valid)</string>
+    <string name="diagnostics_val_unverified">Unverified</string>
+    <string name="diagnostics_val_rf_non_felica">Non-NfcF tag</string>
 
     <string name="help_title">Help &amp; FAQ</string>
     <string name="help_search_hint">Search NFC &amp; card questions…</string>
+    <string name="help_empty_title">No Matching Questions</string>
+    <string name="help_empty_body">No FAQ entries matched \"%1$s\".</string>
     <string name="help_guide_title">How to scan MRT &amp; Rapid Pass</string>
     <string name="help_guide_body">Hold your card flat against the upper-center back of your phone for 1–2 seconds. Remove thick metallic or magnetic cases if detection fails.</string>
     <string name="help_replay_onboarding">Replay Welcome Guide</string>
 
-    <string name="about_title">About</string>
     <string name="about_notice_title">Independent Utility Notice</string>
     <string name="about_notice_body">TransitMate is an independent commuter utility and is not officially affiliated with DMTCL, DTCA, or any government transport agency.</string>
     <string name="about_operating_mode">Operating Mode</string>

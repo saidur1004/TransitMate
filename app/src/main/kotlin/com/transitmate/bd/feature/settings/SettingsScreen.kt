@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -70,9 +73,13 @@ import androidx.compose.ui.unit.dp
 import java.nio.charset.StandardCharsets
 import com.transitmate.bd.BuildConfig
 import com.transitmate.bd.R
+import com.transitmate.bd.core.designsystem.component.BannerSeverity
+import com.transitmate.bd.core.designsystem.component.IdmPrivacyCaption
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
+import com.transitmate.bd.core.designsystem.component.ResponsiveScreenContainer
 import com.transitmate.bd.core.designsystem.component.SecondaryOutlinedButton
+import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
@@ -113,11 +120,13 @@ fun SettingsScreen(
             TransitTopBar(title = stringResource(R.string.settings_title), showBack = false)
         }
     ) { innerPadding ->
-        LazyColumn(
+        ResponsiveScreenContainer(
             modifier = Modifier
-                .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background),
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -222,6 +231,7 @@ fun SettingsScreen(
                     )
                 }
             }
+        }
         }
     }
 
@@ -346,6 +356,7 @@ fun PrivacyInfoSheetContent(onClose: () -> Unit) {
                 showDivider = false
             )
         }
+        IdmPrivacyCaption()
         PrimaryActionButton(
             text = stringResource(R.string.action_close),
             onClick = onClose
@@ -370,6 +381,7 @@ fun DataManagementScreen(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var exportPreviewJson by remember { mutableStateOf<String?>(null) }
+    var showClearHistoryConfirm by remember { mutableStateOf(false) }
     var showDeleteAllConfirm by remember { mutableStateOf(false) }
 
     val csvSavedMsg = stringResource(R.string.data_mgmt_csv_saved, historyCount)
@@ -405,19 +417,23 @@ fun DataManagementScreen(
             )
         }
     ) { innerPadding ->
+        ResponsiveScreenContainer(
+            modifier = Modifier
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.background)
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             SurfaceSectionCard {
                 Text(
                     text = stringResource(R.string.data_mgmt_storage_header),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 InfoKeyValueRow(label = stringResource(R.string.data_mgmt_saved_cards), value = "$savedCardCount")
@@ -425,9 +441,17 @@ fun DataManagementScreen(
                 InfoKeyValueRow(
                     label = stringResource(R.string.data_mgmt_cloud_backups),
                     value = stringResource(R.string.data_mgmt_cloud_disabled),
+                    valueColor = semantic.success,
                     showDivider = false
                 )
             }
+
+            StatusBannerCard(
+                severity = BannerSeverity.INFO,
+                icon = Icons.Rounded.Shield,
+                title = stringResource(R.string.data_mgmt_idm_banner_title),
+                message = stringResource(R.string.data_mgmt_idm_banner_body)
+            )
 
             SurfaceSectionCard(contentPadding = 4.dp) {
                 SettingsRow(
@@ -471,13 +495,16 @@ fun DataManagementScreen(
                     badgeBg = semantic.warningContainer,
                     badgeFg = semantic.onWarningContainer,
                     onClick = {
-                        onClearHistory()
-                        scope.launch { snackbarHostState.showSnackbar(historyClearedMsg) }
+                        if (historyCount == 0) {
+                            scope.launch { snackbarHostState.showSnackbar(csvEmptyMsg) }
+                        } else {
+                            showClearHistoryConfirm = true
+                        }
                     }
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1f, fill = false))
 
             OutlinedButton(
                 onClick = { showDeleteAllConfirm = true },
@@ -485,7 +512,7 @@ fun DataManagementScreen(
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
+                    .heightIn(min = 48.dp)
             ) {
                 Icon(
                     imageVector = Icons.Rounded.DeleteOutline,
@@ -496,9 +523,11 @@ fun DataManagementScreen(
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.data_mgmt_delete_all),
-                    color = MaterialTheme.colorScheme.error
+                    color = MaterialTheme.colorScheme.error,
+                    maxLines = 2
                 )
             }
+        }
         }
     }
 
@@ -524,13 +553,17 @@ fun DataManagementScreen(
                     shape = RoundedCornerShape(14.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant,
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 260.dp)
                 ) {
-                    Text(
-                        text = json,
-                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                        modifier = Modifier.padding(14.dp)
-                    )
+                    Box(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                        Text(
+                            text = json,
+                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            modifier = Modifier.padding(14.dp)
+                        )
+                    }
                 }
                 PrimaryActionButton(
                     text = stringResource(R.string.sheet_export_copy),
@@ -549,12 +582,44 @@ fun DataManagementScreen(
         }
     }
 
+    if (showClearHistoryConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearHistoryConfirm = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.data_mgmt_clear_history_confirm_title)) },
+            text = {
+                Text(stringResource(R.string.data_mgmt_clear_history_confirm_body, historyCount))
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showClearHistoryConfirm = false
+                        onClearHistory()
+                        scope.launch { snackbarHostState.showSnackbar(historyClearedMsg) }
+                    },
+                    shape = CircleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) { Text(stringResource(R.string.action_remove)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearHistoryConfirm = false }) { Text(stringResource(R.string.action_cancel)) }
+            }
+        )
+    }
+
     if (showDeleteAllConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteAllConfirm = false },
             shape = RoundedCornerShape(20.dp),
-            title = { Text(stringResource(R.string.data_mgmt_delete_all)) },
-            text = { Text(stringResource(R.string.dialog_delete_card_message, stringResource(R.string.data_mgmt_saved_cards))) },
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text(stringResource(R.string.data_mgmt_delete_all_confirm_title)) },
+            text = {
+                Text(stringResource(R.string.data_mgmt_delete_all_confirm_body, savedCardCount, historyCount))
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -609,7 +674,7 @@ private fun SettingsRow(
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(38.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(badgeBg),
                 contentAlignment = Alignment.Center
