@@ -12,9 +12,11 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.transitmate.bd.data.RoomCardRepository
 import com.transitmate.bd.data.StaticTransitInfoRepository
 import com.transitmate.bd.feature.stationexplorer.StationExplorerScreen
 import java.util.Locale
+import kotlinx.coroutines.runBlocking
 import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -142,6 +144,90 @@ class TransitMateInstrumentedTest {
 
         migratedDb.close()
         context.deleteDatabase(dbName)
+    }
+
+    @Test
+    fun roomCardRepository_rescanPreservesExistingTransactionsAndDeduplicates() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val db = Room.inMemoryDatabaseBuilder(context, TransitMateDatabase::class.java)
+            .allowMainThreadQueries()
+            .build()
+        try {
+            val dao = db.transitCardDao()
+            val repo = RoomCardRepository(dao)
+
+            val initialCardId = repo.saveOrUpdateCard(
+                SavedTransitCard(
+                    cardDigestKey = "digest-rescan-test",
+                    nickname = "Rapid Pass",
+                    userSelectedType = CardType.RAPID_PASS,
+                    recognitionStatus = CardRecognitionStatus.VERIFIED_RAPID_PASS,
+                    rfTechnology = "FeliCa (NFC-F)",
+                    cardIdm = "01:27:AA:BB:CC:DD:EE:A0",
+                    isPrimary = true,
+                    addedAtMillis = 1000L,
+                    lastScannedAtMillis = 1000L,
+                    lastVerifiedBalanceBdt = 104,
+                    lastVerifiedBalanceAtMillis = 1000L
+                )
+            )
+
+            val oldTx = VerifiedTransaction(
+                cardId = 0L,
+                originStation = "Shahbagh",
+                destinationStation = "Shewrapara",
+                originStationCode = 30,
+                destinationStationCode = 55,
+                amountBdt = 36,
+                postBalanceBdt = 104,
+                type = TransactionType.TRIP,
+                timestampMillis = 900L,
+                isVerified = true,
+                rawBlockHex = "08521000OLDOLDOLDOLD"
+            )
+            repo.saveVerifiedTransactions(initialCardId, listOf(oldTx))
+            assertEquals(1, dao.getAllTransactionsOnce().size)
+
+            // Rescan same card later when ring buffer only returns a newer block (oldTx no longer in payload)
+            val updatedCardId = repo.saveOrUpdateCard(
+                SavedTransitCard(
+                    cardDigestKey = "digest-rescan-test",
+                    nickname = "Rapid Pass",
+                    userSelectedType = CardType.RAPID_PASS,
+                    recognitionStatus = CardRecognitionStatus.VERIFIED_RAPID_PASS,
+                    rfTechnology = "FeliCa (NFC-F)",
+                    cardIdm = "01:27:AA:BB:CC:DD:EE:A0",
+                    isPrimary = true,
+                    addedAtMillis = 1000L,
+                    lastScannedAtMillis = 2000L,
+                    lastVerifiedBalanceBdt = 59,
+                    lastVerifiedBalanceAtMillis = 2000L
+                )
+            )
+            assertEquals(initialCardId, updatedCardId)
+
+            val newTx = VerifiedTransaction(
+                cardId = 0L,
+                originStation = "Shewrapara",
+                destinationStation = "Motijheel",
+                originStationCode = 55,
+                destinationStationCode = 10,
+                amountBdt = 45,
+                postBalanceBdt = 59,
+                type = TransactionType.TRIP,
+                timestampMillis = 1900L,
+                isVerified = true,
+                rawBlockHex = "08521000NEWNEWNEWNEW"
+            )
+            // Also re-submit oldTx once to confirm deduplication does not create a 3rd row
+            repo.saveVerifiedTransactions(updatedCardId, listOf(newTx, oldTx))
+
+            val storedTx = dao.getAllTransactionsOnce()
+            assertEquals(2, storedTx.size)
+            assertEquals(59, dao.findByDigestKey("digest-rescan-test")?.lastVerifiedBalanceBdt)
+        } finally {
+            db.close()
+        }
     }
 
     @Test

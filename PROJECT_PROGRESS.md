@@ -1,9 +1,9 @@
 # TransitMate — Project Progress & Verification Log
 
-**Document Version:** 1.5  
-**Last Updated:** 17 November 2026, 08:55 +06:00  
+**Document Version:** 2.0  
+**Last Updated:** 17 November 2026, 12:45 +06:00  
 **Responsible Agent:** Antigravity Autonomous Coding Agent  
-**Current Phase:** Phase 06 In Progress — Clean-Room FeliCa Balance Reading & Full IDm Implemented · Unit Tested (40/40) · Pending Physical Rapid Pass Device Verification
+**Current Phase:** Phase 09 Hardware Validation Prep & Phase 10 Release Readiness Audit In Progress — Automated Gates Green (`39/39` Unit, `9/9` Instrumented, `0` Lint Errors) · Rapid Pass Physical Verification Pending · MRT Pass Blocked · Release Signing Pending
 
 ---
 
@@ -19,8 +19,8 @@
 | **Phase 06** | FeliCa Balance Reading, MRT Buddy Audit & Full IDm | **In Progress / Testing** | **Code Implemented** (clean-room `FelicaProtocol` `0x06`/`0x220F`, `TransitCardBlockDecoder`, full IDm display, `ScanResultScreen` redesign, Room `v2` deduplicated transactions) · **Unit Tested** (40/40 passed, 0 lint errors) · **Physical Device Verified: Pending** |
 | **Phase 07** | Core Product Features (UI & Persistence) | **Completed** | Local Room card manager, deduplicated verified transaction storage, rename/favorite/delete workflows |
 | **Phase 08** | Advanced Offline Transit Features | **Completed** | 16-station MRT Line 6 Explorer (`UTN`–`MTJ`), official DMTCL fare calculator (10% Smart Card discount), local JSON export |
-| **Phase 09** | Quality Assurance & Physical Testing | **In Progress** | Prior Stage 6 Light/Dark/EN/বাংলা verified on `Pixel_9` AVD; Phase 06 physical Rapid Pass RF test pending on owner's NFC phone |
-| **Phase 10** | Release & Maintenance | **Not Started** | Play Store listing, signed release |
+| **Phase 09** | Complete UI/UX Redesign, QA & Physical Testing | **In Progress** | 17-screen V3 redesign + emulator Light/Dark & EN/বাংলা verified (`39/39` unit, `9/9` instrumented); `RoomCardRepository.updateCard` rescan fix applied; physical Rapid Pass **Pending**, MRT Pass **Blocked** |
+| **Phase 10** | Release Readiness & Store Preparation | **In Progress (Audit Complete — Blocked on Signing & HW)** | Unsigned `app-release-unsigned.apk` (`13 MB`) & `app-release.aab` (`13 MB`) build cleanly (`allowBackup=false`, `bundle.language.enableSplit=false`); missing release signing keystore, `proguard-rules.pro` (`isMinifyEnabled=false`), external Privacy Policy URL, OSS licenses notice, and physical NFC sign-off |
 
 ---
 
@@ -237,3 +237,47 @@ Executed after the final code edit:
   - `./gradlew testDebugUnitTest lintDebug assembleDebug connectedDebugAndroidTest --no-daemon`: `BUILD SUCCESSFUL in 1m 44s` (`39/39` unit tests passed across `10` test files, `0` lint errors / `26` warnings, **`8/8` instrumented tests passed** on `Pixel_9` AVD including `MainActivitySmokeTest`).
   - Verified Light (EN) & Dark (বাংলা) rendering on `emulator-5554` (`Splash`, `Onboarding`, `Settings`, `Data Management`, `NFC Diagnostics`, `Help & FAQ`, `About TransitMate`).
   - **Physical Hardware Verification Remaining:** Rapid Pass repeat-scan (`Pending Physical Verification`) and physical MRT Pass validation (`Blocked (Card Not Available)`).
+
+---
+
+## 11. Phase 09 Hardware Validation Readiness & Phase 10 Release Readiness Audit (17 Nov 2026)
+
+- **Last Updated:** 17 November 2026, 12:45 +06:00
+- **Phase 09 Hardware Validation Status:** **In Progress** (Code & automated SQLite/NFC suite ready; **Rapid Pass Post-Fix Physical Verification: Pending**; **MRT Pass Physical Validation: Blocked — Card Not Available**)
+- **Phase 10 Release Readiness Status:** **In Progress (Not Yet Release-Ready)** (Unsigned release APK/AAB verified; blocked on release signing keystore, external Privacy Policy URL, OSS license attribution notice, and physical NFC sign-off)
+
+### 11.1 Audit Findings & Safe Fixes Applied
+1. **Critical SQLite Rescan Cascade Bug Fixed (`TransitCardDao.kt`, `RoomCardRepository.kt`):** Previously `RoomCardRepository.saveOrUpdateCard` called `dao.insertCard(entity)` annotated with `@Insert(onConflict = OnConflictStrategy.REPLACE)`. On SQLite, `REPLACE` deletes an existing `saved_cards` row before re-inserting, which fired `ForeignKey.CASCADE` and **deleted all stored transactions** for that card on every repeated scan. Changed `insertCard` to `OnConflictStrategy.ABORT`, added `@Update suspend fun updateCard(card: SavedCardEntity)`, routed existing cards (`existing != null`) through `updateCard`, and added real SQLite instrumented regression test `roomCardRepository_rescanPreservesExistingTransactionsAndDeduplicates`.
+2. **Cloud Backup Policy Aligned (`AndroidManifest.xml`, `backup_rules.xml`, `data_extraction_rules.xml`):** Set `android:allowBackup="false"`, configured explicit root/database/sharedpref/file/external exclusion rules in `backup_rules.xml` and `data_extraction_rules.xml` so Android Auto Backup and Cloud Backup cannot upload local `IDm`/Room records — matching the in-app `"Cloud Backups: Disabled (Offline-Only)"` privacy notice and clearing `2` `UnusedResources` lint warnings.
+3. **Play App Bundle Locale Configuration (`app/build.gradle.kts`):** Added `bundle { language { enableSplit = false } }` so in-app English <-> বাংলা language switching remains intact on Play Store `.aab` installs and resolved the `AppBundleLocaleChanges` lint warning.
+4. **Compose API Hygiene & Flaky Bangla Test Fixed (`TransitComponents.kt`, `MainActivitySmokeTest.kt`, `README.md`):** Reordered `LoadingStateView(modifier, message)` parameter list (clearing `ModifierParameter` lint warning), fixed `MainActivitySmokeTest` Bangla string expectation (`"স্থানীয় সংরক্ষণ সারাংশ"`), and removed the stale `startup/` directory mention in `README.md`.
+5. **Physical Device Checklist Authored:** Created [`docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md`](file:///Users/betopia/StudioProjects/Projects_Another/TransitMate/docs/PHYSICAL_DEVICE_TEST_CHECKLIST.md) with 10 Rapid Pass cases (`RP-01`..`RP-10`, status: **Pending**) and 5 MRT Pass cases (`MRT-01`..`MRT-05`, status: **Blocked — Card Not Available**).
+
+### 11.2 Automated Test, Lint & Build Evidence
+- **Clean Build, Test, Lint & Release Check:** `./gradlew clean testDebugUnitTest lintDebug assembleDebug assembleRelease connectedDebugAndroidTest --no-daemon` -> **`BUILD SUCCESSFUL in 2m 40s`**
+- **Bundle Check:** `./gradlew bundleRelease --no-daemon` -> **`BUILD SUCCESSFUL in 6s`**
+- **Unit Tests:** **`39/39 passed`** (`10` test suites, `0 failed`, `0 skipped`). Removing `StartupViewModelTest` (`4` legacy tests) caused zero functional coverage loss because `MainViewModelTest` validates NFC initialization (`refreshNfcStatus()`), diagnostics isolation (`onDiagnosticTagScanned()`), preferences, and card save flows.
+- **Instrumented Tests (`Pixel_9(AVD) - 17`):** **`9/9 passed`** (`0 failed`, `0 skipped` — `TransitMateInstrumentedTest` `8` tests + `MainActivitySmokeTest` `1` test).
+- **Android Lint (`lintDebug`):** **`0 errors, 22 warnings`** (reduced from `26` -> `22`):
+  - **Resolved (`4`):** `AppBundleLocaleChanges` (1), `ModifierParameter` (1), `UnusedResources` (2).
+  - **Acceptable with reason (`15`):** `OldTargetApi` (1: `targetSdk = 36` matches CI SDK baseline), `AndroidGradlePluginVersion` (2), `GradleDependency` (7), `NewerVersionAvailable` (4: dependency versions intentionally locked in `libs.versions.toml`), `ObsoleteSdkInt` (1: `mipmap-anydpi-v26` works cleanly on API 26+).
+  - **Post-1.0 Polish / Should-fix (`7`):** `PluralsCandidate` (7 `%1$d` string formatting entries in `values/strings.xml`).
+- **Build Artifacts Verified:**
+  - Debug APK: `app/build/outputs/apk/debug/app-debug.apk` (`20 MB`)
+  - Release APK *(unsigned)*: `app/build/outputs/apk/release/app-release-unsigned.apk` (`13 MB`)
+  - Release AAB *(unsigned)*: `app/build/outputs/bundle/release/app-release.aab` (`13 MB`)
+
+### 11.3 Phase 10 Release Readiness Audit Matrix
+| Release Criterion | Current Status | Notes / Action Needed |
+|---|---|---|
+| Application Name & ID | **Ready** | `TransitMate` / `com.transitmate.bd` |
+| Versioning | **Ready** | `versionCode = 1`, `versionName = "1.0.0"` |
+| App Icons & Adaptive Monochrome | **Ready** | `mipmap-*/ic_launcher*`, monochrome & `drawable-nodpi/ic_transitmate_logo.png` |
+| Launcher & Compatibility | **Ready** | `MainActivity` exported=`true`; `minSdk = 26`, `targetSdk = 36`; `android.hardware.nfc required="false"` |
+| Permissions & Privacy Defaults | **Ready** | Only `NFC` permission; `allowBackup="false"` + strict exclude XMLs; `IdmPrivacyCaption` & `IDm Privacy Reminder` present |
+| User Non-Affiliation Disclaimer | **Ready** | Present in `AboutScreen` (EN & বাংলা) |
+| Release Minification / ProGuard | **Pending Decision** | `isMinifyEnabled = false`; `app/proguard-rules.pro` file does not exist yet in `app/` |
+| Release Signing Keystore | **Missing / Blocker** | No `signingConfigs.release` configured (never commit keys/secrets to Git) |
+| External Privacy Policy URL (Play Console) | **Missing / Blocker** | Offline summary exists in-app; Play Console Data Safety requires a public Privacy Policy URL |
+| Third-Party / OSS License Notice | **Missing / Should Add** | About notice confirms clean-room independence, but no dedicated third-party Jetpack/AndroidX license list view exists yet |
+| Physical NFC Hardware Validation | **Pending / Blocked** | Rapid Pass (`RP-01`..`RP-10`): **Pending**; MRT Pass (`MRT-01`..`MRT-05`): **Blocked (Card Not Available)** |

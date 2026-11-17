@@ -648,8 +648,8 @@ fun ErrorStateView(
 
 @Composable
 fun LoadingStateView(
-    message: String = stringResource(R.string.loading_default_message),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    message: String = stringResource(R.string.loading_default_message)
 ) {
     Column(
         modifier = modifier

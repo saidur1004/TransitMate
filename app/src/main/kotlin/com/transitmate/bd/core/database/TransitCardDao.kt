@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -22,8 +23,11 @@ interface TransitCardDao {
     @Query("SELECT * FROM saved_cards WHERE cardDigestKey = :digestKey LIMIT 1")
     suspend fun findByDigestKey(digestKey: String): SavedCardEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertCard(card: SavedCardEntity): Long
+
+    @Update
+    suspend fun updateCard(card: SavedCardEntity)
 
     @Query("UPDATE saved_cards SET isPrimary = 0")
     suspend fun clearPrimaryFlags()

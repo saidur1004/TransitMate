@@ -22,6 +22,12 @@ android {
         localeFilters += listOf("en", "bn")
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false

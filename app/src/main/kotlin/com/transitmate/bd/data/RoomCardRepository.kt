@@ -58,7 +58,12 @@ class RoomCardRepository(
             lastVerifiedBalanceBdt = card.lastVerifiedBalanceBdt ?: existing?.lastVerifiedBalanceBdt,
             lastVerifiedBalanceAtMillis = card.lastVerifiedBalanceAtMillis ?: existing?.lastVerifiedBalanceAtMillis
         )
-        return dao.insertCard(entity)
+        return if (existing == null) {
+            dao.insertCard(entity)
+        } else {
+            dao.updateCard(entity)
+            existing.id
+        }
     }
 
     override suspend fun saveVerifiedTransactions(cardId: Long, transactions: List<VerifiedTransaction>) {

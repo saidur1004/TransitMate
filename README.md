@@ -49,8 +49,7 @@ com.transitmate.bd/
 │   ├── model/            # CardType, NfcHardwareStatus
 │   └── repository/       # NfcAvailabilityRepository interfaces
 ├── data/                 # Concrete repository implementations and data source adapters
-├── feature/              # Feature modules (presentation layer with ViewModel + StateFlow)
-│   └── startup/          # Technical smoke-test startup screen verifying hardware readiness
+├── feature/              # Feature modules (Home, Scanner, Scan Result, Wallet, Insights, Utilities, Settings)
 └── MainActivity.kt       # Application entry point (ComponentActivity)
 ```
 

@@ -38,6 +38,10 @@ class CsvExportAndRepositoryTest {
             return id
         }
 
+        override suspend fun updateCard(card: SavedCardEntity) {
+            cards.value = cards.value.map { if (it.id == card.id) card else it }
+        }
+
         override suspend fun clearPrimaryFlags() {
             cards.value = cards.value.map { it.copy(isPrimary = false) }
         }

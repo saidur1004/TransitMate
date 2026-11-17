@@ -44,7 +44,8 @@ class MainActivitySmokeTest {
         } else {
             composeRule.onAllNodesWithText("সেটিংস").onFirst().performClick()
             composeRule.onAllNodesWithText("ডেটা ব্যবস্থাপনা").onFirst().performClick()
-            composeRule.onAllNodesWithText("লোকাল স্টোরেজ সারাংশ").onFirst().assertIsDisplayed()
+            composeRule.onAllNodesWithText("স্থানীয় সংরক্ষণ সারাংশ").onFirst().assertIsDisplayed()
+            composeRule.onAllNodesWithText("IDm গোপনীয়তা সতর্কতা").onFirst().assertIsDisplayed()
         }
     }
 }
