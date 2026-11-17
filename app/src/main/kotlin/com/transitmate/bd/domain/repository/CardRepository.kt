@@ -14,6 +14,7 @@ interface CardRepository {
 
     suspend fun findByDigestKey(digestKey: String): SavedTransitCard?
     suspend fun saveOrUpdateCard(card: SavedTransitCard): Long
+    suspend fun saveVerifiedTransactions(cardId: Long, transactions: List<VerifiedTransaction>)
     suspend fun renameCard(cardId: Long, newNickname: String, cardType: CardType)
     suspend fun setPrimaryCard(cardId: Long)
     suspend fun deleteCard(cardId: Long)

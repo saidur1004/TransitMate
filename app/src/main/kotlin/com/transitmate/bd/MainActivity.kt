@@ -12,6 +12,7 @@ import androidx.activity.viewModels
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -54,7 +55,10 @@ class MainActivity : ComponentActivity() {
                 createLocalizedContext(baseContext, uiState.preferences.language.tag)
             }
 
-            CompositionLocalProvider(LocalContext provides localizedContext) {
+            CompositionLocalProvider(
+                LocalContext provides localizedContext,
+                LocalConfiguration provides localizedContext.resources.configuration
+            ) {
                 TransitMateTheme(themeMode = uiState.preferences.themeMode) {
                     TransitMateAppShell(
                         viewModel = mainViewModel,
@@ -93,6 +97,11 @@ class MainActivity : ComponentActivity() {
         val diagnosticsOnly = isDiagnosticsRouteActive
         appContainer.nfcDiagnosticReader.enable(
             activity = this,
+            onReadingStarted = {
+                if (!diagnosticsOnly) {
+                    mainViewModel.onScannerReadingStarted()
+                }
+            },
             onOutcome = { outcome ->
                 if (!diagnosticsOnly) {
                     mainViewModel.onConsumerTagOutcome(outcome)

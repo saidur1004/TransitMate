@@ -39,10 +39,9 @@ import com.transitmate.bd.core.designsystem.component.EmptyStateView
 import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
+import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
 import com.transitmate.bd.domain.model.TransactionType
 import com.transitmate.bd.domain.model.VerifiedTransaction
-import java.text.DateFormat
-import java.util.Date
 
 private enum class HistoryFilter { ALL, TRIPS, TOP_UPS }
 
@@ -105,7 +104,7 @@ fun TransactionHistoryScreen(
             }
 
             item {
-                val totalSpend = filtered.filter { it.type == TransactionType.TRIP }.sumOf { it.amountBdt }
+                val totalSpend = filtered.filter { it.type == TransactionType.TRIP }.sumOf { it.amountBdt ?: 0 }
                 SurfaceSectionCard {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.weight(1f)) {
@@ -175,29 +174,11 @@ fun TransactionHistoryScreen(
                 }
             } else {
                 items(filtered, key = { it.id }) { tx ->
-                    SurfaceSectionCard(contentPadding = 14.dp) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "${tx.originStation ?: "—"} → ${tx.destinationStation ?: "—"}",
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
-                                        .format(Date(tx.timestampMillis)),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                            Text(
-                                text = (if (tx.type == TransactionType.TRIP) "- ৳ " else "+ ৳ ") + tx.amountBdt,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
+                    SurfaceSectionCard(contentPadding = 12.dp) {
+                        VerifiedTransactionRow(
+                            transaction = tx,
+                            showDivider = false
+                        )
                     }
                 }
             }

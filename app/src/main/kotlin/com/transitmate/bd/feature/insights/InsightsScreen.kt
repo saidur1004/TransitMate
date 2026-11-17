@@ -45,6 +45,7 @@ import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
+import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
 import com.transitmate.bd.domain.model.TransactionType
 import com.transitmate.bd.domain.model.VerifiedTransaction
 
@@ -66,8 +67,9 @@ fun InsightsScreen(
     }
 
     val trips = scoped.filter { it.type == TransactionType.TRIP }
-    val totalSpent = trips.sumOf { it.amountBdt }
-    val avgFare = if (trips.isNotEmpty()) totalSpent / trips.size else 0
+    val tripsWithFare = trips.mapNotNull { it.amountBdt }
+    val totalSpent = tripsWithFare.sum()
+    val avgFare = if (tripsWithFare.isNotEmpty()) totalSpent / tripsWithFare.size else 0
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -141,22 +143,12 @@ fun InsightsScreen(
                             style = MaterialTheme.typography.titleMedium
                         )
                         Spacer(modifier = Modifier.height(10.dp))
-                        trips.take(5).forEach { tx ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 6.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "${tx.originStation ?: "—"} → ${tx.destinationStation ?: "—"}",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Text(
-                                    text = "৳ ${tx.amountBdt}",
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                            }
+                        val previewTrips = trips.take(5)
+                        previewTrips.forEachIndexed { index, tx ->
+                            VerifiedTransactionRow(
+                                transaction = tx,
+                                showDivider = index < previewTrips.lastIndex
+                            )
                         }
                     }
                 }

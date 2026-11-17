@@ -48,6 +48,7 @@ import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitHeroCard
+import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.NfcHardwareStatus
@@ -239,8 +240,11 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = primaryCard.maskedIdentifier,
-                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                            text = primaryCard.cardIdm,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = FontFamily.Monospace,
+                                fontFeatureSettings = "tnum"
+                            ),
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
@@ -430,24 +434,12 @@ fun HomeScreen(
                         }
                     }
                 } else {
-                    recentTransactions.take(3).forEach { tx ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "${tx.originStation ?: "—"} → ${tx.destinationStation ?: "—"}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "৳ ${tx.amountBdt}",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        }
+                    val previewTx = recentTransactions.take(3)
+                    previewTx.forEachIndexed { index, tx ->
+                        VerifiedTransactionRow(
+                            transaction = tx,
+                            showDivider = index < previewTx.lastIndex
+                        )
                     }
                 }
             }

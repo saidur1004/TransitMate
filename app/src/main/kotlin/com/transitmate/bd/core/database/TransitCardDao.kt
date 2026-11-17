@@ -46,14 +46,20 @@ interface TransitCardDao {
     @Query("DELETE FROM saved_cards")
     suspend fun deleteAllCards()
 
-    @Query("SELECT * FROM verified_transactions ORDER BY timestampMillis DESC")
+    @Query("SELECT * FROM verified_transactions ORDER BY timestampMillis DESC, sequenceOrder DESC, id DESC")
     fun observeAllTransactions(): Flow<List<TransactionEntity>>
 
-    @Query("SELECT * FROM verified_transactions ORDER BY timestampMillis DESC")
+    @Query("SELECT * FROM verified_transactions ORDER BY timestampMillis DESC, sequenceOrder DESC, id DESC")
     suspend fun getAllTransactionsOnce(): List<TransactionEntity>
 
-    @Query("SELECT * FROM verified_transactions WHERE cardId = :cardId ORDER BY timestampMillis DESC")
+    @Query("SELECT * FROM verified_transactions WHERE cardId = :cardId ORDER BY timestampMillis DESC, sequenceOrder DESC, id DESC")
     fun observeTransactionsForCard(cardId: Long): Flow<List<TransactionEntity>>
+
+    @Query("SELECT MAX(sequenceOrder) FROM verified_transactions WHERE cardId = :cardId")
+    suspend fun getMaxSequenceOrder(cardId: Long): Long?
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTransactions(transactions: List<TransactionEntity>)
 
     @Query("DELETE FROM verified_transactions")
     suspend fun deleteAllTransactions()

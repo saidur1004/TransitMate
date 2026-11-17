@@ -24,7 +24,8 @@ enum class CardRecognitionStatus {
 
 enum class BalanceUnavailableReason {
     UNVERIFIED_CARD_FORMAT,
-    PROTECTED_OR_UNREADABLE
+    PROTECTED_OR_UNREADABLE,
+    READ_EMPTY_NO_HISTORY
 }
 
 sealed interface BalanceAvailability {
@@ -45,11 +46,12 @@ sealed interface BalanceAvailability {
 sealed interface CardScanOutcome {
     data class Detected(
         val rfTechnology: String,
-        val maskedIdentifier: String?,
+        val cardIdm: String?,
         val cardDigestKey: String?,
         val recognitionStatus: CardRecognitionStatus,
         val cardType: CardType,
         val balanceAvailability: BalanceAvailability,
+        val parsedTransactions: List<VerifiedTransaction> = emptyList(),
         val scannedAtMillis: Long
     ) : CardScanOutcome
 
@@ -80,7 +82,7 @@ data class SavedTransitCard(
     val userSelectedType: CardType,
     val recognitionStatus: CardRecognitionStatus,
     val rfTechnology: String,
-    val maskedIdentifier: String,
+    val cardIdm: String,
     val isPrimary: Boolean,
     val addedAtMillis: Long,
     val lastScannedAtMillis: Long,
@@ -98,8 +100,13 @@ data class VerifiedTransaction(
     val cardId: Long,
     val originStation: String?,
     val destinationStation: String?,
-    val amountBdt: Int,
+    val originStationCode: Int? = null,
+    val destinationStationCode: Int? = null,
+    val amountBdt: Int?,
+    val postBalanceBdt: Int? = null,
     val type: TransactionType,
     val timestampMillis: Long,
-    val isVerified: Boolean
+    val isVerified: Boolean,
+    val rawBlockHex: String? = null,
+    val sequenceOrder: Long = 0L
 )

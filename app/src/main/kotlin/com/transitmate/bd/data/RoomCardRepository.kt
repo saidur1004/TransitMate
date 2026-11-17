@@ -38,14 +38,20 @@ class RoomCardRepository(
         if (makePrimary) {
             dao.clearPrimaryFlags()
         }
+        val resolvedType = if (card.userSelectedType != CardType.UNKNOWN) {
+            card.userSelectedType
+        } else {
+            runCatching { CardType.valueOf(existing?.userSelectedType ?: CardType.UNKNOWN.name) }
+                .getOrDefault(CardType.UNKNOWN)
+        }
         val entity = SavedCardEntity(
             id = existing?.id ?: 0L,
             cardDigestKey = card.cardDigestKey,
             nickname = existing?.nickname ?: card.nickname,
-            userSelectedType = existing?.userSelectedType ?: card.userSelectedType.name,
+            userSelectedType = resolvedType.name,
             recognitionStatus = card.recognitionStatus.name,
             rfTechnology = card.rfTechnology,
-            maskedIdentifier = card.maskedIdentifier,
+            cardIdm = card.cardIdm,
             isPrimary = makePrimary,
             addedAtMillis = existing?.addedAtMillis ?: card.addedAtMillis,
             lastScannedAtMillis = card.lastScannedAtMillis,
@@ -53,6 +59,32 @@ class RoomCardRepository(
             lastVerifiedBalanceAtMillis = card.lastVerifiedBalanceAtMillis ?: existing?.lastVerifiedBalanceAtMillis
         )
         return dao.insertCard(entity)
+    }
+
+    override suspend fun saveVerifiedTransactions(cardId: Long, transactions: List<VerifiedTransaction>) {
+        if (transactions.isEmpty() || cardId <= 0L) return
+        val baseSequence = dao.getMaxSequenceOrder(cardId) ?: 0L
+        // Assign ascending sequence numbers from oldest to newest so identical-hour
+        // blocks sort in strict reverse-chronological card ring-buffer order.
+        val entities = transactions
+            .reversed()
+            .mapIndexed { index, tx ->
+                TransactionEntity(
+                    cardId = cardId,
+                    originStation = tx.originStation,
+                    originStationCode = tx.originStationCode,
+                    destinationStation = tx.destinationStation,
+                    destinationStationCode = tx.destinationStationCode,
+                    amountBdt = tx.amountBdt,
+                    postBalanceBdt = tx.postBalanceBdt,
+                    type = tx.type.name,
+                    timestampMillis = tx.timestampMillis,
+                    isVerified = tx.isVerified,
+                    rawBlockHex = tx.rawBlockHex,
+                    sequenceOrder = baseSequence + index + 1L
+                )
+            }
+        dao.insertTransactions(entities)
     }
 
     override suspend fun renameCard(cardId: Long, newNickname: String, cardType: CardType) {
@@ -83,7 +115,7 @@ class RoomCardRepository(
         val cards = dao.getAllCardsOnce()
         val tx = dao.getAllTransactionsOnce()
         val cardEntries = cards.joinToString(",") { c ->
-            """{"nickname":"${escapeJson(c.nickname)}","type":"${c.userSelectedType}","recognition":"${c.recognitionStatus}","technology":"${c.rfTechnology}","maskedId":"${escapeJson(c.maskedIdentifier)}","isPrimary":${c.isPrimary},"lastScannedAt":${c.lastScannedAtMillis}}"""
+            """{"nickname":"${escapeJson(c.nickname)}","type":"${c.userSelectedType}","recognition":"${c.recognitionStatus}","technology":"${c.rfTechnology}","digestPrefix":"${c.cardDigestKey.take(12)}","balanceBdt":${c.lastVerifiedBalanceBdt ?: "null"},"isPrimary":${c.isPrimary},"lastScannedAt":${c.lastScannedAtMillis}}"""
         }
         return """{"app":"TransitMate","mode":"offline-read-only","savedCardCount":${cards.size},"verifiedTransactionCount":${tx.size},"cards":[$cardEntries]}"""
     }
@@ -99,7 +131,7 @@ class RoomCardRepository(
         recognitionStatus = runCatching { CardRecognitionStatus.valueOf(recognitionStatus) }
             .getOrDefault(CardRecognitionStatus.UNVERIFIED),
         rfTechnology = rfTechnology,
-        maskedIdentifier = maskedIdentifier,
+        cardIdm = cardIdm,
         isPrimary = isPrimary,
         addedAtMillis = addedAtMillis,
         lastScannedAtMillis = lastScannedAtMillis,
@@ -112,9 +144,14 @@ class RoomCardRepository(
         cardId = cardId,
         originStation = originStation,
         destinationStation = destinationStation,
+        originStationCode = originStationCode,
+        destinationStationCode = destinationStationCode,
         amountBdt = amountBdt,
+        postBalanceBdt = postBalanceBdt,
         type = runCatching { TransactionType.valueOf(type) }.getOrDefault(TransactionType.TRIP),
         timestampMillis = timestampMillis,
-        isVerified = isVerified
+        isVerified = isVerified,
+        rawBlockHex = rawBlockHex,
+        sequenceOrder = sequenceOrder
     )
 }

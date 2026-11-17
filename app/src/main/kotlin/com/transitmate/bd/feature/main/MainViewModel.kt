@@ -7,6 +7,7 @@ import com.transitmate.bd.core.common.DispatcherProvider
 import com.transitmate.bd.core.nfc.NfcDiagnosticData
 import com.transitmate.bd.domain.model.AppLanguage
 import com.transitmate.bd.domain.model.AppThemeMode
+import com.transitmate.bd.domain.model.BalanceAvailability
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.CardScanOutcome
 import com.transitmate.bd.domain.model.CardType
@@ -118,17 +119,44 @@ class MainViewModel(
         }
     }
 
+    fun onScannerReadingStarted() {
+        _uiState.update {
+            it.copy(
+                scannerPhase = ScannerSessionPhase.READING,
+                activeScanErrorOutcome = null
+            )
+        }
+    }
+
     fun onConsumerTagOutcome(outcome: CardScanOutcome) {
         when (outcome) {
             is CardScanOutcome.Detected -> {
                 viewModelScope.launch(dispatchers.io) {
                     val existing = outcome.cardDigestKey?.let { cardRepository.findByDigestKey(it) }
+                    val verifiedBalance = (outcome.balanceAvailability as? BalanceAvailability.Verified)
+                    val resolvedSavedId = if (existing != null) {
+                        val updatedId = cardRepository.saveOrUpdateCard(
+                            existing.copy(
+                                recognitionStatus = outcome.recognitionStatus,
+                                userSelectedType = if (outcome.cardType != CardType.UNKNOWN) outcome.cardType else existing.userSelectedType,
+                                rfTechnology = outcome.rfTechnology,
+                                cardIdm = outcome.cardIdm ?: existing.cardIdm,
+                                lastScannedAtMillis = outcome.scannedAtMillis,
+                                lastVerifiedBalanceBdt = verifiedBalance?.amountBdt ?: existing.lastVerifiedBalanceBdt,
+                                lastVerifiedBalanceAtMillis = verifiedBalance?.verifiedAtMillis ?: existing.lastVerifiedBalanceAtMillis
+                            )
+                        )
+                        cardRepository.saveVerifiedTransactions(updatedId, outcome.parsedTransactions)
+                        updatedId
+                    } else {
+                        null
+                    }
                     _uiState.update {
                         it.copy(
                             scannerPhase = ScannerSessionPhase.DETECTED,
                             latestScanOutcome = outcome,
                             activeScanErrorOutcome = null,
-                            latestSavedCardIdForResult = existing?.id
+                            latestSavedCardIdForResult = resolvedSavedId
                         )
                     }
                 }
@@ -159,21 +187,26 @@ class MainViewModel(
     fun saveDetectedCard(nickname: String, userCardType: CardType) {
         val detected = _uiState.value.latestScanOutcome ?: return
         val digest = detected.cardDigestKey ?: return
-        val masked = detected.maskedIdentifier ?: return
+        val idm = detected.cardIdm ?: return
+        val verifiedBalance = (detected.balanceAvailability as? BalanceAvailability.Verified)
+        val resolvedType = if (userCardType != CardType.UNKNOWN) userCardType else detected.cardType
         viewModelScope.launch(dispatchers.io) {
             val savedId = cardRepository.saveOrUpdateCard(
                 SavedTransitCard(
                     cardDigestKey = digest,
                     nickname = nickname.trim().ifEmpty { "Commute Card" },
-                    userSelectedType = userCardType,
-                    recognitionStatus = CardRecognitionStatus.UNVERIFIED,
+                    userSelectedType = resolvedType,
+                    recognitionStatus = detected.recognitionStatus,
                     rfTechnology = detected.rfTechnology,
-                    maskedIdentifier = masked,
+                    cardIdm = idm,
                     isPrimary = false,
                     addedAtMillis = detected.scannedAtMillis,
-                    lastScannedAtMillis = detected.scannedAtMillis
+                    lastScannedAtMillis = detected.scannedAtMillis,
+                    lastVerifiedBalanceBdt = verifiedBalance?.amountBdt,
+                    lastVerifiedBalanceAtMillis = verifiedBalance?.verifiedAtMillis
                 )
             )
+            cardRepository.saveVerifiedTransactions(savedId, detected.parsedTransactions)
             _uiState.update { it.copy(latestSavedCardIdForResult = savedId) }
         }
     }

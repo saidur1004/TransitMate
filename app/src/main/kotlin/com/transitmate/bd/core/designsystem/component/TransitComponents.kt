@@ -18,9 +18,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.AddCircleOutline
+import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.DeleteOutline
+import androidx.compose.material.icons.rounded.DirectionsTransit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -53,6 +59,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -63,6 +70,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
+import com.transitmate.bd.core.nfc.TransitStationDirectory
+import com.transitmate.bd.domain.model.TransactionType
+import com.transitmate.bd.domain.model.VerifiedTransaction
+import java.text.DateFormat
+import java.util.Date
 
 @Composable
 fun AppLogoMark(
@@ -644,4 +656,155 @@ fun RenameCardDialog(
             }
         }
     )
+}
+
+fun copyPlainTextToClipboard(context: Context, label: String, text: String) {
+    val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
+    cm?.setPrimaryClip(ClipData.newPlainText(label, text))
+}
+
+@Composable
+fun FullIdmRow(
+    cardIdm: String,
+    modifier: Modifier = Modifier,
+    label: String = stringResource(R.string.result_card_idm),
+    onCopy: (() -> Unit)? = null
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = cardIdm,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFeatureSettings = "tnum"
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        if (onCopy != null) {
+            IconButton(
+                onClick = onCopy,
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.ContentCopy,
+                    contentDescription = stringResource(R.string.result_copy_idm),
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun VerifiedTransactionRow(
+    transaction: VerifiedTransaction,
+    modifier: Modifier = Modifier,
+    showDivider: Boolean = true
+) {
+    val semantic = TransitMateThemeTokens.semantic
+    val locale = LocalConfiguration.current.locales[0]
+    val isBangla = locale?.language == "bn"
+    val isTopUp = transaction.type == TransactionType.TOP_UP
+
+    val primaryLabel = if (isTopUp) {
+        stringResource(R.string.tx_top_up_label)
+    } else {
+        val from = TransitStationDirectory.resolveName(
+            code = transaction.originStationCode,
+            fallbackName = transaction.originStation,
+            isBangla = isBangla
+        ) ?: stringResource(R.string.tx_unknown_station)
+        val to = TransitStationDirectory.resolveName(
+            code = transaction.destinationStationCode,
+            fallbackName = transaction.destinationStation,
+            isBangla = isBangla
+        ) ?: stringResource(R.string.tx_unknown_station)
+        "$from → $to"
+    }
+
+    val amountText = when {
+        transaction.amountBdt != null && isTopUp -> "+ ৳ ${transaction.amountBdt}"
+        transaction.amountBdt != null -> "- ৳ ${transaction.amountBdt}"
+        transaction.postBalanceBdt != null -> stringResource(R.string.tx_post_balance, transaction.postBalanceBdt)
+        else -> "—"
+    }
+
+    val amountColor = when {
+        transaction.amountBdt != null && isTopUp -> semantic.success
+        transaction.amountBdt != null -> MaterialTheme.colorScheme.onSurface
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(
+                        if (isTopUp) semantic.successContainer else MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isTopUp) Icons.Rounded.AddCircleOutline else Icons.Rounded.DirectionsTransit,
+                    contentDescription = null,
+                    tint = if (isTopUp) semantic.onSuccessContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = primaryLabel,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT)
+                        .format(Date(transaction.timestampMillis)),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = amountText,
+                    style = MaterialTheme.typography.titleSmall.copy(fontFeatureSettings = "tnum"),
+                    color = amountColor
+                )
+                if (transaction.amountBdt != null && transaction.postBalanceBdt != null) {
+                    Text(
+                        text = stringResource(R.string.tx_post_balance, transaction.postBalanceBdt),
+                        style = MaterialTheme.typography.labelSmall.copy(fontFeatureSettings = "tnum"),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+        if (showDivider) {
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+        }
+    }
 }

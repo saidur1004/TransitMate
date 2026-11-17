@@ -1,8 +1,10 @@
 package com.transitmate.bd.core.nfc
 
 import com.transitmate.bd.domain.model.BalanceAvailability
+import com.transitmate.bd.domain.model.BalanceUnavailableReason
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.CardScanOutcome
+import com.transitmate.bd.domain.model.CardType
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -12,11 +14,11 @@ class NfcTagScanMapperTest {
     private val mapper = NfcTagScanMapper()
 
     @Test
-    fun mapToOutcome_validNfcF_returnsDetectedWithUnverifiedAndUnavailableBalance() {
+    fun mapToOutcome_validNfcFWithoutDecodedBlocks_returnsFullIdmAndUnverified() {
         val diag = NfcDiagnosticData(
             techList = listOf("NfcF"),
             isNfcF = true,
-            idmRedacted = "01:27:**:**:**:**:**:A0",
+            idmHex = "01:27:11:22:33:44:55:A0",
             idmDigestKey = "abcd1234",
             systemCodeHex = "90E3",
             rfLinkOk = true,
@@ -29,7 +31,63 @@ class NfcTagScanMapperTest {
         assertEquals("FeliCa (NFC-F)", detected.rfTechnology)
         assertEquals(CardRecognitionStatus.UNVERIFIED, detected.recognitionStatus)
         assertTrue(detected.balanceAvailability is BalanceAvailability.Unavailable)
-        assertEquals("01:27:**:**:**:**:**:A0", detected.maskedIdentifier)
+        assertEquals("01:27:11:22:33:44:55:A0", detected.cardIdm)
+    }
+
+    @Test
+    fun mapToOutcome_verifiedRapidPassSnapshot_mapsVerifiedBalanceAndType() {
+        val snapshot = DecodedCardSnapshot(
+            cardType = CardType.RAPID_PASS,
+            recognitionStatus = CardRecognitionStatus.VERIFIED_RAPID_PASS,
+            latestBalanceBdt = 520,
+            transactions = emptyList(),
+            validBlockCount = 4
+        )
+        val diag = NfcDiagnosticData(
+            techList = listOf("NfcF"),
+            isNfcF = true,
+            idmHex = "01:27:11:22:33:44:55:A0",
+            idmDigestKey = "abcd1234",
+            systemCodeHex = "90E3",
+            rfLinkOk = true,
+            blocksReadCount = 20,
+            validTransactionCount = 4,
+            statusFlag1 = 0,
+            statusFlag2 = 0,
+            decodedSnapshot = snapshot,
+            timestamp = 2000L
+        )
+
+        val detected = mapper.mapToOutcome(diag) as CardScanOutcome.Detected
+        assertEquals("01:27:11:22:33:44:55:A0", detected.cardIdm)
+        assertEquals(CardType.RAPID_PASS, detected.cardType)
+        assertEquals(CardRecognitionStatus.VERIFIED_RAPID_PASS, detected.recognitionStatus)
+        val bal = detected.balanceAvailability as BalanceAvailability.Verified
+        assertEquals(520, bal.amountBdt)
+    }
+
+    @Test
+    fun mapToOutcome_emptyHistoryBlocks_reportsEmptyHistoryReason() {
+        val diag = NfcDiagnosticData(
+            techList = listOf("NfcF"),
+            isNfcF = true,
+            idmHex = "01:27:11:22:33:44:55:A0",
+            idmDigestKey = "abcd1234",
+            systemCodeHex = "90E3",
+            rfLinkOk = true,
+            blocksReadCount = 20,
+            validTransactionCount = 0,
+            decodedSnapshot = DecodedCardSnapshot(
+                cardType = CardType.RAPID_PASS,
+                recognitionStatus = CardRecognitionStatus.VERIFIED_RAPID_PASS,
+                latestBalanceBdt = null,
+                transactions = emptyList(),
+                validBlockCount = 0
+            )
+        )
+        val detected = mapper.mapToOutcome(diag) as CardScanOutcome.Detected
+        val bal = detected.balanceAvailability as BalanceAvailability.Unavailable
+        assertEquals(BalanceUnavailableReason.READ_EMPTY_NO_HISTORY, bal.reason)
     }
 
     @Test
@@ -75,7 +133,7 @@ class NfcTagScanMapperTest {
         val diag = NfcDiagnosticData(
             techList = listOf("NfcF"),
             isNfcF = true,
-            idmRedacted = null,
+            idmHex = null,
             rfLinkOk = true
         )
         assertTrue(mapper.mapToOutcome(diag) is CardScanOutcome.IdentifierUnavailable)

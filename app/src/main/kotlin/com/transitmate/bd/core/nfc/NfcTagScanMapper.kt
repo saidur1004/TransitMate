@@ -7,7 +7,8 @@ import com.transitmate.bd.domain.model.CardScanOutcome
 import com.transitmate.bd.domain.model.CardType
 
 /**
- * Maps low-level NFC discovery data into privacy-safe, user-facing [CardScanOutcome] states.
+ * Maps low-level NFC discovery and FeliCa block decoding results into honest,
+ * user-facing [CardScanOutcome] states.
  *
  * Strictly enforces: Card Detection != Card Recognition != Balance Reading.
  */
@@ -34,24 +35,42 @@ class NfcTagScanMapper {
             )
         }
 
-        if (data.idmRedacted.isNullOrBlank()) {
+        val fullIdm = data.idmHex
+        if (fullIdm.isNullOrBlank()) {
             return CardScanOutcome.IdentifierUnavailable(
                 rfTechnology = "FeliCa (NFC-F)",
                 scannedAtMillis = data.timestamp
             )
         }
 
-        // Phase 03 verified NFC-F discovery and anticollision metadata,
-        // while balance/service-level authority verification remains pending Phase 06.
+        val snapshot = data.decodedSnapshot
+        val recognitionStatus = snapshot?.recognitionStatus ?: CardRecognitionStatus.UNVERIFIED
+        val cardType = snapshot?.cardType ?: CardType.UNKNOWN
+
+        val balanceAvailability = when {
+            snapshot?.latestBalanceBdt != null -> BalanceAvailability.Verified(
+                amountBdt = snapshot.latestBalanceBdt,
+                verifiedAtMillis = data.timestamp
+            )
+            data.serviceProtected -> BalanceAvailability.Unavailable(
+                BalanceUnavailableReason.PROTECTED_OR_UNREADABLE
+            )
+            data.blocksReadCount > 0 -> BalanceAvailability.Unavailable(
+                BalanceUnavailableReason.READ_EMPTY_NO_HISTORY
+            )
+            else -> BalanceAvailability.Unavailable(
+                BalanceUnavailableReason.UNVERIFIED_CARD_FORMAT
+            )
+        }
+
         return CardScanOutcome.Detected(
             rfTechnology = "FeliCa (NFC-F)",
-            maskedIdentifier = data.idmRedacted,
+            cardIdm = fullIdm,
             cardDigestKey = data.idmDigestKey,
-            recognitionStatus = CardRecognitionStatus.UNVERIFIED,
-            cardType = CardType.UNKNOWN,
-            balanceAvailability = BalanceAvailability.Unavailable(
-                BalanceUnavailableReason.UNVERIFIED_CARD_FORMAT
-            ),
+            recognitionStatus = recognitionStatus,
+            cardType = cardType,
+            balanceAvailability = balanceAvailability,
+            parsedTransactions = snapshot?.transactions.orEmpty(),
             scannedAtMillis = data.timestamp
         )
     }

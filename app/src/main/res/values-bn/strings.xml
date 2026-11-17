@@ -93,20 +93,32 @@
     <string name="result_title">স্ক্যান ফলাফল</string>
     <string name="result_banner_detected">কার্ড সফলভাবে শনাক্ত হয়েছে</string>
     <string name="result_card_detected_title">শনাক্তকৃত ট্রানজিট কার্ড</string>
+    <string name="result_badge_verified">যাচাইকৃত</string>
     <string name="result_badge_unverified">ধরন অযাচাইকৃত</string>
-    <string name="result_masked_id">সুরক্ষিত পরিচয়পত্র</string>
+    <string name="result_card_idm">কার্ড IDm</string>
+    <string name="result_copy_idm">IDm কপি করুন</string>
+    <string name="result_idm_copied">কার্ড IDm কপি করা হয়েছে</string>
     <string name="result_balance_label">ব্যালেন্স প্রাপ্যতা</string>
+    <string name="result_balance_verified_label">সর্বশেষ যাচাইকৃত ব্যালেন্স</string>
     <string name="result_balance_unavailable">ব্যালেন্স তথ্য পাওয়া যায়নি</string>
     <string name="result_balance_unavailable_desc">NFC-F দিয়ে কার্ড শনাক্ত হয়েছে, তবে ব্যালেন্স পাঠ এখনো অযাচাইকৃত বা সুরক্ষিত।</string>
+    <string name="result_balance_protected_desc">এই ফেলিকা কার্ডের ট্রানজিট সার্ভিস ব্লক পড়া সুরক্ষিত বা অনুমোদিত নয়।</string>
+    <string name="result_balance_empty_desc">কার্ডের সার্ভিস ব্লক পড়া গেছে, তবে এখনো কোনো ভ্রমণ বা ব্যালেন্স রেকর্ড নেই।</string>
+    <string name="result_activity_title">সাম্প্রতিক কার্ড লেনদেন</string>
+    <string name="result_activity_records">%1$dটি রেকর্ড</string>
     <string name="result_row_detection">কার্ড শনাক্তকরণ</string>
     <string name="result_row_detection_ok">সফল</string>
     <string name="result_row_technology">প্রযুক্তি</string>
     <string name="result_row_recognition">কার্ড যাচাই</string>
     <string name="result_row_recognition_pending">শনাক্তকরণ অপেক্ষমাণ</string>
     <string name="result_row_last_scanned">সর্বশেষ স্ক্যান</string>
+    <string name="result_saved_badge">ফোনে সংরক্ষিত</string>
     <string name="result_save_card">আমার কার্ডে সংরক্ষণ করুন</string>
-    <string name="result_saved_view_card">কার্ড তালিকা দেখুন</string>
+    <string name="result_saved_view_card">কার্ডের বিবরণ দেখুন</string>
     <string name="result_scan_another">আরেকটি কার্ড স্ক্যান করুন</string>
+    <string name="tx_top_up_label">ব্যালেন্স রিচার্জ</string>
+    <string name="tx_unknown_station">অজানা স্টেশন</string>
+    <string name="tx_post_balance">ব্যালেন্স ৳ %1$d</string>
 
     <!-- My Cards & Card Details -->
     <string name="my_cards_title">আমার কার্ডসমূহ</string>
@@ -217,11 +229,11 @@
 
     <string name="diagnostics_title">NFC ডায়াগনস্টিকস</string>
     <string name="diagnostics_banner_title">ডেভেলপার প্রযুক্তিগত স্ক্রিন</string>
-    <string name="diagnostics_banner_body">সাধারণ ব্যবহারকারীর স্ক্রিন থেকে আলাদা। শুধুমাত্র পাঠযোগ্য অ্যান্টিকলিশন মেটাডেটা।</string>
+    <string name="diagnostics_banner_body">সাধারণ ব্যবহারকারীর স্ক্রিন থেকে আলাদা। কেবল রিড-অনলি অ্যান্টিকলিশন ও ব্লক রিড তথ্য দেখায়।</string>
     <string name="diagnostics_adapter_header">অ্যাডাপ্টার ও রিডার মোড</string>
     <string name="diagnostics_last_scan_header">সর্বশেষ ডায়াগনস্টিক স্ক্যান</string>
     <string name="diagnostics_empty">এখনো কোনো ডায়াগনস্টিক স্ক্যান পাওয়া যায়নি। এই স্ক্রিনে থেকে কার্ড ট্যাপ করুন।</string>
-    <string name="diagnostics_copy_log">সুরক্ষিত লগ কপি করুন</string>
+    <string name="diagnostics_copy_log">ডায়াগনস্টিক লগ কপি করুন</string>
     <string name="diagnostics_clear">মুছুন</string>
     <string name="diagnostics_copied_msg">ডায়াগনস্টিক সারাংশ কপি করা হয়েছে</string>
 

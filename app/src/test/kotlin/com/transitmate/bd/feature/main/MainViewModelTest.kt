@@ -10,6 +10,7 @@ import com.transitmate.bd.domain.model.CardScanOutcome
 import com.transitmate.bd.domain.model.CardType
 import com.transitmate.bd.domain.model.NfcHardwareStatus
 import com.transitmate.bd.domain.model.SavedTransitCard
+import com.transitmate.bd.domain.model.TransactionType
 import com.transitmate.bd.domain.model.VerifiedTransaction
 import com.transitmate.bd.domain.repository.CardRepository
 import com.transitmate.bd.domain.repository.NfcAvailabilityRepository
@@ -81,10 +82,20 @@ class MainViewModelTest {
             cardsFlow.value.firstOrNull { it.cardDigestKey == digestKey }
 
         override suspend fun saveOrUpdateCard(card: SavedTransitCard): Long {
-            val id = nextId++
-            val saved = card.copy(id = id, isPrimary = cardsFlow.value.isEmpty() || card.isPrimary)
-            cardsFlow.value = cardsFlow.value + saved
+            val existing = cardsFlow.value.firstOrNull { it.cardDigestKey == card.cardDigestKey }
+            val id = existing?.id ?: nextId++
+            val saved = card.copy(id = id, isPrimary = existing?.isPrimary ?: cardsFlow.value.isEmpty() || card.isPrimary)
+            cardsFlow.value = if (existing != null) {
+                cardsFlow.value.map { if (it.id == id) saved else it }
+            } else {
+                cardsFlow.value + saved
+            }
             return id
+        }
+
+        override suspend fun saveVerifiedTransactions(cardId: Long, transactions: List<VerifiedTransaction>) {
+            val withCardId = transactions.mapIndexed { idx, tx -> tx.copy(id = (idx + 1).toLong(), cardId = cardId) }
+            txFlow.value = (txFlow.value.filterNot { it.cardId == cardId } + withCardId)
         }
 
         override suspend fun renameCard(cardId: Long, newNickname: String, cardType: CardType) {
@@ -114,7 +125,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun consumerScanAndSave_persistsMaskedCardAndKeepsDiagnosticsIsolated() = runTest {
+    fun consumerScanAndSave_persistsFullIdmBalanceAndTransactionsWhileKeepingDiagnosticsIsolated() = runTest {
         val dispatcher = StandardTestDispatcher(testScheduler)
         val vm = MainViewModel(
             FakeNfcRepo(NfcHardwareStatus.AVAILABLE),
@@ -126,11 +137,26 @@ class MainViewModelTest {
 
         val outcome = CardScanOutcome.Detected(
             rfTechnology = "FeliCa (NFC-F)",
-            maskedIdentifier = "01:27:**:**:**:**:**:A0",
+            cardIdm = "01:27:11:22:33:44:55:A0",
             cardDigestKey = "digest-1",
-            recognitionStatus = CardRecognitionStatus.UNVERIFIED,
-            cardType = CardType.UNKNOWN,
-            balanceAvailability = BalanceAvailability.Unavailable(),
+            recognitionStatus = CardRecognitionStatus.VERIFIED_RAPID_PASS,
+            cardType = CardType.RAPID_PASS,
+            balanceAvailability = BalanceAvailability.Verified(amountBdt = 420, verifiedAtMillis = 5000L),
+            parsedTransactions = listOf(
+                VerifiedTransaction(
+                    cardId = 0L,
+                    originStation = "Uttara North",
+                    destinationStation = "Motijheel",
+                    originStationCode = 90,
+                    destinationStationCode = 10,
+                    amountBdt = 90,
+                    postBalanceBdt = 420,
+                    type = TransactionType.TRIP,
+                    timestampMillis = 4900L,
+                    isVerified = true,
+                    rawBlockHex = "AABBCCDD"
+                )
+            ),
             scannedAtMillis = 5000L
         )
         vm.onConsumerTagOutcome(outcome)
@@ -140,12 +166,17 @@ class MainViewModelTest {
         assertNotNull(vm.uiState.value.latestScanOutcome)
         assertNull(vm.uiState.value.diagnosticData)
 
-        vm.saveDetectedCard("My Rapid Card", CardType.UNKNOWN)
+        vm.saveDetectedCard("My Rapid Card", CardType.RAPID_PASS)
         advanceUntilIdle()
 
         assertEquals(1, vm.uiState.value.savedCards.size)
-        assertEquals("My Rapid Card", vm.uiState.value.savedCards.first().nickname)
-        assertTrue(vm.uiState.value.savedCards.first().isPrimary)
+        val savedCard = vm.uiState.value.savedCards.first()
+        assertEquals("My Rapid Card", savedCard.nickname)
+        assertEquals("01:27:11:22:33:44:55:A0", savedCard.cardIdm)
+        assertEquals(420, savedCard.lastVerifiedBalanceBdt)
+        assertTrue(savedCard.isPrimary)
+        assertEquals(1, vm.uiState.value.verifiedTransactions.size)
+        assertEquals(90, vm.uiState.value.verifiedTransactions.first().amountBdt)
     }
 
     @Test

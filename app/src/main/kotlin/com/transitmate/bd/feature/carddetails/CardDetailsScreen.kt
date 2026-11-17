@@ -16,17 +16,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Contactless
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Info
-import androidx.compose.material.icons.rounded.Shield
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.Verified
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -35,16 +39,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.DeleteCardConfirmationDialog
 import com.transitmate.bd.core.designsystem.component.EmptyStateView
+import com.transitmate.bd.core.designsystem.component.FullIdmRow
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
 import com.transitmate.bd.core.designsystem.component.PrimaryActionButton
 import com.transitmate.bd.core.designsystem.component.RenameCardDialog
@@ -52,11 +58,14 @@ import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitHeroCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
+import com.transitmate.bd.core.designsystem.component.VerifiedTransactionRow
+import com.transitmate.bd.core.designsystem.component.copyPlainTextToClipboard
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.domain.model.CardRecognitionStatus
 import com.transitmate.bd.domain.model.CardType
 import com.transitmate.bd.domain.model.SavedTransitCard
 import com.transitmate.bd.domain.model.VerifiedTransaction
+import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
 
@@ -72,11 +81,16 @@ fun CardDetailsScreen(
     onOpenCardHistory: (Long) -> Unit
 ) {
     val semantic = TransitMateThemeTokens.semantic
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val copiedMsg = stringResource(R.string.result_idm_copied)
     var showRenameDialog by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TransitTopBar(
                 title = card?.nickname ?: stringResource(R.string.card_details_title),
@@ -126,6 +140,13 @@ fun CardDetailsScreen(
             CardRecognitionStatus.UNVERIFIED -> stringResource(R.string.result_row_recognition_pending)
         }
 
+        val isVerified = card.recognitionStatus != CardRecognitionStatus.UNVERIFIED
+        val stripeColor = when (card.recognitionStatus) {
+            CardRecognitionStatus.VERIFIED_RAPID_PASS -> MaterialTheme.colorScheme.secondary
+            CardRecognitionStatus.VERIFIED_MRT_PASS -> MaterialTheme.colorScheme.primary
+            CardRecognitionStatus.UNVERIFIED -> MaterialTheme.colorScheme.outline
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -134,7 +155,7 @@ fun CardDetailsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            TransitHeroCard {
+            TransitHeroCard(accentColor = stripeColor) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -159,6 +180,13 @@ fun CardDetailsScreen(
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             icon = Icons.Rounded.Star
                         )
+                    } else if (isVerified) {
+                        StatusPill(
+                            text = stringResource(R.string.result_badge_verified),
+                            containerColor = semantic.successContainer,
+                            contentColor = semantic.onSuccessContainer,
+                            icon = Icons.Rounded.Verified
+                        )
                     } else {
                         StatusPill(
                             text = stringResource(R.string.result_badge_unverified),
@@ -182,7 +210,11 @@ fun CardDetailsScreen(
                     ) {
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = stringResource(R.string.result_balance_label),
+                                text = if (card.lastVerifiedBalanceBdt != null) {
+                                    stringResource(R.string.result_balance_verified_label)
+                                } else {
+                                    stringResource(R.string.result_balance_label)
+                                },
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -199,34 +231,35 @@ fun CardDetailsScreen(
                                 )
                             }
                         }
-                        Icon(
-                            imageVector = Icons.Rounded.Info,
-                            contentDescription = null,
-                            tint = semantic.warning,
-                            modifier = Modifier.size(22.dp)
-                        )
+                        if (card.lastVerifiedBalanceBdt != null) {
+                            Icon(
+                                imageVector = Icons.Rounded.CheckCircle,
+                                contentDescription = null,
+                                tint = semantic.success,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Rounded.Info,
+                                contentDescription = null,
+                                tint = semantic.warning,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(modifier = Modifier.height(10.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = card.maskedIdentifier,
-                        style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    StatusPill(
-                        text = stringResource(R.string.result_masked_id),
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        icon = Icons.Rounded.Shield
-                    )
-                }
+                FullIdmRow(
+                    cardIdm = card.cardIdm,
+                    onCopy = {
+                        copyPlainTextToClipboard(context, "TransitMate Card IDm", card.cardIdm)
+                        scope.launch { snackbarHostState.showSnackbar(copiedMsg) }
+                    }
+                )
             }
 
             PrimaryActionButton(
@@ -293,22 +326,12 @@ fun CardDetailsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
-                    transactions.take(3).forEach { tx ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "${tx.originStation ?: "—"} → ${tx.destinationStation ?: "—"}",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(
-                                text = "৳ ${tx.amountBdt}",
-                                style = MaterialTheme.typography.titleSmall
-                            )
-                        }
+                    val previewTx = transactions.take(4)
+                    previewTx.forEachIndexed { index, tx ->
+                        VerifiedTransactionRow(
+                            transaction = tx,
+                            showDivider = index < previewTx.lastIndex
+                        )
                     }
                 }
             }

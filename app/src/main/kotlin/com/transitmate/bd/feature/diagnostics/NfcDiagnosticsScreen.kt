@@ -34,20 +34,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.transitmate.bd.R
 import com.transitmate.bd.core.designsystem.component.BannerSeverity
+import com.transitmate.bd.core.designsystem.component.FullIdmRow
 import com.transitmate.bd.core.designsystem.component.InfoKeyValueRow
 import com.transitmate.bd.core.designsystem.component.StatusBannerCard
 import com.transitmate.bd.core.designsystem.component.StatusPill
 import com.transitmate.bd.core.designsystem.component.SurfaceSectionCard
 import com.transitmate.bd.core.designsystem.component.TransitTopBar
+import com.transitmate.bd.core.designsystem.component.copyPlainTextToClipboard
 import com.transitmate.bd.core.designsystem.theme.TransitMateThemeTokens
 import com.transitmate.bd.core.nfc.NfcDiagnosticData
 import com.transitmate.bd.domain.model.NfcHardwareStatus
@@ -65,6 +64,7 @@ fun NfcDiagnosticsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val copiedMsg = stringResource(R.string.diagnostics_copied_msg)
+    val idmCopiedMsg = stringResource(R.string.result_idm_copied)
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -155,14 +155,27 @@ fun NfcDiagnosticsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
+                    val fullIdm = diagnosticData.idmHex
+                    if (fullIdm != null) {
+                        FullIdmRow(
+                            cardIdm = fullIdm,
+                            label = "Full Card IDm",
+                            onCopy = {
+                                copyPlainTextToClipboard(context, "TransitMate Card IDm", fullIdm)
+                                scope.launch { snackbarHostState.showSnackbar(idmCopiedMsg) }
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                    } else {
+                        InfoKeyValueRow(
+                            label = "Full Card IDm",
+                            value = "Unavailable",
+                            monospaceValue = true
+                        )
+                    }
                     InfoKeyValueRow(
                         label = "Tech List",
                         value = diagnosticData.techList.joinToString(", ").ifEmpty { "None" },
-                        monospaceValue = true
-                    )
-                    InfoKeyValueRow(
-                        label = "IDm (Masked)",
-                        value = diagnosticData.idmRedacted ?: "Unavailable",
                         monospaceValue = true
                     )
                     InfoKeyValueRow(
@@ -176,9 +189,31 @@ fun NfcDiagnosticsScreen(
                         monospaceValue = true
                     )
                     InfoKeyValueRow(
+                        label = "Service 0x220F Status",
+                        value = if (diagnosticData.statusFlag1 != null && diagnosticData.statusFlag2 != null) {
+                            "SF1=0x%02X SF2=0x%02X".format(diagnosticData.statusFlag1, diagnosticData.statusFlag2)
+                        } else {
+                            "Not queried"
+                        },
+                        monospaceValue = true
+                    )
+                    InfoKeyValueRow(
+                        label = "Blocks Read",
+                        value = "${diagnosticData.blocksReadCount} blocks (${diagnosticData.validTransactionCount} valid)",
+                        monospaceValue = true
+                    )
+                    InfoKeyValueRow(
+                        label = "Decoded Card / Balance",
+                        value = buildString {
+                            append(diagnosticData.decodedSnapshot?.cardType?.displayName ?: "Unverified")
+                            val bal = diagnosticData.decodedSnapshot?.latestBalanceBdt
+                            if (bal != null) append(" · ৳ $bal")
+                        }
+                    )
+                    InfoKeyValueRow(
                         label = "RF Link Check",
                         value = when {
-                            diagnosticData.rfLinkOk -> "connect() / close() OK"
+                            diagnosticData.rfLinkOk -> "connect() / transceive() / close() OK"
                             diagnosticData.errorMessage != null -> diagnosticData.errorMessage
                             else -> "Non-NfcF tag"
                         },
@@ -200,21 +235,23 @@ fun NfcDiagnosticsScreen(
                             "TransitMate NFC Diagnostics: hardware=$nfcStatus, no scan captured"
                         } else {
                             buildString {
-                                appendLine("TransitMate NFC Diagnostics (Redacted)")
+                                appendLine("TransitMate NFC Diagnostics")
                                 appendLine("Hardware: $nfcStatus")
                                 appendLine("Scan #${diagnosticData.scanCount}")
                                 appendLine("Tech: ${diagnosticData.techList.joinToString(", ")}")
-                                appendLine("IDm (Redacted): ${diagnosticData.idmRedacted ?: "Unavailable"}")
+                                appendLine("IDm: ${diagnosticData.idmHex ?: "Unavailable"}")
                                 appendLine("System Code: ${diagnosticData.systemCodeHex?.let { "0x$it" } ?: "None"}")
                                 appendLine("PMm: ${diagnosticData.manufacturerPmmHex ?: "None"}")
+                                appendLine("Service 0x220F Flags: SF1=${diagnosticData.statusFlag1}, SF2=${diagnosticData.statusFlag2}")
+                                appendLine("Blocks Read: ${diagnosticData.blocksReadCount}, Valid Tx: ${diagnosticData.validTransactionCount}")
+                                appendLine("Decoded Card: ${diagnosticData.decodedSnapshot?.cardType?.displayName}, Balance: ${diagnosticData.decodedSnapshot?.latestBalanceBdt}")
                                 appendLine("RF Link OK: ${diagnosticData.rfLinkOk}")
                                 if (diagnosticData.errorMessage != null) {
                                     appendLine("Trace: ${diagnosticData.errorMessage}")
                                 }
                             }
                         }
-                        val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-                        cm?.setPrimaryClip(ClipData.newPlainText("TransitMate Diagnostics", report))
+                        copyPlainTextToClipboard(context, "TransitMate Diagnostics", report)
                         scope.launch { snackbarHostState.showSnackbar(copiedMsg) }
                     },
                     modifier = Modifier

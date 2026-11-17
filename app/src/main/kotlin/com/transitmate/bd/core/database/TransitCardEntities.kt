@@ -16,7 +16,7 @@ data class SavedCardEntity(
     val userSelectedType: String,
     val recognitionStatus: String,
     val rfTechnology: String,
-    val maskedIdentifier: String,
+    val cardIdm: String,
     val isPrimary: Boolean,
     val addedAtMillis: Long,
     val lastScannedAtMillis: Long,
@@ -34,15 +34,23 @@ data class SavedCardEntity(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["cardId"])]
+    indices = [
+        Index(value = ["cardId"]),
+        Index(value = ["cardId", "rawBlockHex"], unique = true)
+    ]
 )
 data class TransactionEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val cardId: Long,
     val originStation: String?,
+    val originStationCode: Int? = null,
     val destinationStation: String?,
-    val amountBdt: Int,
+    val destinationStationCode: Int? = null,
+    val amountBdt: Int?,
+    val postBalanceBdt: Int? = null,
     val type: String,
     val timestampMillis: Long,
-    val isVerified: Boolean
+    val isVerified: Boolean,
+    val rawBlockHex: String? = null,
+    val sequenceOrder: Long = 0L
 )

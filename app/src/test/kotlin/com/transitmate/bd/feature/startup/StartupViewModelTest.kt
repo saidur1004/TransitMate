@@ -88,7 +88,7 @@ class StartupViewModelTest {
         val diag = NfcDiagnosticData(
             techList = listOf("NfcF"),
             isNfcF = true,
-            idmRedacted = "01:2E:**:**:**:**:**:9F",
+            idmHex = "01:2E:3A:4B:5C:6D:7E:9F",
             systemCodeHex = "88B4",
             scanCount = 1
         )

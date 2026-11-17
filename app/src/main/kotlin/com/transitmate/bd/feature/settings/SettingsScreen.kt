@@ -336,7 +336,7 @@ fun PrivacyInfoSheetContent(onClose: () -> Unit) {
                 value = stringResource(R.string.about_operating_val)
             )
             InfoKeyValueRow(
-                label = stringResource(R.string.result_masked_id),
+                label = stringResource(R.string.about_storage_label),
                 value = stringResource(R.string.about_storage_val),
                 showDivider = false
             )

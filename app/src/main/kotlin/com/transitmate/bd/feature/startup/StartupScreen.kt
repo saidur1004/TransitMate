@@ -210,10 +210,10 @@ fun StartupScreenContent(
                             value = diag.techList.joinToString(", ")
                         )
 
-                        // IDm (Redacted)
+                        // Card IDm
                         DiagnosticRow(
-                            label = "IDm (Masked)",
-                            value = diag.idmRedacted ?: "Unavailable"
+                            label = "IDm",
+                            value = diag.idmHex ?: "Unavailable"
                         )
 
                         // System Code
@@ -314,7 +314,7 @@ fun StartupScreenPreviewWithDiagnostic() {
                 diagnosticData = NfcDiagnosticData(
                     techList = listOf("NfcF", "NdefFormatable"),
                     isNfcF = true,
-                    idmRedacted = "01:2E:**:**:**:**:**:9F",
+                    idmHex = "01:2E:3A:4B:5C:6D:7E:9F",
                     systemCodeHex = "88B4",
                     manufacturerPmmHex = "01:20:20:00:1A:3B:4C:5D",
                     scanCount = 1

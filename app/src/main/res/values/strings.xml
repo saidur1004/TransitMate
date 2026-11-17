@@ -93,20 +93,32 @@
     <string name="result_title">Scan Result</string>
     <string name="result_banner_detected">Card Detected Successfully</string>
     <string name="result_card_detected_title">Detected Transit Card</string>
+    <string name="result_badge_verified">Verified</string>
     <string name="result_badge_unverified">Unverified Type</string>
-    <string name="result_masked_id">Masked Identifier</string>
+    <string name="result_card_idm">Card IDm</string>
+    <string name="result_copy_idm">Copy IDm</string>
+    <string name="result_idm_copied">Card IDm copied</string>
     <string name="result_balance_label">Balance Availability</string>
+    <string name="result_balance_verified_label">LATEST VERIFIED BALANCE</string>
     <string name="result_balance_unavailable">Balance Not Available</string>
     <string name="result_balance_unavailable_desc">Card presence verified over NFC-F. Balance reading is unverified or protected on this card.</string>
+    <string name="result_balance_protected_desc">This FeliCa card protected or rejected read access to transit history service blocks.</string>
+    <string name="result_balance_empty_desc">FeliCa service blocks were read cleanly, but no trip or balance history records exist on this card yet.</string>
+    <string name="result_activity_title">Recent Card Activity</string>
+    <string name="result_activity_records">%1$d records</string>
     <string name="result_row_detection">Card Detection</string>
     <string name="result_row_detection_ok">Successful</string>
     <string name="result_row_technology">Technology</string>
     <string name="result_row_recognition">Card Recognition</string>
     <string name="result_row_recognition_pending">Unidentified / Pending</string>
     <string name="result_row_last_scanned">Last Scanned</string>
+    <string name="result_saved_badge">Saved on Device</string>
     <string name="result_save_card">Save to My Cards</string>
-    <string name="result_saved_view_card">View in My Cards</string>
+    <string name="result_saved_view_card">View Card Details</string>
     <string name="result_scan_another">Scan Another Card</string>
+    <string name="tx_top_up_label">Balance Top-Up</string>
+    <string name="tx_unknown_station">Unknown Station</string>
+    <string name="tx_post_balance">Bal ৳ %1$d</string>
 
     <!-- My Cards & Card Details -->
     <string name="my_cards_title">My Cards</string>
@@ -217,13 +229,13 @@
 
     <string name="diagnostics_title">NFC Diagnostics</string>
     <string name="diagnostics_banner_title">Developer Technical Surface</string>
-    <string name="diagnostics_banner_body">Isolated from consumer screens. Strictly read-only anticollision discovery capture.</string>
+    <string name="diagnostics_banner_body">Isolated from consumer screens. Displays read-only FeliCa anticollision and block read telemetry.</string>
     <string name="diagnostics_adapter_header">ADAPTER &amp; READER MODE</string>
     <string name="diagnostics_last_scan_header">LAST DIAGNOSTIC SCAN</string>
     <string name="diagnostics_empty">No diagnostic scan recorded yet. Hold a card behind your phone while on this screen.</string>
-    <string name="diagnostics_copy_log">Copy Redacted Log</string>
+    <string name="diagnostics_copy_log">Copy Diagnostic Log</string>
     <string name="diagnostics_clear">Clear</string>
-    <string name="diagnostics_copied_msg">Redacted diagnostic summary copied</string>
+    <string name="diagnostics_copied_msg">Diagnostic summary copied</string>
 
     <string name="help_title">Help &amp; FAQ</string>
     <string name="help_search_hint">Search NFC &amp; card questions…</string>
